@@ -115,11 +115,9 @@
         .domain-tag { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 3px; opacity: 0.6; margin-bottom: 4px; pointer-events: none; }
 
         @media (max-width: 600px) {
-            /* INTEGRATES YOUR SECURED VERTICAL PHONE BACKGROUND IMAGES */
             #bg-garden { background-image: url('wisteria_mobile.jpeg') !important; }
             #bg-space-backing { background-image: url('star_gazer_mobile.jpeg') !important; }
 
-            /* SHIFTS PROFILE DOWN: Gracefully exposes the full wisteria canopy details on phones */
             #main-archway, #content-portal { 
                 height: 72vh !important; 
                 border-radius: 48vw 48vw 0 0; 
@@ -129,7 +127,12 @@
             .studio-btn { width: 135px !important; margin: 5px 4px; padding: 8px 10px; font-size: 0.85rem; }
             .domain-tag { letter-spacing: 1px; font-size: 0.55rem; }
             #portal-inner h1 { font-size: 1.7rem; }
-            .handle-rod { top: 44%; height: 48%; }
+
+            /* SYMMETRICAL HANDLE COUPLING: Locks handles strictly adjacent to the mobile button cluster text */
+            .handle-rod { 
+                top: 130px; 
+                height: 250px; 
+            }
         }
     </style></head><body><div id="studio-stage">
     <div id="bg-garden"></div>
