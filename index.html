@@ -48,7 +48,7 @@
             background: var(--amethyst-glass);
             backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
             pointer-events: none !important;
-            transition: background 1.2s ease, backdrop-filter 1.2s ease, border-color 1.2s ease;
+            transition: all 1.2s var(--luxury-bezier);
         }
 
         .door { 
@@ -71,8 +71,12 @@
             transition: opacity 0.3s ease;
         }
 
+        /* CENTER-ANCHORED DOOR HANDLES */
         .handle-rod {
-            position: absolute; top: 51%; bottom: 15.5%; width: 1px;
+            position: absolute; 
+            top: 48%; 
+            height: 38%; 
+            width: 1px;
             background: var(--champagne-gold); box-shadow: 0 0 15px var(--gold-alpha);
             z-index: 20; pointer-events: none;
             opacity: 0; visibility: hidden;
@@ -83,10 +87,9 @@
         body.show-studio-grid .handle-rod { opacity: 1; visibility: visible; }
         body.cinematic-door-parting .handle-rod { opacity: 0; visibility: hidden; }
 
-        /* REPAIRED PRACTICE COLUMN SCROLL LAYOUT FOR MOBILE DEVICES */
         .practice-column {
             height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
-            padding-top: 180px; padding-bottom: 40px; padding-left: 20px; padding-right: 20px;
+            padding-top: 200px; padding-bottom: 40px; padding-left: 20px; padding-right: 20px;
             z-index: 9999 !important; pointer-events: auto !important; 
             transition: opacity 0.3s ease;
         }
@@ -94,7 +97,7 @@
         #content-portal { 
             position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); 
             width: 850px; max-width: 95vw; height: 92vh; z-index: 500; 
-            display: block; pointer-events: none; transition: opacity 0.4s ease; 
+            display: block; pointer-events: none; transition: all 1.2s var(--luxury-bezier); 
         }
 
         #portal-inner { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; width: 100%; text-align: center; pointer-events: auto !important; padding: 0 20px; }
@@ -112,14 +115,21 @@
         .studio-btn:active { transform: scale(0.97); }
         .domain-tag { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 3px; opacity: 0.6; margin-bottom: 4px; pointer-events: none; }
 
+        /* ADVANCED RATIO COUPLING FOR MOBILE ENVIRONMENT VIEWPORTS */
         @media (max-width: 600px) {
-            #main-archway, #content-portal { border-radius: 48vw 48vw 0 0; }
-            .panel-header { top: 30px; }
-            /* Safe structural padding prevents button overlap with header text zone */
-            .practice-column { padding-top: 175px; overflow-y: auto !important; }
+            #main-archway, #content-portal { 
+                height: 78vh !important; /* Lowers the top arch curve to frame more wisteria foliage */
+                border-radius: 48vw 48vw 0 0; 
+            }
+            .panel-header { top: 22px; }
+            /* Adjusted column heights align perfectly with the updated viewport scale */
+            .practice-column { padding-top: 135px; overflow-y: auto !important; }
             .studio-btn { width: 135px !important; margin: 4px; padding: 8px 10px; font-size: 0.85rem; }
             .domain-tag { letter-spacing: 1px; font-size: 0.55rem; }
-            #portal-inner h1 { font-size: 2rem; }
+            #portal-inner h1 { font-size: 1.8rem; }
+            
+            /* Repositions handles fluidly within the modified grid box */
+            .handle-rod { top: 44%; height: 46%; }
         }
     </style></head><body><div id="studio-stage">
     <div id="bg-garden"></div>
@@ -175,7 +185,7 @@
             const step = () => {
                 if (cycle >= this.totalCycles) { this.revealDoors(); return; }
                 const p = phases[phase];
-                mid.innerHTML = `<div style="font-size: 0.9rem; letter-spacing: 3px; opacity: 0.6; margin-bottom: 20px; text-transform: uppercase;">CYCLE ${cycle + 1} OF ${this.totalCycles}</div><div style="font-size: calc(2rem + 1vw);">${p.l}</div>`;
+                mid.innerHTML = `<div style="font-size: 0.9rem; letter-spacing: 3px; opacity: 0.6; margin-bottom: 20px; text-transform: uppercase;">CYCLE ${cycle + 1} OF ${this.totalCycles}</div><div style="font-size: calc(1.8rem + 1vw);">${p.l}</div>`;
                 this.playTone(p.f, p.t/1000);
                 setTimeout(() => { phase++; if (phase >= phases.length) { phase = 0; cycle++; } step(); }, p.t);
             };

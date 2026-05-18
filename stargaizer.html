@@ -38,8 +38,9 @@
         #game-container {
             position: relative; width: 100vw; height: 100vh;
             background-color: #050706 !important;
-            /* MOVED BACKGROUND-POSITION FOCUS TO CENTER STATUE ON MOBILE */
-            background-image: url('star_gazer.png'); background-size: cover; background-position: center center;
+            background-image: url('star_gazer.png'); background-size: cover; 
+            /* STATUE FOCUS TRACKING: Anchors position horizontally to pull statue and child into view */
+            background-position: 32% center;
             overflow: hidden;
             opacity: 1;
         }
@@ -60,8 +61,6 @@
 
         #streak-display { font-size: 1.2rem; letter-spacing: 3px; opacity: 0.95; text-shadow: 0 2px 4px rgba(0,0,0,0.8); }
         #constellation-canvas { position: absolute; inset: 0; z-index: 5; pointer-events: none; opacity: 1; transition: opacity 0.8s ease, filter 0.5s ease; }
-        
-        /* ADJUSTED INTERACTION BOX PLACEMENT ON SMALL ASPECT RATIOS */
         #sky-interaction-zone { position: absolute; top: 15%; left: 5%; width: 90%; height: 45%; z-index: 10; pointer-events: auto; transition: opacity 0.5s ease; }
 
         .star-target { position: absolute; width: 80px; height: 80px; transform: translate(-50%, -50%); cursor: pointer; display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.4s ease; z-index: 15; }
@@ -85,8 +84,10 @@
 
         #stroop-overlay { position: absolute; top: 22%; left: 50%; transform: translateX(-50%); text-align: center; z-index: 30; opacity: 0; visibility: hidden; transition: opacity 0.5s ease, transform 0.5s ease; background: rgba(5, 7, 6, 0.4); padding: 20px 40px; border-radius: 20px; }
         #stroop-overlay.active { opacity: 1; visibility: visible; }
-        #stroop-word { font-size: calc(2rem + 1.2vw); font-weight: 700 !important; letter-spacing: 4px; text-shadow: 0 0 25px rgba(0,0,0,0.9); margin-bottom: 10px; transition: color 0.2s ease, transform 0.15s ease; }
+        #stroop-word { font-size: calc(2.2rem + 1.5vw); font-weight: 700 !important; letter-spacing: 4px; text-shadow: 0 0 25px rgba(0,0,0,0.9); margin-bottom: 10px; transition: color 0.2s ease, transform 0.15s ease; }
         #stroop-instruction { font-size: calc(1rem + 0.3vw); opacity: 0.9; letter-spacing: 2px; margin-top: 5px; text-shadow: 0 2px 4px rgba(0,0,0,0.8); }
+        
+        /* GENERAL ACTION GRID CONTAINER */
         #control-panel { position: absolute; bottom: 8%; left: 50%; transform: translateX(-50%); width: 90%; display: flex; justify-content: center; align-items: center; gap: 15px; flex-wrap: wrap; z-index: 40; min-height: 80px; }
 
         .ambient-btn { border: 1px solid var(--gold-alpha); border-radius: 40px; padding: 12px 35px; background: rgba(25, 15, 35, 0.4); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); cursor: pointer; font-size: calc(1rem + 0.3vw); transition: all 0.4s var(--luxury-bezier); opacity: 0; transform: translateY(20px); pointer-events: none; box-shadow: 0 4px 20px rgba(0,0,0,0.4); }
@@ -128,11 +129,15 @@
         }
 
         @media (max-width: 600px) {
+            #game-container { background-position: 33% center; } /* Keeps child and statue perfectly tracked inside mobile edges */
             .gate-card { border-radius: 48vw 48vw 0 0; padding-top: 18vh; }
             #top-hud-navigation-bar { padding: 0 15px; }
-            #sky-interaction-zone { height: 40%; top: 18%; }
-            #control-panel { bottom: 4%; }
-            .ambient-btn { width: 100% !important; margin: 5px 0; padding: 11px 15px; }
+            
+            /* ERGONOMIC OVERRIDES: Elevates text overlays and button rows out of phone nav dropzones */
+            #sky-interaction-zone { height: 35%; top: 15%; }
+            #stroop-overlay { top: 18%; padding: 15px 25px; }
+            #control-panel { bottom: 18%; gap: 12px; }
+            .ambient-btn { width: 100% !important; margin: 2px 0; padding: 11px 15px; font-size: 1.05rem; }
         }
     </style>
 </head>
@@ -371,11 +376,20 @@ const Engine = {
     }
 };
 
+/* ASYNC PRELOADER ENGINE: Holds rendering until background imagery is 100% cached */
 window.addEventListener('DOMContentLoaded', () => {
-    setTimeout(() => {
-        const card = document.getElementById('entrance-gate-card');
-        if (card) card.classList.add('ignite-card-reveal');
-    }, 150);
+    const cosmicImg = new Image();
+    cosmicImg.src = 'star_gazer.png';
+    
+    cosmicImg.onload = () => {
+        // Assets are in memory—gracefully fade the curtain out
+        document.body.classList.add('assets-aligned');
+        
+        setTimeout(() => {
+            const card = document.getElementById('entrance-gate-card');
+            if (card) card.classList.add('ignite-card-reveal');
+        }, 150);
+    };
 });
 </script>
 </body>
