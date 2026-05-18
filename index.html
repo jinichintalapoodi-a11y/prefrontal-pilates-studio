@@ -19,134 +19,121 @@
             --luxury-bezier: cubic-bezier(0.645, 0.045, 0.355, 1.000);
         }
 
-        body { margin: 0; padding: 0; background-color: #050706; overflow: hidden; }
+        body, html { margin: 0; padding: 0; background-color: #050706; overflow: hidden; width: 100%; height: 100%; }
 
-        #studio-stage { opacity: 1; visibility: visible; height: 100vh; width: 100vw; position: relative; }
+        #studio-stage { height: 100vh; width: 100vw; position: relative; overflow: hidden; }
 
-        #bg-garden {
-            position: absolute; inset: 0; z-index: 1;
-            background-image: url('wisteria_path.jpg');
-            background-size: cover; background-position: center;
+        .ambient-backdrop {
+            position: absolute; inset: 0; background-size: cover; background-position: center center;
             transition: opacity 1.2s var(--luxury-bezier);
         }
+        #bg-garden { background-image: url('wisteria_path.jpg'); z-index: 1; }
         body.cinematic-door-parting #bg-garden { opacity: 0; }
 
-        #bg-space-backing {
-            position: absolute; inset: 0; z-index: 2;
-            background-image: url('star_gazer.png');
-            background-size: cover; background-position: center;
-            opacity: 0; visibility: hidden;
-            transition: opacity 1.2s var(--luxury-bezier);
-        }
+        /* MAPPED TO YOUR PERFECTLY CENTERED JPEG ASSET */
+        #bg-space-backing { background-image: url('star_gazer.jpeg'); z-index: 2; opacity: 0; visibility: hidden; }
         body.cinematic-door-parting #bg-space-backing { opacity: 1; visibility: visible; }
 
-        #main-archway {
+        /* UNIVERSAL CENTERED VIEWPORT CONTAINMENT MATRIX */
+        .universal-viewport-box {
             position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
-            width: 850px; max-width: 95vw; height: 92vh; z-index: 100;
-            overflow: hidden; border-radius: 425px 425px 0 0;
+            width: 100%; max-width: 480px; height: 75vh; z-index: 100;
+            overflow: hidden; border-radius: 240px 240px 0 0;
             border: 2px solid rgba(247, 231, 206, 0.8); border-bottom: none;
             background: var(--amethyst-glass);
             backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
-            pointer-events: none !important;
             transition: all 1.2s var(--luxury-bezier);
         }
 
-        .door { 
-            position: absolute; top: 0; width: 50%; height: 100%; z-index: 10; 
-            transition: transform 1.4s var(--luxury-bezier);
-            background: transparent;
+        #main-archway { pointer-events: none !important; }
+        #content-portal { z-index: 500; pointer-events: none; }
+
+        .door-panel-wrapper {
+            position: absolute; inset: 0; width: 100%; height: 100%;
+            display: flex; flex-direction: row; justify-content: space-between; align-items: stretch;
         }
-        
-        #door-L { left: 0; border-right: none !important; } 
-        #door-R { right: 0; border-left: none !important; }
+
+        .door { 
+            width: 50%; height: 100%; z-index: 10; 
+            transition: transform 1.4s var(--luxury-bezier); background: transparent;
+            position: relative;
+        }
 
         body.cinematic-door-parting #door-L { transform: translateX(-100%); }
         body.cinematic-door-parting #door-R { transform: translateX(100%); }
-        body.cinematic-door-parting #main-archway { background: transparent; backdrop-filter: none; -webkit-backdrop-filter: none; border-color: rgba(247, 231, 206, 0.15); }
+        body.cinematic-door-parting .universal-viewport-box { background: transparent; backdrop-filter: none; -webkit-backdrop-filter: none; border-color: rgba(247, 231, 206, 0.15); }
 
-        body.cinematic-door-parting #content-portal,
-        body.cinematic-door-parting #L-cont,
-        body.cinematic-door-parting #R-cont {
-            opacity: 0 !important;
-            transition: opacity 0.3s ease;
-        }
+        body.show-studio-grid #portal-inner-home { display: none !important; }
+        body.show-studio-grid #portal-inner-practice { display: flex !important; }
 
+        /* Symmetrical Handles adjacent to button columns */
         .handle-rod {
-            position: absolute; 
-            top: 48%; 
-            height: 38%; 
-            width: 1px;
+            position: absolute; top: 130px; height: 250px; width: 1px;
             background: var(--champagne-gold); box-shadow: 0 0 15px var(--gold-alpha);
-            z-index: 20; pointer-events: none;
-            opacity: 0; visibility: hidden;
+            z-index: 20; pointer-events: none; opacity: 0; visibility: hidden;
             transition: opacity 0.4s ease;
         }
         #handle-L { right: 0; } #handle-R { left: 0; }
-
         body.show-studio-grid .handle-rod { opacity: 1; visibility: visible; }
         body.cinematic-door-parting .handle-rod { opacity: 0; visibility: hidden; }
 
         .practice-column {
-            height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
-            padding-top: 200px; padding-bottom: 40px; padding-left: 20px; padding-right: 20px;
-            z-index: 9999 !important; pointer-events: auto !important; 
-            transition: opacity 0.3s ease;
+            width: 50%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
+            padding-top: 135px; padding-bottom: 40px; padding-left: 8px; padding-right: 8px;
+            z-index: 9999 !important; pointer-events: auto !important; overflow-y: auto;
         }
 
-        #content-portal { 
-            position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); 
-            width: 850px; max-width: 95vw; height: 92vh; z-index: 500; 
-            display: block; pointer-events: none; transition: all 1.2s var(--luxury-bezier); 
-        }
-
-        #portal-inner { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; width: 100%; text-align: center; pointer-events: auto !important; padding: 0 20px; }
-        .panel-header { position: absolute; top: 40px; width: 90%; left: 5%; text-align: center; z-index: 9999 !important; pointer-events: none; }
+        #portal-inner-home { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; width: 100%; text-align: center; pointer-events: auto !important; padding: 0 20px; }
+        #portal-inner-practice { display: none; flex-direction: column; align-items: center; justify-content: flex-start; height: 100%; width: 100%; text-align: center; padding: 0 10px; }
         
-        .header-line-1 { font-size: calc(1.4rem + 1vw); margin-bottom: 4px; display: block; line-height: 1.2; }
-        .header-line-2 { font-size: calc(0.9rem + 0.3vw); opacity: 0.85; display: block; letter-spacing: 2px; }
-        .welcome-sub { font-size: calc(1rem + 0.4vw); letter-spacing: 5px; width: 100%; white-space: nowrap; text-transform: capitalize; margin-bottom: 15px; }
-        h1 { font-size: calc(1.8rem + 2vw); margin: 0 0 25px 0; line-height: 1.15; }
+        .panel-header { position: absolute; top: 20px; width: 90%; left: 5%; text-align: center; z-index: 9999 !important; pointer-events: none; }
+        
+        .header-line-1 { font-size: 1.4rem; margin-bottom: 4px; display: block; line-height: 1.2; font-weight: 700 !important; }
+        .header-line-2 { font-size: 0.85rem; opacity: 0.85; display: block; letter-spacing: 2px; }
+        .welcome-sub { font-size: 1.1rem; letter-spacing: 5px; width: 100%; white-space: nowrap; text-transform: capitalize; margin-bottom: 15px; }
+        h1 { font-size: 1.8rem; margin: 0 0 25px 0; line-height: 1.15; font-weight: 700 !important; }
 
         .studio-btn {
-            border: 1px solid var(--gold-alpha); border-radius: 40px; padding: 12px 35px; background: transparent; cursor: pointer !important; font-size: calc(0.9rem + 0.3vw); transition: all 0.4s var(--luxury-bezier); display: inline-block; margin: 8px; outline: none; z-index: 9999 !important; pointer-events: auto !important;
+            border: 1px solid var(--gold-alpha); border-radius: 40px; padding: 10px 15px; background: transparent; cursor: pointer !important; font-size: 0.8rem; transition: all 0.4s var(--luxury-bezier); display: inline-block; margin: 5px 0; outline: none; z-index: 9999 !important; pointer-events: auto !important; width: 100%; max-width: 190px; text-align: center;
         }
         .studio-btn:hover { border-color: var(--champagne-gold); background: rgba(247, 231, 206, 0.1); box-shadow: 0 0 15px rgba(247, 231, 206, 0.25); }
         .studio-btn:active { transform: scale(0.97); }
-        .domain-tag { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 3px; opacity: 0.6; margin-bottom: 4px; pointer-events: none; }
+        .domain-tag { font-size: 0.55rem; text-transform: uppercase; letter-spacing: 1px; opacity: 0.6; margin-bottom: 3px; pointer-events: none; }
 
-        @media (max-width: 600px) {
+        @media (max-width: 480px) {
             #bg-garden { background-image: url('wisteria_mobile.jpeg') !important; }
             #bg-space-backing { background-image: url('star_gazer_mobile.jpeg') !important; }
-
-            #main-archway, #content-portal { 
-                height: 72vh !important; 
-                border-radius: 48vw 48vw 0 0; 
-            }
-            .panel-header { top: 20px; }
-            .practice-column { padding-top: 130px; overflow-y: auto !important; }
-            .studio-btn { width: 135px !important; margin: 5px 4px; padding: 8px 10px; font-size: 0.85rem; }
-            .domain-tag { letter-spacing: 1px; font-size: 0.55rem; }
-            #portal-inner h1 { font-size: 1.7rem; }
-
-            /* SYMMETRICAL HANDLE COUPLING: Locks handles strictly adjacent to the mobile button cluster text */
-            .handle-rod { 
-                top: 130px; 
-                height: 250px; 
-            }
         }
     </style></head><body><div id="studio-stage">
-    <div id="bg-garden"></div>
-    <div id="bg-space-backing"></div>
+    <div id="bg-garden" class="ambient-backdrop"></div>
+    <div id="bg-space-backing" class="ambient-backdrop"></div>
     
-    <div id="main-archway">
-        <div id="door-L" class="door"><div id="handle-L" class="handle-rod"></div><div id="L-cont" class="practice-column"></div></div>
-        <div id="door-R" class="door"><div id="handle-R" class="handle-rod"></div><div id="R-cont" class="practice-column"></div></div>
+    <div id="main-archway" class="universal-viewport-box">
+        <div class="door-panel-wrapper">
+            <div id="door-L" class="door"><div id="handle-L" class="handle-rod"></div></div>
+            <div id="door-R" class="door"><div id="handle-R" class="handle-rod"></div></div>
+        </div>
     </div>
-    <div id="content-portal"><div id="portal-inner">
+    
+    <div id="content-portal" class="universal-viewport-box">
+        <div id="portal-inner-home">
             <div id="top-tier"><div class="welcome-sub" id="welcome-text">Welcome to your</div></div>
             <div id="mid-tier"><h1>Prefrontal Pilates Studio</h1></div>
-            <div id="bot-tier"><button class="studio-btn" id="start-btn" onclick="Studio.showChoice()">BEGIN</button></div>
-    </div></div>
+            <div id="bot-tier"><button class="studio-btn" id="start-btn" style="width:auto; padding:12px 40px;" onclick="Studio.showChoice()">BEGIN</button></div>
+        </div>
+
+        <div id="portal-inner-practice">
+            <div class="panel-header">
+                <button class="studio-btn" style="font-size: 0.85rem; padding: 6px 20px; margin-bottom: 12px; border-radius: 20px; width:auto;" onclick="window.location.href='index.html'">Exit Studio</button>
+                <span class="header-line-1">Prefrontal Pilates Studio</span>
+                <span class="header-line-2">Choose your practice</span>
+            </div>
+            <div class="door-panel-wrapper" style="pointer-events: none;">
+                <div id="L-cont" class="practice-column"></div>
+                <div id="R-cont" class="practice-column"></div>
+            </div>
+        </div>
+    </div>
 </div><script>
     const urlParams = new URLSearchParams(window.location.search);
     const immediateAction = urlParams.get('action');
@@ -172,13 +159,13 @@
         },
         showChoice() {
             document.getElementById('welcome-text').style.display = 'none';
-            document.getElementById('mid-tier').innerHTML = `<div style="font-size: calc(1.15rem + 0.4vw); line-height: 1.4; max-width: 90%; margin: 0 auto 40px auto;">Would you like to start your practice or take a breather before entering your Prefrontal Pilates Studio now?</div>`;
-            document.getElementById('bot-tier').innerHTML = `<button class="studio-btn" onclick="Studio.revealDoors()">start your practice</button><button class="studio-btn" onclick="Studio.selectCycles()">take a breather</button>`;
+            document.getElementById('mid-tier').innerHTML = `<div style="font-size: 1.15rem; line-height: 1.4; max-width: 90%; margin: 0 auto 40px auto;">Would you like to start your practice or take a breather before entering your Prefrontal Pilates Studio now?</div>`;
+            document.getElementById('bot-tier').innerHTML = `<button class="studio-btn" style="width:auto; padding:10px 20px; margin:5px;" onclick="Studio.revealDoors()">start your practice</button><button class="studio-btn" style="width:auto; padding:10px 20px; margin:5px;" onclick="Studio.selectCycles()">take a breather</button>`;
         },
         selectCycles() {
             document.getElementById('welcome-text').style.display = 'none';
-            document.getElementById('mid-tier').innerHTML = `<div style="font-size: calc(1.15rem + 0.4vw); line-height: 1.4; max-width: 90%; margin: 0 auto 40px auto;">How many cycles of breath would you like to practice now?</div>`;
-            document.getElementById('bot-tier').innerHTML = `<button class="studio-btn" onclick="Studio.beginWave(3)">3 Cycles</button><button class="studio-btn" onclick="Studio.beginWave(5)">5 Cycles</button><button class="studio-btn" onclick="Studio.beginWave(10)">10 Cycles</button>`;
+            document.getElementById('mid-tier').innerHTML = `<div style="font-size: 1.15rem; line-height: 1.4; max-width: 90%; margin: 0 auto 40px auto;">How many cycles of breath would you like to practice now?</div>`;
+            document.getElementById('bot-tier').innerHTML = `<button class="studio-btn" style="width:auto;" onclick="Studio.beginWave(3)">3 Cycles</button><button class="studio-btn" style="width:auto;" onclick="Studio.beginWave(5)">5 Cycles</button><button class="studio-btn" style="width:auto;" onclick="Studio.beginWave(10)">10 Cycles</button>`;
         },
         beginWave(count) { this.totalCycles = count; this.runWave(); },
         runWave() {
@@ -188,24 +175,14 @@
             const step = () => {
                 if (cycle >= this.totalCycles) { this.revealDoors(); return; }
                 const p = phases[phase];
-                mid.innerHTML = `<div style="font-size: 0.9rem; letter-spacing: 3px; opacity: 0.6; margin-bottom: 20px; text-transform: uppercase;">CYCLE ${cycle + 1} OF ${this.totalCycles}</div><div style="font-size: calc(1.8rem + 1vw);">${p.l}</div>`;
+                mid.innerHTML = `<div style="font-size: 0.9rem; letter-spacing: 3px; opacity: 0.6; margin-bottom: 20px; text-transform: uppercase;">CYCLE ${cycle + 1} OF ${this.totalCycles}</div><div style="font-size: 1.8rem;">${p.l}</div>`;
                 this.playTone(p.f, p.t/1000);
                 setTimeout(() => { phase++; if (phase >= phases.length) { phase = 0; cycle++; } step(); }, p.t);
             };
             step();
         },
         revealDoors() {
-            document.body.classList.remove('cinematic-door-parting');
-            document.getElementById('content-portal').style.opacity = '1';
             document.body.classList.add('show-studio-grid'); 
-            
-            document.getElementById('content-portal').innerHTML = `
-                <div class="panel-header">
-                    <button class="studio-btn" style="font-size: 0.85rem; padding: 6px 20px; margin-bottom: 12px; border-radius: 20px;" onclick="window.location.href='index.html'">Exit Studio</button>
-                    <span class="header-line-1">Prefrontal Pilates Studio</span>
-                    <span class="header-line-2">Choose your practice</span>
-                </div>
-            `;
             const L_cont = document.getElementById('L-cont');
             const R_cont = document.getElementById('R-cont');
             L_cont.innerHTML = ''; R_cont.innerHTML = ''; 
@@ -213,28 +190,18 @@
             this.practices.forEach(p => {
                 const btn = document.createElement('button');
                 btn.className = 'studio-btn';
-                btn.style.width = '240px'; btn.style.textAlign = 'center'; btn.style.margin = '8px';
                 btn.onclick = (e) => { 
                     e.stopPropagation(); 
                     if (p.file !== '#') {
                         document.body.classList.add('cinematic-door-parting');
-                        setTimeout(() => {
-                            window.location.href = p.file;
-                        }, 1350);
+                        setTimeout(() => { window.location.href = p.file; }, 1350);
                     }
                 };
-                btn.innerHTML = `<div class="domain-tag">${p.d}</div><div>${p.n}</div>`;
+                btn.innerHTML = `<div class="domain-tag">${p.d}</div><div style="font-size:0.95rem; font-weight:700;">${p.n}</div>`;
                 (p.s === 'L' ? L_cont : R_cont).appendChild(btn);
             });
         }
     };
-
-    window.addEventListener('DOMContentLoaded', () => {
-        const imgCache = new Image();
-        imgCache.src = 'star_gazer.png';
-        const imgCacheMob = new Image();
-        imgCacheMob.src = 'star_gazer_mobile.jpeg';
-    });
 
     if (immediateAction === 'breather') Studio.selectCycles();
     else if (immediateAction === 'studio') Studio.revealDoors();

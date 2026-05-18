@@ -28,78 +28,75 @@
             --muted-grey: #444444;
         }
 
-        body, html {
-            margin: 0; padding: 0; width: 100%; height: 100%;
-            overflow: hidden;
-            user-select: none; -webkit-user-select: none;
-            background-color: #0c100e !important; 
-        }
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background-color: #0c100e !important; }
 
-        #game-container {
+        /* FULL EDGE-TO-EDGE COSMIC CANVAS BACKDROP */
+        #stage-canvas-wrapper {
             position: relative; width: 100vw; height: 100vh;
-            background-color: #050706 !important;
-            background-image: url('star_gazer.png'); background-size: cover; background-position: center center;
+            background-image: url('star_gazer.jpeg'); background-size: cover; background-position: center bottom;
             overflow: hidden;
         }
 
+        /* TWO-TIERED HUD NAVIGATION PANEL CONSTRAINED LOCALLY */
         #top-hud-navigation-bar {
-            position: absolute; top: 0; left: 0; width: 100vw; height: 75px;
-            background: rgba(5, 7, 6, 0.4); border-bottom: 1px solid rgba(247, 231, 206, 0.15);
-            backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
-            display: flex; flex-direction: row; align-items: center; justify-content: space-between;
-            padding: 0 40px; z-index: 200;
-            transition: opacity 0.5s ease;
+            position: absolute; top: 0; left: 50%; transform: translateX(-50%); 
+            width: 100%; max-width: 480px; padding: 20px 20px 0 20px; z-index: 200;
+            display: flex; flex-direction: column; align-items: center;
         }
+        .hud-row-controls { width: 100%; display: flex; flex-direction: row; align-items: center; justify-content: space-between; }
 
         .hud-nav-btn {
-            border: 1px solid var(--gold-alpha); border-radius: 30px; padding: 8px 22px; background: rgba(25, 15, 35, 0.4); cursor: pointer !important; font-size: 0.95rem; letter-spacing: 2px; text-transform: uppercase; transition: all 0.3s var(--luxury-bezier); pointer-events: auto !important;
+            border: 1px solid var(--gold-alpha); border-radius: 30px; padding: 6px 18px; background: rgba(25, 15, 35, 0.5); cursor: pointer !important; font-size: 0.85rem; letter-spacing: 1px; text-transform: uppercase; transition: all 0.3s var(--luxury-bezier); pointer-events: auto !important;
+            backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
         }
-        .hud-nav-btn:hover { border-color: var(--champagne-gold); background: rgba(247, 231, 206, 0.12); box-shadow: 0 0 15px rgba(247, 231, 206, 0.2); }
+        .hud-nav-btn:hover { border-color: var(--champagne-gold); background: rgba(247, 231, 206, 0.15); box-shadow: 0 0 12px rgba(247, 231, 206, 0.2); }
 
-        #streak-display { font-size: 1.2rem; letter-spacing: 3px; opacity: 0.95; text-shadow: 0 2px 4px rgba(0,0,0,0.8); }
-        #constellation-canvas { position: absolute; inset: 0; z-index: 5; pointer-events: none; opacity: 1; transition: opacity 0.8s ease, filter 0.5s ease; }
-        #sky-interaction-zone { position: absolute; top: 15%; left: 5%; width: 90%; height: 45%; z-index: 10; pointer-events: auto; transition: opacity 0.5s ease; }
+        #streak-display { 
+            width: 100%; text-align: center; font-size: 0.95rem; letter-spacing: 3px; opacity: 0.95; 
+            text-shadow: 0 2px 4px rgba(0,0,0,0.8); margin-top: 12px;
+            background: rgba(25, 15, 35, 0.5); border: 1px solid rgba(247, 231, 206, 0.15); padding: 4px 0; border-radius: 20px;
+            backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+        }
+
+        /* SCREEN RESIZE STABLE INTERACTION MATRIX CANVAS LAYERS */
+        #constellation-canvas { position: absolute; inset: 0; z-index: 5; pointer-events: none; width: 100%; height: 100%; }
+        #sky-interaction-zone { position: absolute; left: 50%; transform: translateX(-50%); width: 100%; max-width: 440px; height: 35%; top: 16%; z-index: 10; pointer-events: auto; }
 
         .star-target { position: absolute; width: 80px; height: 80px; transform: translate(-50%, -50%); cursor: pointer; display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.4s ease; z-index: 15; }
         .star-target.reveal { opacity: 1; }
         .star-center { width: 11px; height: 11px; background: var(--champagne-gold) !important; border-radius: 50%; box-shadow: 0 0 10px var(--champagne-gold), 0 0 25px rgba(247, 231, 206, 0.7); z-index: 12; transition: all 0.4s ease; }
-        .star-target.ignited .star-center { transform: scale(1.7) !important; background: #ffffff !important; box-shadow: 0 0 25px #ffffff, 0 0 50px var(--champagne-gold), 0 0 90px var(--champagne-gold) !important; }
-        .star-target.correct-glow .star-center { transform: scale(1.6); box-shadow: 0 0 30px var(--champagne-gold), 0 0 60px var(--champagne-gold); }
-        .star-target.wrong-grey .star-center { transform: scale(0.8); background: var(--muted-grey) !important; box-shadow: 0 0 3px var(--muted-grey) !important; }
+        .star-target.ignited .star-center { transform: scale(1.7) !important; background: #ffffff !important; box-shadow: 0 0 25px #ffffff, 0 0 50px var(--champagne-gold) !important; }
+        .star-target.correct-glow .star-center { transform: scale(1.6); box-shadow: 0 0 30px var(--champagne-gold); }
+        .star-target.wrong-grey .star-center { transform: scale(0.8); background: var(--muted-grey) !important; box-shadow: none !important; }
 
-        .star-ripple { position: absolute; border: 1.5px solid var(--champagne-gold); border-radius: 50%; opacity: 0; pointer-events: none; z-index: 11; box-shadow: inset 0 0 6px rgba(247, 231, 206, 0.2), 0 0 6px rgba(247, 231, 206, 0.2); transition: border-color 0.5s ease, box-shadow 0.5s ease; }
-        .star-target.wrong-grey .star-ripple { border-color: var(--muted-grey) !important; box-shadow: none !important; }
-        .breathing .star-ripple { animation: zenPulse 3.8s infinite var(--luxury-bezier); }
-        .breathing .star-ripple:nth-child(2) { animation-delay: 1.2s; }
-        .breathing .star-ripple:nth-child(3) { animation-delay: 2.4s; }
+        /* RE-BUILT COMPACT PULSATING RING CORE */
+        .star-ripple { position: absolute; border: 1.5px solid var(--champagne-gold); border-radius: 50%; opacity: 0; pointer-events: none; z-index: 11; width: 8px; height: 8px; }
+        .star-target.reveal .star-ripple { animation: zenPulse 3.8s infinite var(--luxury-bezier); }
+        .star-target.reveal .star-ripple:nth-child(2) { animation-delay: 1.2s; }
+        .star-target.wrong-grey .star-ripple { display:none !important; }
+        @keyframes zenPulse { 0% { width: 8px; height: 8px; opacity: 0; transform: scale(1); } 20% { opacity: 0.6; } 100% { width: 95px; height: 95px; opacity: 0; transform: scale(1.2); } }
 
-        @keyframes zenPulse {
-            0% { width: 8px; height: 8px; opacity: 0; transform: scale(1); }
-            20% { opacity: 0.6; }
-            100% { width: 95px; height: 95px; opacity: 0; transform: scale(1.15); }
-        }
-
-        #stroop-overlay { position: absolute; top: 22%; left: 50%; transform: translateX(-50%); text-align: center; z-index: 30; opacity: 0; visibility: hidden; transition: opacity 0.5s ease, transform 0.5s ease; background: rgba(5, 7, 6, 0.4); padding: 20px 40px; border-radius: 20px; }
+        #stroop-overlay { position: absolute; top: 24%; left: 50%; transform: translateX(-50%); text-align: center; z-index: 30; opacity: 0; visibility: hidden; transition: opacity 0.5s ease; background: rgba(5, 7, 6, 0.5); padding: 15px 25px; border-radius: 20px; width: 90%; max-width: 320px; backdrop-filter: blur(10px); }
         #stroop-overlay.active { opacity: 1; visibility: visible; }
-        #stroop-word { font-size: calc(2rem + 1.2vw); font-weight: 700 !important; letter-spacing: 4px; text-shadow: 0 0 25px rgba(0,0,0,0.9); margin-bottom: 10px; transition: color 0.2s ease, transform 0.15s ease; }
-        #stroop-instruction { font-size: calc(1rem + 0.3vw); opacity: 0.9; letter-spacing: 2px; margin-top: 5px; text-shadow: 0 2px 4px rgba(0,0,0,0.8); }
-        #control-panel { position: absolute; bottom: 8%; left: 50%; transform: translateX(-50%); width: 90%; display: flex; justify-content: center; align-items: center; gap: 15px; flex-wrap: wrap; z-index: 40; min-height: 80px; }
+        #stroop-word { font-size: 2rem; font-weight: 700 !important; letter-spacing: 4px; margin-bottom: 5px; }
+        #stroop-instruction { font-size: 0.9rem; opacity: 0.9; letter-spacing: 1px; }
+        
+        #control-panel { position: absolute; bottom: 24%; left: 50%; transform: translateX(-50%); width: 90%; max-width: 400px; display: flex; justify-content: center; align-items: center; gap: 12px; flex-wrap: wrap; z-index: 40; }
 
-        .ambient-btn { border: 1px solid var(--gold-alpha); border-radius: 40px; padding: 12px 35px; background: rgba(25, 15, 35, 0.4); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); cursor: pointer; font-size: calc(1rem + 0.3vw); transition: all 0.4s var(--luxury-bezier); opacity: 0; transform: translateY(20px); pointer-events: none; box-shadow: 0 4px 20px rgba(0,0,0,0.4); }
+        .ambient-btn { border: 1px solid var(--gold-alpha); border-radius: 40px; padding: 11px 15px; background: rgba(25, 15, 35, 0.5); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); cursor: pointer; font-size: 1.05rem; transition: all 0.4s var(--luxury-bezier); opacity: 0; transform: translateY(20px); pointer-events: none; width: 100%; box-shadow: 0 4px 20px rgba(0,0,0,0.4); text-align: center; }
         .ambient-btn.visible { opacity: 1; transform: translateY(0); pointer-events: auto; }
         .ambient-btn:hover { background: rgba(247, 231, 206, 0.15); border-color: var(--champagne-gold); }
 
-        .btn-red { color: var(--stroop-red) !important; border-color: var(--stroop-red) !important; font-weight: bold !important; }
-        .btn-blue { color: var(--stroop-blue) !important; border-color: var(--stroop-blue) !important; font-weight: bold !important; }
-        .btn-green { color: var(--stroop-green) !important; border-color: var(--stroop-green) !important; font-weight: bold !important; }
-        .btn-yellow { color: var(--stroop-yellow) !important; border-color: var(--stroop-yellow) !important; font-weight: bold !important; }
+        .btn-red { color: var(--stroop-red) !important; border-color: var(--stroop-red) !important; }
+        .btn-blue { color: var(--stroop-blue) !important; border-color: var(--stroop-blue) !important; }
+        .btn-green { color: var(--stroop-green) !important; border-color: var(--stroop-green) !important; }
+        .btn-yellow { color: var(--stroop-yellow) !important; border-color: var(--stroop-yellow) !important; }
 
-        #room-gate, #completion-screen { position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; height: 100%; background: transparent; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; z-index: 300; text-align: center; transition: opacity 1.5s var(--luxury-bezier); }
+        .gate-outer-container { position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; height: 100%; background: transparent; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; z-index: 300; text-align: center; transition: opacity 1.5s var(--luxury-bezier); }
         
         .gate-card {
-            position: relative;
-            border: 2px solid rgba(247, 231, 206, 0.8); border-bottom: none; 
-            width: 850px; max-width: 95vw; height: 72vh; border-radius: 425px 425px 0 0; padding-top: 14vh; padding-left: 5vw; padding-right: 5vw; box-shadow: 0 -15px 50px rgba(0,0,0,0.8);
+            position: relative; border: 2px solid rgba(247, 231, 206, 0.8); border-bottom: none; 
+            width: 100%; max-width: 480px; height: 72vh; border-radius: 240px 240px 0 0; padding: 18vh 25px 30px 25px; box-shadow: 0 -15px 50px rgba(0,0,0,0.8);
             opacity: 0; transform: translateY(100vh); transition: opacity 1.5s cubic-bezier(0.16, 1, 0.3, 1), transform 1.5s cubic-bezier(0.16, 1, 0.3, 1);
             background: linear-gradient(rgba(5, 7, 6, 0.88), rgba(5, 7, 6, 0.88)), var(--amethyst-glass) !important;
             backdrop-filter: blur(25px) !important; -webkit-backdrop-filter: blur(25px) !important;
@@ -107,45 +104,25 @@
         }
         .gate-card.ignite-card-reveal { opacity: 1; transform: translateY(0); }
         
-        .gate-title { font-size: calc(1.6rem + 1vw); margin: 0 0 15px 0; text-shadow: 0 2px 10px rgba(0,0,0,0.5); font-weight: 700 !important; letter-spacing: 1px; }
-        .gate-desc { font-size: calc(1rem + 0.3vw); line-height: 1.7; margin-bottom: 30px; opacity: 0.95; text-shadow: 0 2px 8px rgba(0,0,0,0.5); }
+        .gate-title { font-size: 1.6rem; margin: 0 0 12px 0; font-weight: 700 !important; }
+        .gate-desc { font-size: 0.95rem; line-height: 1.6; margin-bottom: 25px; opacity: 0.95; text-align: justify; }
 
-        #exit-goodbye-screen {
-            display: none; position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; height: 100%; background: transparent; z-index: 99999; text-align: center; opacity: 0; transition: opacity 1.0s ease;
-        }
+        #exit-goodbye-screen { display: none; position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; height: 100%; background: transparent; z-index: 99999; text-align: center; opacity: 0; transition: opacity 1s ease; }
 
-        .curved-bounds-container {
-            width: 100%;
-            max-width: 660px;
-            margin: 0 auto;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        @media (max-width: 600px) {
-            #game-container { 
-                background-image: url('star_gazer_mobile.jpeg') !important; 
-                background-position: center center !important; 
-            } 
-            .gate-card { border-radius: 48vw 48vw 0 0; padding-top: 18vh; height: 72vh !important; }
-            #top-hud-navigation-bar { padding: 0 15px; }
-            
-            /* DYNAMICALLY SHIFTS THE VIEWPORT to frame the consolidated bough with ZERO scrolling */
-            #sky-interaction-zone { height: 35%; top: 12%; }
-            #stroop-overlay { top: 20%; padding: 15px 25px; }
-            #control-panel { bottom: 22%; gap: 12px; }
-            .ambient-btn { width: 100% !important; margin: 2px 0; padding: 11px 15px; font-size: 1.05rem; }
+        @media (max-width: 480px) {
+            #stage-canvas-wrapper { background-image: url('star_gazer_mobile.jpeg') !important; background-size: cover; background-position: center center; }
         }
     </style>
 </head>
 <body onclick="Engine.backupAudioAwakening()">
 
-<div id="game-container">
+<div id="stage-canvas-wrapper">
     <div id="top-hud-navigation-bar">
-        <button class="hud-nav-btn" onclick="Engine.exitRoom()">Exit</button>
+        <div class="hud-row-controls">
+            <button class="hud-nav-btn" onclick="Engine.exitRoom()">Exit</button>
+            <button class="hud-nav-btn" onclick="Engine.takeABreatherRoute()">Take a Breather</button>
+        </div>
         <div id="streak-display">Focus Streak: 0/5</div>
-        <button class="hud-nav-btn" onclick="Engine.takeABreatherRoute()">Take a Breather</button>
     </div>
     
     <canvas id="constellation-canvas"></canvas>
@@ -153,57 +130,46 @@
     <div id="stroop-overlay"><div id="stroop-word">---</div><div id="stroop-instruction">Match the ink color</div></div>
     <div id="control-panel"></div>
 
-    <div id="room-gate">
+    <div id="room-gate" class="gate-outer-container">
         <div class="gate-card" id="entrance-gate-card">
-            <div class="curved-bounds-container">
-                <div class="gate-title">Stargazer</div>
-                <div class="gate-desc">Watch the sequence of gold ripples and hold the pattern in your mind through the shifting color conflicts. Retrace the stars to complete the constellation.</div>
-                <button class="ambient-btn visible" style="color:var(--champagne-gold) !important; margin: 0; pointer-events: auto !important;" onclick="Engine.initPractice()">Begin Practice</button>
-            </div>
+            <div class="gate-title">Stargazer</div>
+            <div class="gate-desc">Watch the sequence of gold ripples and hold the pattern in your mind through the shifting color conflicts. Retrace the stars to complete the constellation.</div>
+            <button class="ambient-btn visible" style="color:var(--champagne-gold) !important; pointer-events: auto !important;" onclick="Engine.initPractice()">Begin Practice</button>
         </div>
     </div>
 
-    <div id="completion-screen" style="opacity:0; visibility:hidden; pointer-events: none;">
-        <div class="gate-card ignite-card-reveal" style="position: absolute; bottom: 0; left: 50%; transform: translateX(-50%);">
-            <div class="curved-bounds-container">
-                <div class="gate-title">Sanctuary Aligned</div>
-                <div class="gate-desc">Your working memory and executive control are balanced. Your focus streak has stabilized.</div>
-                <button class="ambient-btn visible" style="color:var(--champagne-gold) !important; margin: 0; pointer-events: auto !important;" onclick="Engine.exitRoom()">Return to Sanctuary</button>
-            </div>
+    <div id="completion-screen" class="gate-outer-container" style="opacity:0; visibility:hidden; pointer-events: none;">
+        <div class="gate-card ignite-card-reveal">
+            <div class="gate-title">Sanctuary Aligned</div>
+            <div class="gate-desc">Your working memory and executive control are balanced. Your focus streak has stabilized.</div>
+            <button class="ambient-btn visible" style="color:var(--champagne-gold) !important; pointer-events: auto !important;" onclick="Engine.exitRoom()">Return to Sanctuary</button>
         </div>
     </div>
 
-    <div id="exit-goodbye-screen">
-        <div class="gate-card ignite-card-reveal" style="position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); pointer-events: auto;">
-            <div class="curved-bounds-container">
-                <div class="gate-title" style="margin-bottom: 20px;">Targeted Regimen Complete!</div>
-                
-                <div class="gate-desc" style="font-size: 1.25rem; line-height: 1.7; margin-bottom: 25px; color: #f7e7ce; font-style: italic;">
-                    "You've just strengthened your working memory—the vital engine powering your mind. Keep building your cognitive reserve!"
-                </div>
-
-                <hr style="border: 0; border-top: 1px solid rgba(247, 231, 206, 0.2); width: 40%; margin-bottom: 25px;">
-
-                <div style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 3px; opacity: 0.6; margin-bottom: 12px;">Neuroscience Insights</div>
-                
-                <div style="font-size: 0.95rem; line-height: 1.6; margin-bottom: 40px; opacity: 0.95; text-align: justify;">
-                    For women aged 40 and older, targeted cognitive training is designed to optimize neuroplasticity and cognitive reserve to maintain executive function. Clinical evidence highlights the perimenopausal and menopausal transitions as critical windows of neurodevelopmental vulnerability and opportunity. Proactive, multi-domain interventions like this one will yield you the highest efficacy in delaying the clinical onset of age-related neurodegenerative pathologies.
-                </div>
-
-                <button class="ambient-btn visible" style="color: var(--champagne-gold) !important; padding: 14px 50px; pointer-events: auto !important;" onclick="Engine.confirmStudioExit()">Close Studio Session</button>
+    <div id="exit-goodbye-screen" class="gate-outer-container">
+        <div class="gate-card ignite-card-reveal" style="pointer-events: auto;">
+            <div class="gate-title">Targeted Regimen Complete!</div>
+            <div class="gate-desc" style="font-size: 1.1rem; color: #f7e7ce; font-style: italic; text-align: center; margin-bottom: 20px;">
+                "You've just strengthened your working memory—the vital engine powering you to be you. You go girl!"
             </div>
+            <hr style="border: 0; border-top: 1px solid rgba(247, 231, 206, 0.2); margin-bottom: 20px;">
+            <div style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 2px; opacity: 0.6; margin-bottom: 10px;">Neuroscience Insights</div>
+            <div class="gate-desc" style="font-size: 0.88rem; margin-bottom: 30px;">
+                For women aged 40 and older, targeted cognitive training is designed to optimize neuroplasticity and cognitive reserve to maintain executive function. Clinical evidence highlights the perimenopausal and menopausal transitions as critical windows of neurodevelopmental vulnerability and opportunity. Proactive, multi-domain interventions like this one will yield you the highest efficacy in delaying the clinical onset of age-related neurodegenerative pathologies.
+            </div>
+            <button class="ambient-btn visible" style="color: var(--champagne-gold) !important;" onclick="Engine.confirmStudioExit()">Close Studio Session</button>
         </div>
     </div>
 </div>
 
 <script>
 const Engine = {
-    sequenceLength: 3, currentStreak: 0, generatedSequence: [], playerSequence: [], stroopStage: 1, audioCtx: null, canvas: null, ctx: null, woodwindInterval: null, woodwindStep: 0, lineState: 'tracing', audioHardwareUnlocked: false,
+    sequenceLength: 3, currentStreak: 0, generatedSequence: [], playerSequence: [], stroopStage: 1, audioCtx: null, canvas: null, ctx: null, woodwindInterval: null, woodwindStep: 0, lineState: 'tracing', audioHardwareUnlocked: false, gameActive: true,
     skyCoordinates: [{ x: 15, y: 15 }, { x: 32, y: 12 }, { x: 48, y: 18 }, { x: 72, y: 14 }, { x: 85, y: 22 }, { x: 78, y: 35 }, { x: 25, y: 32 }, { x: 12, y: 40 }, { x: 55, y: 10 }],
     colors: [{ name: 'Red', hex: '#ff5252', class: 'btn-red' }, { name: 'Blue', hex: '#4a90e2', class: 'btn-blue' }, { name: 'Green', hex: '#66bb6a', class: 'btn-green' }, { name: 'Yellow', hex: '#ffca28', class: 'btn-yellow' }],
 
     backupAudioAwakening() {
-        if (this.audioHardwareUnlocked) return;
+        if (!this.gameActive || this.audioHardwareUnlocked) return;
         if (!this.audioCtx) this.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         if (this.audioCtx.state === 'suspended') this.audioCtx.resume();
         this.audioHardwareUnlocked = true;
@@ -219,9 +185,9 @@ const Engine = {
         });
     },
     initCanvas() { this.canvas = document.getElementById('constellation-canvas'); this.ctx = this.canvas.getContext('2d'); this.resizeCanvas(); window.addEventListener('resize', () => this.resizeCanvas()); },
-    resizeCanvas() { const container = document.getElementById('game-container'); this.canvas.width = container.clientWidth; this.canvas.height = container.clientHeight; this.redrawConstellationLines(); },
+    resizeCanvas() { const container = document.getElementById('stage-canvas-wrapper'); this.canvas.width = container.clientWidth; this.canvas.height = container.clientHeight; this.redrawConstellationLines(); },
     triggerAudioNode(frequency, waveType = 'triangle', volume = 0.16, attack = 0.05, duration = 2.2) {
-        if (!this.audioCtx || this.audioCtx.state === 'closed') return;
+        if (!this.gameActive || !this.audioCtx || this.audioCtx.state === 'closed') return;
         const currentTime = this.audioCtx.currentTime; const osc = this.audioCtx.createOscillator(); const gainNode = this.audioCtx.createGain(); const filterNode = this.audioCtx.createBiquadFilter();
         osc.type = waveType; osc.frequency.setValueAtTime(frequency, currentTime);
         filterNode.type = 'lowpass'; filterNode.frequency.setValueAtTime(waveType === 'sine' ? frequency * 1.5 : frequency * 2.2, currentTime);
@@ -230,97 +196,104 @@ const Engine = {
         osc.start(currentTime); osc.stop(currentTime + duration);
     },
     startMellowWoodwindDrone() {
-        if (!this.audioCtx || this.audioCtx.state === 'closed') return;
+        if (!this.gameActive || !this.audioCtx || this.audioCtx.state === 'closed') return;
         const droneFrequencies = [220.00, 293.66, 329.63];
         const breathCycle = () => { 
-            if (!this.audioCtx || this.audioCtx.state === 'closed') return;
+            if (!this.gameActive || !this.audioCtx || this.audioCtx.state === 'closed') return;
             const freq = droneFrequencies[this.woodwindStep % droneFrequencies.length]; 
             this.triggerAudioNode(freq, 'sine', 0.022, 1.2, 7.5); 
             this.woodwindStep++; 
         };
         breathCycle(); this.woodwindInterval = setInterval(breathCycle, 6500);
     },
-    killAllHardwareAudio() {
-        if (this.woodwindInterval) {
-            clearInterval(this.woodwindInterval);
-            this.woodwindInterval = null;
-        }
-        if (this.audioCtx) {
-            this.audioCtx.close().then(() => {
-                this.audioCtx = null;
-                this.audioHardwareUnlocked = false;
-            });
-        }
-    },
     generateNewRound() {
+        if (!this.gameActive) return;
         this.playerSequence = []; this.generatedSequence = []; this.lineState = 'tracing'; 
         if (this.ctx) this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-        
-        const zone = document.getElementById('sky-interaction-zone');
-        zone.innerHTML = '';
-        zone.style.pointerEvents = 'auto';
-        zone.style.opacity = '1';
-        
+        const zone = document.getElementById('sky-interaction-zone'); zone.innerHTML = ''; zone.style.pointerEvents = 'auto'; zone.style.opacity = '1';
         const shuffled = [...this.skyCoordinates].sort(() => 0.5 - Math.random());
         for(let i = 0; i < this.sequenceLength; i++) { this.generatedSequence.push(shuffled[i]); }
         if (this.sequenceLength === 3) this.stroopStage = 1; else if (this.sequenceLength === 4) this.stroopStage = 2; else if (this.sequenceLength === 5) this.stroopStage = 3;
         setTimeout(() => { this.executeObservationPhase(); }, 1200);
     },
     executeObservationPhase() {
+        if (!this.gameActive) return;
         const zone = document.getElementById('sky-interaction-zone'); zone.innerHTML = ''; const stargazerMelody = [329.63, 392.00, 440.00, 523.25, 587.33];
         this.generatedSequence.forEach((coord, index) => {
-            const target = document.createElement('div'); target.className = 'star-target'; target.style.left = `${coord.x}%`; target.style.top = `${coord.y}%`; target.innerHTML = `<div class="star-center"></div><div class="star-ripple"></div><div class="star-ripple"></div><div class="star-ripple"></div>`; zone.appendChild(target);
+            const target = document.createElement('div'); target.className = 'star-target'; target.style.left = `${coord.x}%`; target.style.top = `${coord.y}%`; target.innerHTML = `<div class="star-center"></div><div class="star-ripple"></div><div class="star-ripple"></div>`; zone.appendChild(target);
             const displayDelay = index * 1700;
-            setTimeout(() => { target.classList.add('reveal'); target.classList.add('breathing'); this.triggerAudioNode(stargazerMelody[index % stargazerMelody.length], 'triangle', 0.15, 0.05, 2.0); }, displayDelay);
-            setTimeout(() => { target.classList.remove('reveal'); target.classList.remove('breathing'); }, displayDelay + 1300);
+            setTimeout(() => { if (this.gameActive) { target.classList.add('reveal'); this.triggerAudioNode(stargazerMelody[index % stargazerMelody.length], 'triangle', 0.15, 0.05, 2.0); } }, displayDelay);
+            setTimeout(() => { if (this.gameActive) target.classList.remove('reveal'); }, displayDelay + 1300);
         });
-        setTimeout(() => { zone.innerHTML = ''; this.executeStroopPhase(); }, this.sequenceLength * 1700 + 400);
+        setTimeout(() => { if (this.gameActive) { zone.innerHTML = ''; this.executeStroopPhase(); } }, this.sequenceLength * 1700 + 400);
     },
     executeStroopPhase() {
+        if (!this.gameActive) return;
         const overlay = document.getElementById('stroop-overlay'); const wordEl = document.getElementById('stroop-word'); const instructionEl = document.getElementById('stroop-instruction'); const panel = document.getElementById('control-panel'); panel.innerHTML = '';
         const wordData = this.colors[Math.floor(Math.random() * this.colors.length)]; let colorData = this.colors[Math.floor(Math.random() * this.colors.length)];
         while(colorData.name === wordData.name) { colorData = this.colors[Math.floor(Math.random() * this.colors.length)]; }
         wordEl.innerText = wordData.name.toUpperCase();
-        
-        if (this.stroopStage === 3) { 
-            wordEl.setAttribute('style', `color: ${colorData.hex} !important`); 
-            instructionEl.innerText = "Match the LITERAL WORD text"; 
-            this.correctStroopAnswer = wordData.name; 
-        } else { 
-            wordEl.setAttribute('style', `color: ${colorData.hex} !important`); 
-            instructionEl.innerText = "Match the ink color"; 
-            this.correctStroopAnswer = colorData.name; 
-        }
-        
+        if (this.stroopStage === 3) { wordEl.setAttribute('style', `color: ${colorData.hex} !important`); instructionEl.innerText = "Match the LITERAL WORD text"; this.correctStroopAnswer = wordData.name; } 
+        else { wordEl.setAttribute('style', `color: ${colorData.hex} !important`); instructionEl.innerText = "Match the ink color"; this.correctStroopAnswer = colorData.name; }
         overlay.classList.add('active');
-        if (this.stroopStage === 2) { setTimeout(() => { let shiftColor = this.colors[Math.floor(Math.random() * this.colors.length)]; while(shiftColor.name === colorData.name || shiftColor.name === wordData.name) { shiftColor = this.colors[Math.floor(Math.random() * this.colors.length)]; } wordEl.setAttribute('style', `color: ${shiftColor.hex} !important`); this.correctStroopAnswer = shiftColor.name; }, 500); }
-        this.colors.forEach(color => { const btn = document.createElement('button'); btn.className = `ambient-btn ${color.class}`; btn.innerText = `${color.name}`; btn.onclick = () => this.evaluateStroopChoice(color.name); panel.appendChild(btn); setTimeout(() => btn.classList.add('visible'), 200); });
+        if (this.stroopStage === 2) { setTimeout(() => { if (this.gameActive) { let shiftColor = this.colors[Math.floor(Math.random() * this.colors.length)]; while(shiftColor.name === colorData.name || shiftColor.name === wordData.name) { shiftColor = this.colors[Math.floor(Math.random() * this.colors.length)]; } wordEl.setAttribute('style', `color: ${shiftColor.hex} !important`); this.correctStroopAnswer = shiftColor.name; } }, 500); }
+        this.colors.forEach(color => { const btn = document.createElement('button'); btn.className = `ambient-btn ${color.class}`; btn.innerText = `${color.name}`; btn.onclick = () => this.evaluateStroopChoice(color.name); panel.appendChild(btn); setTimeout(() => { if (this.gameActive) btn.classList.add('visible'); }, 200); });
     },
     evaluateStroopChoice(selectedColorName) {
         const overlay = document.getElementById('stroop-overlay'); overlay.classList.remove('active'); document.querySelectorAll('.ambient-btn').forEach(btn => btn.classList.remove('visible'));
-        if (selectedColorName === this.correctStroopAnswer) { this.triggerAudioNode(196.00, 'sine', 0.08, 0.1, 2.5); setTimeout(() => this.initializeRecallPhase(), 800); }
-        else { this.triggerAudioNode(110.00, 'triangle', 0.12, 0.05, 1.8); this.currentStreak = 0; document.getElementById('streak-display').innerText = `Focus Streak: ${this.currentStreak}/5`; setTimeout(() => this.generateNewRound(), 1200); }
+        if (selectedColorName === this.correctStroopAnswer) { this.triggerAudioNode(196.00, 'sine', 0.08, 0.1, 2.5); setTimeout(() => { if (this.gameActive) this.initializeRecallPhase(); }, 800); }
+        else { this.triggerAudioNode(110.00, 'triangle', 0.12, 0.05, 1.8); this.currentStreak = 0; document.getElementById('streak-display').innerText = `Focus Streak: ${this.currentStreak}/5`; setTimeout(() => { if (this.gameActive) this.generateNewRound(); }, 1200); }
     },
     initializeRecallPhase() {
-        const zone = document.getElementById('sky-interaction-zone'); zone.innerHTML = '';
-        zone.style.pointerEvents = 'auto';
+        if (!this.gameActive) return;
+        const zone = document.getElementById('sky-interaction-zone'); zone.innerHTML = ''; zone.style.pointerEvents = 'auto';
         this.generatedSequence.forEach((coord, index) => {
-            const target = document.createElement('div'); target.className = 'star-target reveal breathing'; target.style.left = `${coord.x}%`; target.style.top = `${coord.y}%`; target.innerHTML = `<div class="star-center"></div><div class="star-ripple"></div><div class="star-ripple"></div><div class="star-ripple"></div>`; target.onclick = () => this.evaluateRecallTouch(coord, target, index); zone.appendChild(target);
+            const target = document.createElement('div'); target.className = 'star-target reveal'; target.style.left = `${coord.x}%`; target.style.top = `${coord.y}%`; target.innerHTML = `<div class="star-center"></div>`; target.onclick = () => this.evaluateRecallTouch(coord, target, index); zone.appendChild(target);
         });
     },
     evaluateRecallTouch(coord, element, index) {
-        element.style.pointerEvents = 'none'; element.classList.remove('breathing'); element.classList.add('ignited'); this.playerSequence.push(coord);
+        element.style.pointerEvents = 'none'; element.classList.add('ignited'); this.playerSequence.push(coord);
         const stargazerMelody = [329.63, 392.00, 440.00, 523.25, 587.33]; this.triggerAudioNode(stargazerMelody[index % stargazerMelody.length], 'triangle', 0.15, 0.05, 2.2); this.redrawConstellationLines();
-        if (this.playerSequence.length === this.generatedSequence.length) { document.getElementById('sky-interaction-zone').style.pointerEvents = 'none'; setTimeout(() => this.verifySequenceAccuracy(), 1000); }
+        if (this.playerSequence.length === this.generatedSequence.length) { document.getElementById('sky-interaction-zone').style.pointerEvents = 'none'; setTimeout(() => { if (this.gameActive) this.verifySequenceAccuracy(); }, 1000); }
     },
+    
+    /* RE-ENGINEERED VECTOR CALCULATOR MATRIX */
     redrawConstellationLines() {
-        if (!this.ctx || !this.canvas) return; this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height); if (this.playerSequence.length < 1) return;
-        this.ctx.beginPath(); this.ctx.strokeStyle = (this.lineState === 'correct') ? '#f7e7ce' : (this.lineState === 'wrong' ? '#444444' : '#f7e7ce'); this.ctx.lineWidth = (this.lineState === 'correct') ? 1.2 : (this.lineState === 'wrong' ? 0.6 : 0.8);
-        const firstPixel = this.convertToPixels(this.playerSequence[0]); this.ctx.moveTo(firstPixel.x, firstPixel.y);
-        for(let i = 1; i < this.playerSequence.length; i++) { const pixel = this.convertToPixels(this.playerSequence[i]); this.ctx.lineTo(pixel.x, pixel.y); }
+        if (!this.ctx || !this.canvas) return; 
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height); 
+        if (this.playerSequence.length < 1) return;
+        
+        const zone = document.getElementById('sky-interaction-zone');
+        const zoneBounds = zone.getBoundingClientRect();
+        
+        this.ctx.beginPath(); 
+        this.ctx.strokeStyle = '#f7e7ce'; 
+        this.ctx.lineWidth = (this.lineState === 'correct') ? 1.5 : (this.lineState === 'wrong' ? 0.6 : 1.0);
+        
+        /* PINPOINTS VECTOR HOOKS ABSOLUTE TO THE RESPONSIVE IN-FRAME CENTER REGION */
+        const firstPixelX = zoneBounds.left + (this.playerSequence[0].x / 100) * zoneBounds.width;
+        const firstPixelY = zoneBounds.top + (this.playerSequence[0].y / 100) * zoneBounds.height;
+        this.ctx.moveTo(firstPixelX, firstPixelY);
+        
+        for(let i = 1; i < this.playerSequence.length; i++) {
+            const pixelX = zoneBounds.left + (this.playerSequence[i].x / 100) * zoneBounds.width;
+            const pixelY = zoneBounds.top + (this.playerSequence[i].y / 100) * zoneBounds.height;
+            this.ctx.lineTo(pixelX, pixelY);
+        }
         this.ctx.stroke();
     },
-    convertToPixels(percentCoord) { const zone = document.getElementById('sky-interaction-zone'); return { x: zone.offsetLeft + (percentCoord.x / 100) * zone.clientWidth, y: zone.offsetTop + (percentCoord.y / 100) * zone.clientHeight }; },
+    
+    killAllHardwareAudio() {
+        this.gameActive = false;
+        if (this.woodwindInterval) { clearInterval(this.woodwindInterval); this.woodwindInterval = null; }
+        if (this.audioCtx) { this.audioCtx.close().then(() => { this.audioCtx = null; this.audioHardwareUnlocked = false; }); }
+    },
+    
+    convertToPixels(percentCoord) { 
+        const zone = document.getElementById('sky-interaction-zone'); 
+        const bounds = zone.getBoundingClientRect();
+        return { x: bounds.left + (percentCoord.x / 100) * bounds.width, y: bounds.top + (percentCoord.y / 100) * bounds.height }; 
+    },
     verifySequenceAccuracy() {
         let isPerfect = true; for (let i = 0; i < this.generatedSequence.length; i++) { if (this.generatedSequence[i].x !== this.playerSequence[i].x || this.generatedSequence[i].y !== this.playerSequence[i].y) { isPerfect = false; break; } }
         const nodes = document.querySelectorAll('.star-target');
@@ -337,48 +310,21 @@ const Engine = {
             setTimeout(() => { this.generateNewRound(); }, 1400);
         }
     },
-    takeABreatherRoute() { 
-        this.killAllHardwareAudio();
-        window.location.href = 'index.html?action=breather'; 
-    },
+    takeABreatherRoute() { this.killAllHardwareAudio(); window.location.href = 'index.html?action=breather'; },
     exitRoom() {
         this.killAllHardwareAudio();
-        
-        document.getElementById('sky-interaction-zone').style.opacity = '0';
-        document.getElementById('sky-interaction-zone').style.pointerEvents = 'none';
-        
-        const topHUDBar = document.getElementById('top-hud-navigation-bar');
-        if (topHUDBar) {
-            topHUDBar.style.opacity = '0';
-            topHUDBar.style.pointerEvents = 'none';
-        }
-        
-        if (document.getElementById('stroop-overlay')) {
-            document.getElementById('stroop-overlay').classList.remove('active');
-        }
-        if (this.ctx) {
-            this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-        }
-
-        const controlPanel = document.getElementById('control-panel');
-        if (controlPanel) {
-            controlPanel.innerHTML = '';
-        }
-        
-        const exitScreen = document.getElementById('exit-goodbye-screen');
-        exitScreen.style.display = 'flex';
-        setTimeout(() => { exitScreen.style.opacity = '1'; }, 50);
+        if (document.getElementById('stroop-overlay')) document.getElementById('stroop-overlay').style.setProperty('display', 'none', 'important');
+        if (document.getElementById('control-panel')) document.getElementById('control-panel').style.setProperty('display', 'none', 'important');
+        document.getElementById('sky-interaction-zone').style.opacity = '0'; document.getElementById('sky-interaction-zone').style.pointerEvents = 'none';
+        if (document.getElementById('top-hud-navigation-bar')) document.getElementById('top-hud-navigation-bar').style.opacity = '0';
+        if (this.ctx) this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        const exitScreen = document.getElementById('exit-goodbye-screen'); exitScreen.style.display = 'flex'; setTimeout(() => { exitScreen.style.opacity = '1'; }, 50);
     },
-    confirmStudioExit() {
-        window.location.href = 'index.html?action=studio';
-    }
+    confirmStudioExit() { window.location.href = 'index.html?action=studio'; }
 };
 
 window.addEventListener('DOMContentLoaded', () => {
-    setTimeout(() => {
-        const card = document.getElementById('entrance-gate-card');
-        if (card) card.classList.add('ignite-card-reveal');
-    }, 150);
+    setTimeout(() => { const card = document.getElementById('entrance-gate-card'); if (card) card.classList.add('ignite-card-reveal'); }, 150);
 });
 </script>
 </body>
