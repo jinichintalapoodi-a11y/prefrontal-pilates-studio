@@ -32,6 +32,7 @@
             margin: 0; padding: 0; width: 100%; height: 100%;
             background-color: #050706; overflow: hidden;
             user-select: none; -webkit-user-select: none;
+            background-color: #0c100e !important; 
         }
 
         #game-container {
@@ -96,17 +97,20 @@
 
         #room-gate, #completion-screen { position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; height: 100%; background: transparent; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; z-index: 300; text-align: center; transition: opacity 1.5s var(--luxury-bezier); }
         
-        /* DYNAMIC VIEWPORT SCALING FOR THE GAME CARDS */
         .gate-card {
-            position: relative;
+            /* FIXED MOBILE PROFILE: Standardizes absolute bottom docking matching main index console */
+            position: fixed !important;
+            bottom: 0 !important;
+            left: 50% !important;
+            transform: translateX(-50%) translateY(0) !important;
             border: 2px solid rgba(247, 231, 206, 0.8); border-bottom: none; 
-            width: 850px; max-width: 92vw; height: 92vh; border-radius: 425px 425px 0 0; padding-top: 14vh; padding-left: 5vw; padding-right: 5vw; box-shadow: 0 -15px 50px rgba(0,0,0,0.8);
-            opacity: 0; transform: translateY(100vh); transition: opacity 1.5s cubic-bezier(0.16, 1, 0.3, 1), transform 1.5s cubic-bezier(0.16, 1, 0.3, 1);
+            width: 850px; max-width: 95vw; height: 92vh; border-radius: 425px 425px 0 0; padding-top: 14vh; padding-left: 5vw; padding-right: 5vw; box-shadow: 0 -15px 50px rgba(0,0,0,0.8);
+            opacity: 1;
             background: linear-gradient(rgba(5, 7, 6, 0.88), rgba(5, 7, 6, 0.88)), var(--amethyst-glass) !important;
             backdrop-filter: blur(25px) !important; -webkit-backdrop-filter: blur(25px) !important;
             overflow-y: auto;
+            transition: opacity 0.5s ease, transform 0.8s var(--luxury-bezier);
         }
-        .gate-card.ignite-card-reveal { opacity: 1; transform: translateY(0); }
         
         .gate-title { font-size: calc(1.6rem + 1vw); margin: 0 0 15px 0; text-shadow: 0 2px 10px rgba(0,0,0,0.5); font-weight: 700 !important; letter-spacing: 1px; }
         .gate-desc { font-size: calc(1rem + 0.3vw); line-height: 1.7; margin-bottom: 30px; opacity: 0.95; text-shadow: 0 2px 8px rgba(0,0,0,0.5); }
@@ -125,11 +129,11 @@
         }
 
         @media (max-width: 600px) {
-            .gate-card { border-radius: 50vw 50vw 0 0; padding-top: 20vh; }
+            .gate-card { border-radius: 48vw 48vw 0 0; padding-top: 18vh; }
             #top-hud-navigation-bar { padding: 0 15px; }
             #sky-interaction-zone { height: 40%; top: 18%; }
             #control-panel { bottom: 4%; }
-            .ambient-btn { width: 100% !important; margin: 5px 0; }
+            .ambient-btn { width: 100% !important; margin: 5px 0; padding: 11px 15px; }
         }
     </style>
 </head>
@@ -158,7 +162,7 @@
     </div>
 
     <div id="completion-screen" style="opacity:0; visibility:hidden; pointer-events: none;">
-        <div class="gate-card ignite-card-reveal" style="position: absolute; bottom: 0; left: 50%; transform: translateX(-50%);">
+        <div class="gate-card" id="completion-gate-card" style="transform: translateY(100vh) translateX(-50%) !important; opacity: 0;">
             <div class="curved-bounds-container">
                 <div class="gate-title">Sanctuary Aligned</div>
                 <div class="gate-desc">Your working memory and executive control are balanced. Your focus streak has stabilized.</div>
@@ -168,23 +172,23 @@
     </div>
 
     <div id="exit-goodbye-screen">
-        <div class="gate-card ignite-card-reveal" style="position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); pointer-events: auto;">
+        <div class="gate-card" id="exit-gate-card" style="transform: translateY(100vh) translateX(-50%) !important; opacity: 0; pointer-events: auto;">
             <div class="curved-bounds-container">
                 <div class="gate-title" style="margin-bottom: 20px;">Targeted Regimen Complete!</div>
                 
-                <div class="gate-desc" style="font-size: 1.25rem; line-height: 1.7; margin-bottom: 25px; color: #f7e7ce; font-style: italic;">
+                <div class="gate-desc" style="font-size: 1.15rem; line-height: 1.6; margin-bottom: 20px; color: #f7e7ce; font-style: italic;">
                     "You've just strengthened your working memory—the vital engine powering your mind. Keep building your cognitive reserve!"
                 </div>
 
-                <hr style="border: 0; border-top: 1px solid rgba(247, 231, 206, 0.2); width: 40%; margin-bottom: 25px;">
+                <hr style="border: 0; border-top: 1px solid rgba(247, 231, 206, 0.2); width: 40%; margin-bottom: 20px;">
 
-                <div style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 3px; opacity: 0.6; margin-bottom: 12px;">Neuroscience Insights</div>
+                <div style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 3px; opacity: 0.6; margin-bottom: 10px;">Neuroscience Insights</div>
                 
-                <div style="font-size: 0.95rem; line-height: 1.6; margin-bottom: 40px; opacity: 0.95; text-align: justify;">
+                <div style="font-size: 0.9rem; line-height: 1.5; margin-bottom: 30px; opacity: 0.95; text-align: justify;">
                     For women aged 40 and older, targeted cognitive training is designed to optimize neuroplasticity and cognitive reserve—the brain's structural resilience and capacity to deploy alternative neural networks to maintain executive function. Clinical evidence highlights the perimenopausal and menopausal transitions as critical windows of neurodevelopmental vulnerability and opportunity. Proactive, multi-domain interventions during this phase yield the highest efficacy in delaying the clinical onset of age-related neurodegenerative pathologies.
                 </div>
 
-                <button class="ambient-btn visible" style="color: var(--champagne-gold) !important; padding: 14px 50px; pointer-events: auto !important;" onclick="Engine.confirmStudioExit()">Close Studio Session</button>
+                <button class="ambient-btn visible" style="color: var(--champagne-gold) !important; padding: 12px 40px; pointer-events: auto !important;" onclick="Engine.confirmStudioExit()">Close Studio Session</button>
             </div>
         </div>
     </div>
@@ -323,7 +327,9 @@ const Engine = {
             setTimeout(() => {
                 if (this.currentStreak >= 5) { this.currentStreak = 0; document.getElementById('streak-display').innerText = `Focus Streak: ${this.currentStreak}/5`; if (this.sequenceLength < 5) { this.sequenceLength++; this.generateNewRound(); } else { 
                     this.killAllHardwareAudio();
-                    const comp = document.getElementById('completion-screen'); comp.style.visibility = 'visible'; comp.style.opacity = '1'; comp.style.pointerEvents = 'auto'; 
+                    const comp = document.getElementById('completion-screen'); 
+                    comp.style.visibility = 'visible'; comp.style.opacity = '1'; comp.style.pointerEvents = 'auto';
+                    document.getElementById('completion-gate-card').setAttribute('style', 'transform: translateX(-50%) translateY(0) !important; opacity: 1;');
                 } } else { this.generateNewRound(); }
             }, 1300);
         } else {
@@ -337,31 +343,21 @@ const Engine = {
     },
     exitRoom() {
         this.killAllHardwareAudio();
-        
         document.getElementById('sky-interaction-zone').style.opacity = '0';
         document.getElementById('sky-interaction-zone').style.pointerEvents = 'none';
         
         const topHUDBar = document.getElementById('top-hud-navigation-bar');
-        if (topHUDBar) {
-            topHUDBar.style.opacity = '0';
-            topHUDBar.style.pointerEvents = 'none';
-        }
-        
-        if (document.getElementById('stroop-overlay')) {
-            document.getElementById('stroop-overlay').classList.remove('active');
-        }
-        if (this.ctx) {
-            this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-        }
-
-        const controlPanel = document.getElementById('control-panel');
-        if (controlPanel) {
-            controlPanel.innerHTML = '';
-        }
+        if (topHUDBar) { topHUDBar.style.opacity = '0'; topHUDBar.style.pointerEvents = 'none'; }
+        if (document.getElementById('stroop-overlay')) { document.getElementById('stroop-overlay').classList.remove('active'); }
+        if (this.ctx) { this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height); }
+        if (document.getElementById('control-panel')) { document.getElementById('control-panel').innerHTML = ''; }
         
         const exitScreen = document.getElementById('exit-goodbye-screen');
         exitScreen.style.display = 'flex';
-        setTimeout(() => { exitScreen.style.opacity = '1'; }, 50);
+        setTimeout(() => { 
+            exitScreen.style.opacity = '1'; 
+            document.getElementById('exit-gate-card').setAttribute('style', 'transform: translateX(-50%) translateY(0) !important; opacity: 1;');
+        }, 50);
     },
     confirmStudioExit() {
         window.location.href = 'index.html?action=studio';
@@ -371,7 +367,7 @@ const Engine = {
 window.addEventListener('DOMContentLoaded', () => {
     setTimeout(() => {
         const card = document.getElementById('entrance-gate-card');
-        if (card) card.classList.add('ignite-card-reveal');
+        if (card) card.setAttribute('style', 'transform: translateX(-50%) translateY(0) !important; opacity: 1;');
     }, 150);
 });
 </script>
