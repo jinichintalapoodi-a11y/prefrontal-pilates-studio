@@ -36,6 +36,7 @@
 
         #game-container {
             position: relative; width: 100vw; height: 100vh;
+            background-color: #050706 !important;
             background-image: url('star_gazer.png'); background-size: cover; background-position: center;
             overflow: hidden;
         }
@@ -317,7 +318,7 @@ const Engine = {
     },
     takeABreatherRoute() { 
         this.killAllHardwareAudio();
-        window.location.href = 'Sanctuary_Master_DO_NOT_DELETE.html?action=breather'; 
+        window.location.href = 'index.html?action=breather'; 
     },
     exitRoom() {
         this.killAllHardwareAudio();
@@ -348,7 +349,7 @@ const Engine = {
         setTimeout(() => { exitScreen.style.opacity = '1'; }, 50);
     },
     confirmStudioExit() {
-        window.location.href = 'Sanctuary_Master_DO_NOT_DELETE.html?action=studio';
+        window.location.href = 'index.html?action=studio';
     }
 };
 
