@@ -71,7 +71,6 @@
             transition: opacity 0.3s ease;
         }
 
-        /* CENTER-ANCHORED DOOR HANDLES */
         .handle-rod {
             position: absolute; 
             top: 48%; 
@@ -115,21 +114,22 @@
         .studio-btn:active { transform: scale(0.97); }
         .domain-tag { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 3px; opacity: 0.6; margin-bottom: 4px; pointer-events: none; }
 
-        /* ADVANCED RATIO COUPLING FOR MOBILE ENVIRONMENT VIEWPORTS */
         @media (max-width: 600px) {
+            /* INTEGRATES YOUR NEW PORTRAIT MOBILE IMAGES */
+            #bg-garden { background-image: url('wisteria_mobile.jpg') !important; }
+            #bg-space-backing { background-image: url('star_gazer_mobile.jpg') !important; }
+
+            /* RE-TUNED HEIGHT RATIO: Unveils the wisteria canopy while elevating controls */
             #main-archway, #content-portal { 
-                height: 78vh !important; /* Lowers the top arch curve to frame more wisteria foliage */
+                height: 72vh !important; 
                 border-radius: 48vw 48vw 0 0; 
             }
-            .panel-header { top: 22px; }
-            /* Adjusted column heights align perfectly with the updated viewport scale */
-            .practice-column { padding-top: 135px; overflow-y: auto !important; }
-            .studio-btn { width: 135px !important; margin: 4px; padding: 8px 10px; font-size: 0.85rem; }
+            .panel-header { top: 20px; }
+            .practice-column { padding-top: 130px; overflow-y: auto !important; }
+            .studio-btn { width: 135px !important; margin: 5px 4px; padding: 8px 10px; font-size: 0.85rem; }
             .domain-tag { letter-spacing: 1px; font-size: 0.55rem; }
-            #portal-inner h1 { font-size: 1.8rem; }
-            
-            /* Repositions handles fluidly within the modified grid box */
-            .handle-rod { top: 44%; height: 46%; }
+            #portal-inner h1 { font-size: 1.7rem; }
+            .handle-rod { top: 44%; height: 48%; }
         }
     </style></head><body><div id="studio-stage">
     <div id="bg-garden"></div>
@@ -169,12 +169,12 @@
         },
         showChoice() {
             document.getElementById('welcome-text').style.display = 'none';
-            document.getElementById('mid-tier').innerHTML = `<div style="font-size: calc(1.2rem + 0.4vw); line-height: 1.4; max-width: 90%; margin: 0 auto 40px auto;">Would you like to start your practice or take a breather before entering your Prefrontal Pilates Studio now?</div>`;
+            document.getElementById('mid-tier').innerHTML = `<div style="font-size: calc(1.15rem + 0.4vw); line-height: 1.4; max-width: 90%; margin: 0 auto 40px auto;">Would you like to start your practice or take a breather before entering your Prefrontal Pilates Studio now?</div>`;
             document.getElementById('bot-tier').innerHTML = `<button class="studio-btn" onclick="Studio.revealDoors()">start your practice</button><button class="studio-btn" onclick="Studio.selectCycles()">take a breather</button>`;
         },
         selectCycles() {
             document.getElementById('welcome-text').style.display = 'none';
-            document.getElementById('mid-tier').innerHTML = `<div style="font-size: calc(1.2rem + 0.4vw); line-height: 1.4; max-width: 90%; margin: 0 auto 40px auto;">How many cycles of breath would you like to practice now?</div>`;
+            document.getElementById('mid-tier').innerHTML = `<div style="font-size: calc(1.15rem + 0.4vw); line-height: 1.4; max-width: 90%; margin: 0 auto 40px auto;">How many cycles of breath would you like to practice now?</div>`;
             document.getElementById('bot-tier').innerHTML = `<button class="studio-btn" onclick="Studio.beginWave(3)">3 Cycles</button><button class="studio-btn" onclick="Studio.beginWave(5)">5 Cycles</button><button class="studio-btn" onclick="Studio.beginWave(10)">10 Cycles</button>`;
         },
         beginWave(count) { this.totalCycles = count; this.runWave(); },
@@ -229,6 +229,8 @@
     window.addEventListener('DOMContentLoaded', () => {
         const imgCache = new Image();
         imgCache.src = 'star_gazer.png';
+        const imgCacheMob = new Image();
+        imgCacheMob.src = 'star_gazer_mobile.jpg';
     });
 
     if (immediateAction === 'breather') Studio.selectCycles();
