@@ -45,11 +45,15 @@
             overflow: hidden;
         }
 
+        /* TWO-TIERED HUD NAVIGATION PANEL */
         #top-hud-navigation-bar {
             position: absolute; top: 0; left: 50%; transform: translateX(-50%); 
-            width: 100%; max-width: 480px; padding: 20px 20px 0 20px; z-index: 200;
+            width: 100%; max-width: 480px; padding: 20px 20px 0 20px; z-index: 500;
             display: flex; flex-direction: column; align-items: center;
+            opacity: 0; pointer-events: none; transition: opacity 0.6s var(--luxury-bezier);
         }
+        #top-hud-navigation-bar.revealed { opacity: 1; pointer-events: auto; }
+        
         .hud-row-controls { width: 100%; display: flex; flex-direction: row; align-items: center; justify-content: space-between; }
 
         .hud-nav-btn {
@@ -60,7 +64,7 @@
 
         #recall-hud-actions {
             position: absolute; top: 75px; left: 50%; transform: translateX(-50%);
-            z-index: 200; display: flex; justify-content: center; width: 100%; max-width: 440px;
+            z-index: 400; display: flex; justify-content: center; width: 100%; max-width: 440px;
             opacity: 0; pointer-events: none; transition: opacity 0.4s var(--luxury-bezier);
         }
         #recall-hud-actions.visible { opacity: 1; pointer-events: auto; }
@@ -162,7 +166,6 @@
 
         #exit-goodbye-screen { display: none; position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; height: 100%; background: transparent; z-index: 99999; text-align: center; opacity: 0; transition: opacity 1s ease; }
 
-        /* DIRECT STITCH TARGET: Points exactly to your custom mobile format asset */
         @media (max-width: 480px) {
             #stage-canvas-wrapper { background-image: url('star_gazer_mobile.jpeg') !important; background-size: cover; background-position: center center; }
             .gate-card { height: 82vh; padding-top: 20vh; }
@@ -233,7 +236,7 @@
 <script>
 const Engine = {
     sequenceLength: 3, roundsCompletedInStage: 0, generatedSequence: [], playerSequence: [], stroopStage: 1, audioCtx: null, canvas: null, ctx: null, woodwindInterval: null, woodwindStep: 0, lineState: 'tracing', audioHardwareUnlocked: false, gameActive: true,
-    stroopDroneOsc1: null, stroopDroneOsc2: null, stroopDroneGain: null,
+    mainDroneGain: null, stroopFocusGain: null, activeOscillators: [],
     skyCoordinates: [{ x: 15, y: 15 }, { x: 35, y: 12 }, { x: 55, y: 18 }, { x: 75, y: 14 }, { x: 85, y: 35 }, { x: 65, y: 40 }, { x: 45, y: 32 }, { x: 20, y: 45 }, { x: 50, y: 10 }],
     colors: [{ name: 'Red', hex: '#ff5252', class: 'btn-red' }, { name: 'Blue', hex: '#4a90e2', class: 'btn-blue' }, { name: 'Green', hex: '#66bb6a', class: 'btn-green' }, { name: 'Yellow', hex: '#ffca28', class: 'btn-yellow' }],
 
@@ -254,7 +257,7 @@ const Engine = {
         if (!this.audioCtx) this.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         if (this.audioCtx.state === 'suspended') this.audioCtx.resume();
         this.audioHardwareUnlocked = true;
-        if (!this.woodwindInterval) this.startMellowWoodwindDrone();
+        this.startHarmonicLandscape();
     },
     initPractice() {
         if ('speechSynthesis' in window) window.speechSynthesis.cancel();
@@ -262,69 +265,90 @@ const Engine = {
         this.audioCtx.resume().then(() => {
             this.audioHardwareUnlocked = true;
             document.getElementById('room-gate').style.opacity = '0';
+            document.getElementById('top-hud-navigation-bar').classList.add('revealed');
             setTimeout(() => { document.getElementById('room-gate').remove(); }, 1500);
-            this.initCanvas(); this.startMellowWoodwindDrone(); this.generateNewRound();
+            this.initCanvas(); this.startHarmonicLandscape(); this.generateNewRound();
         });
     },
     initCanvas() { this.canvas = document.getElementById('constellation-canvas'); this.ctx = this.canvas.getContext('2d'); this.resizeCanvas(); window.addEventListener('resize', () => this.resizeCanvas()); },
     resizeCanvas() { const container = document.getElementById('stage-canvas-wrapper'); this.canvas.width = container.clientWidth; this.canvas.height = container.clientHeight; this.redrawConstellationLines(); },
-    triggerAudioNode(frequency, waveType = 'triangle', volume = 0.16, attack = 0.05, duration = 2.2) {
-        if (!this.gameActive || !this.audioCtx || this.audioCtx.state === 'closed') return;
-        const currentTime = this.audioCtx.currentTime; const osc = this.audioCtx.createOscillator(); const gainNode = this.audioCtx.createGain(); const filterNode = this.audioCtx.createBiquadFilter();
-        osc.type = waveType; osc.frequency.setValueAtTime(frequency, currentTime);
-        filterNode.type = 'lowpass'; filterNode.frequency.setValueAtTime(waveType === 'sine' ? frequency * 1.5 : frequency * 2.2, currentTime);
-        gainNode.gain.setValueAtTime(0, currentTime); gainNode.gain.linearRampToValueAtTime(volume, currentTime + attack); gainNode.gain.exponentialRampToValueAtTime(0.0001, duration);
-        osc.connect(filterNode); filterNode.connect(gainNode); gainNode.connect(this.audioCtx.destination);
-        osc.start(currentTime); osc.stop(currentTime + duration);
-    },
     
-    startStroopFocusTrack() {
-        if (!this.audioCtx || this.audioCtx.state === 'closed' || this.stroopDroneGain) return;
-        const now = this.audioCtx.currentTime;
-        this.stroopDroneGain = this.audioCtx.createGain();
-        this.stroopDroneGain.gain.setValueAtTime(0, now);
-        this.stroopDroneGain.gain.linearRampToValueAtTime(0.045, now + 0.6); 
-        this.stroopDroneOsc1 = this.audioCtx.createOscillator();
-        this.stroopDroneOsc1.type = 'sine';
-        this.stroopDroneOsc1.frequency.setValueAtTime(164.81, now); 
-        this.stroopDroneOsc2 = this.audioCtx.createOscillator();
-        this.stroopDroneOsc2.type = 'sine';
-        this.stroopDroneOsc2.frequency.setValueAtTime(220.00, now); 
-        this.stroopDroneOsc1.connect(this.stroopDroneGain);
-        this.stroopDroneOsc2.connect(this.stroopDroneGain);
-        this.stroopDroneGain.connect(this.audioCtx.destination);
-        this.stroopDroneOsc1.start(now);
-        this.stroopDroneOsc2.start(now);
+    // REDESIGNED CORE SOUND LOOPS: Soft, pure sine-wave arpeggios replace cold electronic feedback
+    triggerAudioNode(frequency, waveType = 'sine', volume = 0.12, attack = 0.08, duration = 1.8) {
+        if (!this.gameActive || !this.audioCtx || this.audioCtx.state === 'closed') return;
+        const now = this.audioCtx.currentTime; const osc = this.audioCtx.createOscillator(); const gainNode = this.audioCtx.createGain();
+        osc.type = waveType; osc.frequency.setValueAtTime(frequency, now);
+        gainNode.gain.setValueAtTime(0, now); gainNode.gain.linearRampToValueAtTime(volume, now + attack); gainNode.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+        osc.connect(gainNode); gainNode.connect(this.audioCtx.destination); osc.start(now); osc.stop(now + duration);
     },
-    stopStroopFocusTrack() {
-        if (!this.audioCtx || !this.stroopDroneGain) return;
+
+    // ADAPTIVE GROUND HARMONICS: Creates a living sound landscape that continuously weaves through phases
+    startHarmonicLandscape() {
+        if (!this.gameActive || !this.audioCtx || this.audioCtx.state === 'closed' || this.mainDroneGain) return;
         const now = this.audioCtx.currentTime;
-        try {
-            this.stroopDroneGain.gain.setValueAtTime(this.stroopDroneGain.gain.value, now);
-            this.stroopDroneGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.4);
-            const osc1 = this.stroopDroneOsc1; const osc2 = this.stroopDroneOsc2;
-            setTimeout(() => { try { osc1.stop(); osc2.stop(); } catch(e){} }, 500);
-        } catch(err){}
-        this.stroopDroneOsc1 = null; this.stroopDroneOsc2 = null; this.stroopDroneGain = null;
+        this.mainDroneGain = this.audioCtx.createGain();
+        this.mainDroneGain.gain.setValueAtTime(0.022, now);
+        this.mainDroneGain.connect(this.audioCtx.destination);
+
+        const chordTriad = [220.00, 293.66, 329.63]; // Pristine E-minor anchor notes
+        chordTriad.forEach(freq => {
+            const osc = this.audioCtx.createOscillator();
+            osc.type = 'sine'; osc.frequency.setValueAtTime(freq, now);
+            osc.connect(this.mainDroneGain); osc.start(now);
+            this.activeOscillators.push(osc);
+        });
+    },
+
+    // CROSS-FADE MECHANICS: Smoothly blends structural soundscapes to prevent audio cuts
+    crossFadeToStroopFocus() {
+        if (!this.audioCtx || !this.mainDroneGain) return;
+        const now = this.audioCtx.currentTime;
+        // Softly dip celestial backing track volume by half
+        this.mainDroneGain.gain.setValueAtTime(this.mainDroneGain.gain.value, now);
+        this.mainDroneGain.gain.linearRampToValueAtTime(0.010, now + 0.4);
+
+        if (!this.stroopFocusGain) {
+            this.stroopFocusGain = this.audioCtx.createGain();
+            this.stroopDroneOsc1 = this.audioCtx.createOscillator();
+            this.stroopDroneOsc2 = this.audioCtx.createOscillator();
+            
+            this.stroopFocusGain.gain.setValueAtTime(0, now);
+            this.stroopFocusGain.gain.linearRampToValueAtTime(0.035, now + 0.5); // Warm transition fade
+            
+            this.stroopDroneOsc1.type = 'sine'; this.stroopDroneOsc1.frequency.setValueAtTime(164.81, now); // Grounding E3 bass hum
+            this.stroopDroneOsc2.type = 'sine'; this.stroopDroneOsc2.frequency.setValueAtTime(220.00, now); // Shared harmonic anchor
+            
+            this.stroopDroneOsc1.connect(this.stroopFocusGain);
+            this.stroopDroneOsc2.connect(this.stroopFocusGain);
+            this.stroopFocusGain.connect(this.audioCtx.destination);
+            
+            this.stroopDroneOsc1.start(now); this.stroopDroneOsc2.start(now);
+        }
+    },
+    returnToCelestialClearance() {
+        if (!this.audioCtx) return;
+        const now = this.audioCtx.currentTime;
+        // Return sky drone back to full volume safely
+        if (this.mainDroneGain) {
+            this.mainDroneGain.gain.setValueAtTime(this.mainDroneGain.gain.value, now);
+            this.mainDroneGain.gain.linearRampToValueAtTime(0.022, now + 0.5);
+        }
+        // Fade out low grounding hum smoothly
+        if (this.stroopFocusGain) {
+            const currentGain = this.stroopFocusGain; const o1 = this.stroopDroneOsc1; const o2 = this.stroopDroneOsc2;
+            currentGain.gain.setValueAtTime(currentGain.gain.value, now);
+            currentGain.gain.linearRampToValueAtTime(0.0001, now + 0.5);
+            setTimeout(() => { try { o1.stop(); o2.stop(); } catch(e){} }, 600);
+            this.stroopFocusGain = null; this.stroopDroneOsc1 = null; this.stroopDroneOsc2 = null;
+        }
     },
 
     triggerJuicyWinMelody() {
         if (!this.audioCtx || this.audioCtx.state === 'closed') return;
-        const eMajorArpeggio = [329.63, 415.30, 493.88, 659.25];
-        eMajorArpeggio.forEach((noteFreq, offsetIndex) => {
-            setTimeout(() => { if (this.gameActive) { this.triggerAudioNode(noteFreq, 'sine', 0.18, 0.04, 2.5); } }, offsetIndex * 140);
+        const eMajorCascade = [329.63, 415.30, 493.88, 659.25];
+        eMajorCascade.forEach((noteFreq, offsetIndex) => {
+            setTimeout(() => { if (this.gameActive) { this.triggerAudioNode(noteFreq, 'sine', 0.14, 0.06, 2.2); } }, offsetIndex * 130);
         });
-    },
-
-    startMellowWoodwindDrone() {
-        if (!this.gameActive || !this.audioCtx || this.audioCtx.state === 'closed') return;
-        const droneFrequencies = [220.00, 293.66, 329.63];
-        const breathCycle = () => { 
-            if (!this.gameActive || !this.audioCtx || this.audioCtx.state === 'closed') return;
-            const freq = droneFrequencies[this.woodwindStep % droneFrequencies.length]; 
-            this.triggerAudioNode(freq, 'sine', 0.022, 1.2, 7.5); this.woodwindStep++; 
-        };
-        breathCycle(); this.woodwindInterval = setInterval(breathCycle, 6500);
     },
 
     generateNewRound() {
@@ -355,7 +379,7 @@ const Engine = {
         this.generatedSequence.forEach((coord, index) => {
             const target = document.createElement('div'); target.className = 'star-target'; target.style.left = `${coord.x}%`; target.style.top = `${coord.y}%`; target.innerHTML = `<div class="star-center"></div><div class="star-ripple"></div><div class="star-ripple"></div>`; zone.appendChild(target);
             const displayDelay = index * 1700;
-            setTimeout(() => { if (this.gameActive) { target.classList.add('reveal'); this.triggerAudioNode(stargazerMelody[index % stargazerMelody.length], 'triangle', 0.15, 0.05, 2.0); } }, displayDelay);
+            setTimeout(() => { if (this.gameActive) { target.classList.add('reveal'); this.triggerAudioNode(stargazerMelody[index % stargazerMelody.length], 'sine', 0.12, 0.08, 1.8); } }, displayDelay);
             setTimeout(() => { if (this.gameActive) target.classList.remove('reveal'); }, displayDelay + 1300);
         });
         setTimeout(() => { if (this.gameActive) { zone.innerHTML = ''; this.executeStroopPhase(); } }, this.sequenceLength * 1700 + 400);
@@ -369,14 +393,20 @@ const Engine = {
         wordEl.setAttribute('style', `color: ${colorData.hex} !important`);
         if (Math.random() > 0.5) { instructionEl.innerText = "Match the LITERAL WORD text"; this.correctStroopAnswer = wordData.name; }
         else { instructionEl.innerText = "Match the ink color"; this.correctStroopAnswer = colorData.name; }
-        this.startStroopFocusTrack(); overlay.classList.add('active');
+        
+        // INTERFERENCE ENTRY CROSS-FADE TONE
+        this.crossFadeToStroopFocus();
+        
+        overlay.classList.add('active');
         this.colors.forEach(color => { const btn = document.createElement('button'); btn.className = `ambient-btn ${color.class}`; btn.innerText = `${color.name}`; btn.onclick = () => this.evaluateStroopChoice(color.name); panel.appendChild(btn); setTimeout(() => { if (this.gameActive) btn.classList.add('visible'); }, 200); });
     },
     evaluateStroopChoice(selectedColorName) {
-        this.stopStroopFocusTrack();
+        // DISMISS DENSE STROOP HUM CHORD SMOOTHLY
+        this.returnToCelestialClearance();
+        
         const overlay = document.getElementById('stroop-overlay'); overlay.classList.remove('active'); document.querySelectorAll('.ambient-btn').forEach(btn => btn.classList.remove('visible'));
-        if (selectedColorName === this.correctStroopAnswer) { this.triggerAudioNode(196.00, 'sine', 0.08, 0.1, 2.5); setTimeout(() => { if (this.gameActive) this.initializeRecallPhase(); }, 800); }
-        else { this.triggerAudioNode(110.00, 'triangle', 0.15, 0.05, 1.8); this.roundsCompletedInStage = 0; setTimeout(() => { if (this.gameActive) this.generateNewRound(); }, 1200); }
+        if (selectedColorName === this.correctStroopAnswer) { this.triggerAudioNode(196.00, 'sine', 0.08, 0.08, 2.2); setTimeout(() => { if (this.gameActive) this.initializeRecallPhase(); }, 800); }
+        else { this.triggerAudioNode(110.00, 'sine', 0.12, 0.05, 1.5); this.roundsCompletedInStage = 0; setTimeout(() => { if (this.gameActive) this.generateNewRound(); }, 1200); }
     },
     initializeRecallPhase() {
         if (!this.gameActive) return;
@@ -390,7 +420,7 @@ const Engine = {
     },
     evaluateRecallTouch(coord, element, index) {
         element.style.pointerEvents = 'none'; element.classList.add('ignited'); this.playerSequence.push(coord);
-        const stargazerMelody = [329.63, 392.00, 440.00, 523.25, 587.33]; this.triggerAudioNode(stargazerMelody[index % stargazerMelody.length], 'triangle', 0.15, 0.05, 2.2); this.redrawConstellationLines();
+        const stargazerMelody = [329.63, 392.00, 440.00, 523.25, 587.33]; this.triggerAudioNode(stargazerMelody[index % stargazerMelody.length], 'sine', 0.12, 0.06, 1.8); this.redrawConstellationLines();
         if (this.playerSequence.length === this.generatedSequence.length) { document.getElementById('sky-interaction-zone').style.pointerEvents = 'none'; setTimeout(() => { if (this.gameActive) { this.verifySequenceAccuracy(); } }, 1000); }
     },
     undoLastRecallStep() {
@@ -398,7 +428,7 @@ const Engine = {
         const rolledBackCoord = this.playerSequence.pop();
         const matchingNode = Array.from(document.querySelectorAll('.star-target')).find(target => { return parseFloat(target.dataset.coordX) === rolledBackCoord.x && parseFloat(target.dataset.coordY) === rolledBackCoord.y; });
         if (matchingNode) { matchingNode.classList.remove('ignited'); matchingNode.style.pointerEvents = 'auto'; }
-        this.triggerAudioNode(147.14, 'sine', 0.10, 0.05, 0.8); document.getElementById('sky-interaction-zone').style.pointerEvents = 'auto'; this.redrawConstellationLines();
+        this.triggerAudioNode(147.14, 'sine', 0.08, 0.04, 1.2); document.getElementById('sky-interaction-zone').style.pointerEvents = 'auto'; this.redrawConstellationLines();
     },
     redrawConstellationLines() {
         if (!this.ctx || !this.canvas) return; this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height); if (this.playerSequence.length < 1) return;
@@ -412,7 +442,11 @@ const Engine = {
         }
         this.ctx.stroke();
     },
-    killAllHardwareAudio() { this.gameActive = false; this.stopStroopFocusTrack(); if (this.woodwindInterval) { clearInterval(this.woodwindInterval); this.woodwindInterval = null; } if (this.audioCtx) { this.audioCtx.close().then(() => { this.audioCtx = null; }); } },
+    killAllHardwareAudio() { 
+        this.gameActive = false; this.returnToCelestialClearance();
+        try { this.activeOscillators.forEach(osc => osc.stop()); } catch(e){}
+        if (this.audioCtx) { this.audioCtx.close().then(() => { this.audioCtx = null; }); } 
+    },
     verifySequenceAccuracy() {
         let isPerfect = true; for (let i = 0; i < this.generatedSequence.length; i++) { if (this.generatedSequence[i].x !== this.playerSequence[i].x || this.generatedSequence[i].y !== this.playerSequence[i].y) { isPerfect = false; break; } }
         const nodes = document.querySelectorAll('.star-target');
@@ -422,7 +456,7 @@ const Engine = {
                 if (this.roundsCompletedInStage >= 5) { this.roundsCompletedInStage = 0; if (this.sequenceLength < 5) { this.sequenceLength++; this.generateNewRound(); } else { this.killAllHardwareAudio(); const comp = document.getElementById('completion-screen'); comp.style.visibility = 'visible'; comp.style.opacity = '1'; comp.style.pointerEvents = 'auto'; } } else { this.generateNewRound(); }
             }, 1300);
         } else {
-            document.getElementById('recall-hud-actions').classList.remove('visible'); this.lineState = 'wrong'; this.redrawConstellationLines(); nodes.forEach(n => { n.classList.remove('ignited'); n.classList.add('wrong-grey'); }); this.triggerAudioNode(98.00, 'triangle', 0.20, 0.04, 1.5); this.roundsCompletedInStage = 0;
+            document.getElementById('recall-hud-actions').classList.remove('visible'); this.lineState = 'wrong'; this.redrawConstellationLines(); nodes.forEach(n => { n.classList.remove('ignited'); n.classList.add('wrong-grey'); }); this.triggerAudioNode(98.00, 'sine', 0.16, 0.05, 1.6); this.roundsCompletedInStage = 0;
             setTimeout(() => { this.generateNewRound(); }, 1400);
         }
     },

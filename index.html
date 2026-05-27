@@ -109,7 +109,6 @@
         .studio-btn:active { transform: scale(0.97); }
         .domain-tag { font-size: 0.55rem; text-transform: uppercase; letter-spacing: 1px; opacity: 0.6; margin-bottom: 3px; pointer-events: none; }
 
-        /* FIXED ASSIGNMENTS: Maps strictly to your requested mobile framework image name */
         @media (max-width: 480px) {
             #bg-garden { background-image: url('wisteria_mobile.jpeg') !important; }
             #bg-space-backing { background-image: url('star_gazer_mobile.jpeg') !important; }
@@ -172,14 +171,18 @@
             gain.gain.setValueAtTime(0, this.audioCtx.currentTime); gain.gain.linearRampToValueAtTime(0.15, this.audioCtx.currentTime + 0.5); gain.gain.exponentialRampToValueAtTime(0.0001, this.audioCtx.currentTime + duration);
             osc.connect(gain); gain.connect(this.audioCtx.destination); osc.start(); osc.stop(this.audioCtx.currentTime + duration);
         },
+        // STREAMLINED CHOICE VIEW: Purged the redundant text paragraph and "now" layout strings
         showChoice() {
             document.getElementById('welcome-text').style.display = 'none';
-            document.getElementById('mid-tier').innerHTML = `<div style="font-size: 1.15rem; line-height: 1.4; max-width: 90%; margin: 0 auto 40px auto;">Would you like to start your practice or take a breather before entering your Prefrontal Pilates Studio now?</div>`;
-            document.getElementById('bot-tier').innerHTML = `<button class="studio-btn" style="width:auto; padding:10px 20px; margin:5px;" onclick="Studio.revealDoors()">start your practice</button><button class="studio-btn" style="width:auto; padding:10px 20px; margin:5px;" onclick="Studio.selectCycles()">take a breather</button>`;
+            document.getElementById('mid-tier').innerHTML = `<h1>Prepare your mind.</h1>`;
+            document.getElementById('bot-tier').innerHTML = `
+                <button class="studio-btn" style="width:auto; padding:10px 24px; margin:6px;" onclick="Studio.revealDoors()">Start Practice</button>
+                <button class="studio-btn" style="width:auto; padding:10px 24px; margin:6px;" onclick="Studio.selectCycles()">Take a Breather</button>
+            `;
         },
         selectCycles() {
             document.getElementById('welcome-text').style.display = 'none';
-            document.getElementById('mid-tier').innerHTML = `<div style="font-size: 1.15rem; line-height: 1.4; max-width: 90%; margin: 0 auto 40px auto;">How many cycles of breath would you like to practice now?</div>`;
+            document.getElementById('mid-tier').innerHTML = `<div style="font-size: 1.15rem; line-height: 1.4; max-width: 90%; margin: 0 auto 40px auto;">How many cycles of breath would you like to practice?</div>`;
             document.getElementById('bot-tier').innerHTML = `<button class="studio-btn" style="width:auto;" onclick="Studio.beginWave(3)">3 Cycles</button><button class="studio-btn" style="width:auto;" onclick="Studio.beginWave(5)">5 Cycles</button><button class="studio-btn" style="width:auto;" onclick="Studio.beginWave(10)">10 Cycles</button>`;
         },
         beginWave(count) { this.totalCycles = count; this.runWave(); },
