@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prefrontal Pilates Studio | Stargazer</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@1,400;1,700&display=swap" rel="stylesheet">
+    <style>
+        /* ==========================================================================
+           UNIVERSAL SANCTUARY TYPOGRAPHY SYSTEM (Enforces Complete Visual Uniformity)
+           ========================================================================== */
+        * { 
+            font-family: 'Playfair Display', serif !important; 
+            font-style: italic !important; 
+            font-weight: 400 !important; 
+            box-sizing: border-box;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        :root {
+            --champagne-gold: #f7e7ce;
+            --gold-alpha: rgba(247, 231, 206, 0.6);
+            --gold-dim: rgba(247, 231, 206, 0.25);
+            --amethyst-glass: rgba(25, 15, 35, 0.45);
+            --luxury-bezier: cubic-bezier(0.645, 0.045, 0.355, 1.000);
+            
+            --stroop-red: #ff5252;
+            --stroop-blue: #4a90e2;
+            --stroop-green: #66bb6a;
+            --stroop-yellow: #ffca28;
+            --muted-grey: #444444;
+        }
+
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background-color: #0c100e !important; }
+
+        /* FIXED COLOR REGISTER: Forces all text elements into pure champagne gold globally */
+        body, p, div, span, h1, h2, h3, button, li {
+            color: var(--champagne-gold) !important;
+        }
+
+        /* FULL EDGE-TO-EDGE COSMIC CANVAS BACKDROP */
+        #stage-canvas-wrapper {
+            position: relative; width: 100vw; height: 100vh;
+            background-image: url('star_gazer.jpeg'); background-size: cover; background-position: center bottom;
+            overflow: hidden;
+        }
+
+        /* TWO-TIERED HUD NAVIGATION PANEL CONSTRAINED LOCALLY */
+        #top-hud-navigation-bar {
+            position: absolute; top: 0; left: 50%; transform: translateX(-50%); 
+            width: 100%; max-width: 480px; padding: 20px 20px 0 20px; z-index: 200;
+            display: flex; flex-direction: column; align-items: center;
+        }
+        .hud-row-controls { width: 100%; display: flex; flex-direction: row; align-items: center; justify-content: space-between; }
+
+        .hud-nav-btn {
+            border: 1px solid var(--gold-alpha); border-radius: 30px; padding: 6px 18px; background: rgba(25, 15, 35, 0.5); cursor: pointer !important; font-size: 0.85rem; letter-spacing: 1px; text-transform: uppercase; transition: all 0.3s var(--luxury-bezier); pointer-events: auto !important;
+            backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+        }
+        .hud-nav-btn:hover { border-color: var(--champagne-gold); background: rgba(247, 231, 206, 0.15); box-shadow: 0 0 12px rgba(247, 231, 206, 0.2); }
+
+        /* FLOATING RECALL ACTIONS INTERFACE */
+        #recall-hud-actions {
+            position: absolute; top: 75px; left: 50%; transform: translateX(-50%);
+            z-index: 200; display: flex; justify-content: center; width: 100%; max-width: 440px;
+            opacity: 0; pointer-events: none; transition: opacity 0.4s var(--luxury-bezier);
+        }
+        #recall-hud-actions.visible { opacity: 1; pointer-events: auto; }
+
+        /* SCREEN RESIZE STABLE INTERACTION MATRIX CANVAS LAYERS */
+        #constellation-canvas { position: absolute; inset: 0; z-index: 5; pointer-events: none; width: 100%; height: 100%; }
+        #sky-interaction-zone { position: absolute; left: 50%; transform: translateX(-50%); width: 100%; max-width: 440px; height: 35%; top: 16%; z-index: 10; pointer-events: auto; }
+
+        /* FIXED LAYER ISOLATION */
+        .star-target { 
+            position: absolute; 
+            width: 45px; 
+            height: 45px; 
+            transform: translate(-50%, -50%); 
+            cursor: pointer; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            opacity: 0; 
+            transition: opacity 0.4s ease; 
+            z-index: 15; 
+        }
+        .star-target.reveal { opacity: 1; }
+        
+        .star-center { 
+            width: 11px; 
+            height: 11px; 
+            background: var(--champagne-gold) !important; 
+            border-radius: 50%; 
+            box-shadow: 0 0 10px var(--champagne-gold), 0 0 25px rgba(247, 231, 206, 0.7); 
+            z-index: 12; 
+            transition: all 0.4s ease; 
+            pointer-events: none;
+        }
+        
+        .star-target.ignited .star-center { transform: scale(1.7) !important; background: #ffffff !important; box-shadow: 0 0 25px #ffffff, 0 0 50px var(--champagne-gold) !important; }
+        .star-target.correct-glow .star-center { animation: cosmicBurst 1.2s var(--luxury-bezier) forwards; }
+        .star-target.wrong-grey { animation: tacticalShiver 0.45s ease-in-out; }
+        .star-target.wrong-grey .star-center { transform: scale(0.6); background: #3a2e3b !important; box-shadow: none !important; border: 1px solid rgba(247,231,206,0.1); }
+
+        /* PULSATING RING CORE */
+        .star-ripple { position: absolute; border: 1.5px solid var(--champagne-gold); border-radius: 50%; opacity: 0; pointer-events: none; z-index: 11; width: 8px; height: 8px; }
+        .star-target.reveal .star-ripple { animation: zenPulse 3.8s infinite var(--luxury-bezier); }
+        .star-target.reveal .star-ripple:nth-child(2) { animation-delay: 1.2s; }
+        .star-target.wrong-grey .star-ripple { display:none !important; }
+        
+        @keyframes zenPulse { 0% { width: 8px; height: 8px; opacity: 0; transform: scale(1); } 20% { opacity: 0.6; } 100% { width: 95px; height: 95px; opacity: 0; transform: scale(1.2); } }
+        
+        @keyframes cosmicBurst {
+            0% { transform: scale(1); background: #ffffff !important; box-shadow: 0 0 20px #ffffff; }
+            30% { transform: scale(2.8); background: #ffffff !important; box-shadow: 0 0 50px #ffffff, 0 0 80px var(--champagne-gold); filter: brightness(1.5); }
+            100% { transform: scale(1.6); background: var(--champagne-gold) !important; box-shadow: 0 0 25px var(--champagne-gold); }
+        }
+        @keyframes tacticalShiver {
+            0%, 100% { transform: translate(-50%, -50%) translateX(0); }
+            20%, 60% { transform: translate(-50%, -50%) translateX(-8px); }
+            40%, 80% { transform: translate(-50%, -50%) translateX(8px); }
+        }
+
+        #stroop-overlay { position: absolute; top: 24%; left: 50%; transform: translateX(-50%); text-align: center; z-index: 30; opacity: 0; visibility: hidden; transition: opacity 0.5s ease; background: rgba(5, 7, 6, 0.5); padding: 15px 25px; border-radius: 20px; width: 90%; max-width: 320px; backdrop-filter: blur(10px); }
+        #stroop-overlay.active { opacity: 1; visibility: visible; }
+        #stroop-word { font-size: 2rem; font-weight: 700 !important; letter-spacing: 4px; margin-bottom: 5px; }
+        #stroop-instruction { font-size: 0.9rem; opacity: 0.9; letter-spacing: 1px; }
+        
+        #control-panel { position: absolute; bottom: 24%; left: 50%; transform: translateX(-50%); width: 90%; max-width: 400px; display: flex; justify-content: center; align-items: center; gap: 12px; flex-wrap: wrap; z-index: 40; }
+
+        .ambient-btn { border: 1px solid var(--gold-alpha); border-radius: 40px; padding: 11px 15px; background: rgba(25, 15, 35, 0.5); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); cursor: pointer; font-size: 1.05rem; transition: all 0.4s var(--luxury-bezier); opacity: 0; transform: translateY(20px); pointer-events: none; width: 100%; box-shadow: 0 4px 20px rgba(0,0,0,0.4); text-align: center; }
+        .ambient-btn.visible { opacity: 1; transform: translateY(0); pointer-events: auto; }
+        .ambient-btn:hover { background: rgba(247, 231, 206, 0.15); border-color: var(--champagne-gold); }
+
+        /* Dynamic action color sets override settings only for layout borders */
+        .btn-red { border-color: var(--stroop-red) !important; }
+        .btn-red * { color: var(--stroop-red) !important; }
+        .btn-blue { border-color: var(--stroop-blue) !important; }
+        .btn-blue * { color: var(--stroop-blue) !important; }
+        .btn-green { border-color: var(--stroop-green) !important; }
+        .btn-green * { color: var(--stroop-green) !important; }
+        .btn-yellow { border-color: var(--stroop-yellow) !important; }
+        .btn-yellow * { color: var(--stroop-yellow) !important; }
+
+        .gate-outer-container { position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; height: 100%; background: transparent; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; z-index: 300; text-align: center; transition: opacity 1.5s var(--luxury-bezier); }
+        
+        /* FIXED SCALE ARCH GATE OVERLAYS */
+        .gate-card {
+            position: relative; border: 2px solid rgba(247, 231, 206, 0.8); border-bottom: none; 
+            width: 100%; max-width: 480px; height: 74vh; border-radius: 240px 240px 0 0; padding: 18vh 30px 30px 30px; box-shadow: 0 -15px 50px rgba(0,0,0,0.8);
+            opacity: 0; transform: translateY(100vh); transition: opacity 1.5s cubic-bezier(0.16, 1, 0.3, 1), transform 1.5s cubic-bezier(0.16, 1, 0.3, 1);
+            background: linear-gradient(rgba(5, 7, 6, 0.90), rgba(5, 7, 6, 0.90)), var(--amethyst-glass) !important;
+            backdrop-filter: blur(25px) !important; -webkit-backdrop-filter: blur(25px) !important;
+            overflow-y: auto;
+        }
+        .gate-card.ignite-card-reveal { opacity: 1; transform: translateY(0); }
+        
+        /* NEAT ARCH CEILING CLEARANCE */
+        .gate-title { font-size: 1.45rem; margin: 0 0 16px 0; font-weight: 700 !important; letter-spacing: 2px; text-transform: uppercase; }
+        .gate-desc { font-size: 0.95rem; line-height: 1.6; margin-bottom: 25px; opacity: 0.95; text-align: justify; }
+
+        /* ACCESSIBILITY AUDIO CONTROL TARGET */
+        .ada-audio-trigger {
+            background: transparent; border: 1px solid var(--gold-alpha); border-radius: 50%;
+            width: 38px; height: 38px; display: inline-flex; align-items: center; justify-content: center;
+            cursor: pointer; margin-bottom: 12px; transition: all 0.3s ease;
+        }
+        .ada-audio-trigger:hover { border-color: var(--champagne-gold); background: rgba(247, 231, 206, 0.1); }
+        .ada-audio-trigger svg { width: 16px; height: 16px; fill: var(--champagne-gold); }
+
+        #exit-goodbye-screen { display: none; position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; height: 100%; background: transparent; z-index: 99999; text-align: center; opacity: 0; transition: opacity 1s ease; }
+
+        @media (max-width: 480px) {
+            #stage-canvas-wrapper { background-image: url('star_gazer_mobile.jpeg') !important; background-size: cover; background-position: center center; }
+            .gate-card { height: 82vh; padding-top: 20vh; }
+            .gate-title { font-size: 1.35rem; }
+        }
+    </style>
+</head>
+<body onclick="Engine.backupAudioAwakening()">
+
+<div id="stage-canvas-wrapper">
+    <div id="top-hud-navigation-bar">
+        <div class="hud-row-controls">
+            <button class="hud-nav-btn" onclick="Engine.exitRoom()">Exit</button>
+            <button class="hud-nav-btn" onclick="Engine.takeABreatherRoute()">Take a Breather</button>
+        </div>
+    </div>
+
+    <div id="recall-hud-actions">
+        <button class="hud-nav-btn" style="font-size: 0.78rem; padding: 4px 14px;" onclick="Engine.undoLastRecallStep()">Undo Last Star</button>
+    </div>
+    
+    <canvas id="constellation-canvas"></canvas>
+    <div id="sky-interaction-zone"></div>
+    <div id="stroop-overlay"><div id="stroop-word">---</div><div id="stroop-instruction">Match the ink color</div></div>
+    <div id="control-panel"></div>
+
+    <div id="room-gate" class="gate-outer-container">
+        <div class="gate-card" id="entrance-gate-card">
+            <button class="ada-audio-trigger" onclick="Engine.synthesizeAccessibilityVoiceover()" title="Listen to Instructions">
+                <svg viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>
+            </button>
+            <div class="gate-title">Welcome to Stargazer</div>
+            <div id="instruction-voice-text" class="gate-desc" style="text-align: center; line-height: 1.7; margin-bottom: 30px;">
+                First, watch the sequence of stars across the night sky.<br><br>
+                Hold that pattern steady in your mind, even as shifting colors and questions try to distract you.<br><br>
+                Then, tap the stars to retrace the path and complete your constellation.
+            </div>
+            <button class="ambient-btn visible" style="color:var(--champagne-gold) !important; pointer-events: auto !important;" onclick="Engine.initPractice()">Begin Practice</button>
+        </div>
+    </div>
+
+    <div id="completion-screen" class="gate-outer-container" style="opacity:0; visibility:hidden; pointer-events: none;">
+        <div class="gate-card ignite-card-reveal">
+            <div class="gate-title">Sanctuary Aligned</div>
+            <div class="gate-desc">Your working memory and executive control are balanced. Your focus session has stabilized.</div>
+            <button class="ambient-btn visible" style="color:var(--champagne-gold) !important; pointer-events: auto !important;" onclick="Engine.exitRoom()">Return to Sanctuary</button>
+        </div>
+    </div>
+
+    <div id="exit-goodbye-screen" class="gate-outer-container">
+        <div class="gate-card ignite-card-reveal" style="pointer-events: auto;">
+            <div class="gate-title">Brilliant.</div>
+            <div class="gate-desc" style="font-size: 1.15rem; text-align: center; margin-bottom: 24px; line-height: 1.6; text-shadow: 0 1px 2px rgba(0,0,0,0.5);">
+                In a world pulling you a million ways, you paused to tend to the garden of your mind. That’s not selfish—that’s you thriving.
+            </div>
+            <hr style="border: 0; border-top: 1px solid rgba(247, 231, 206, 0.15); margin-bottom: 20px;">
+            <div class="gate-desc" style="font-size: 1.15rem; text-align: center; margin-bottom: 32px; line-height: 1.6; opacity: 0.95;">
+                You’ve got too much spectacular living left to lose your focus now.
+            </div>
+            <div class="gate-desc" style="font-size: 1.05rem; font-style: italic; text-align: center; margin-bottom: 32px; opacity: 0.8; letter-spacing: 0.5px;">
+                See you tomorrow. Bring that same beautiful attitude.
+            </div>
+            <button class="ambient-btn visible" onclick="Engine.confirmStudioExit()">Close Studio Session</button>
+        </div>
+    </div>
+</div>
+
+<script>
+const Engine = {
+    sequenceLength: 3, roundsCompletedInStage: 0, generatedSequence: [], playerSequence: [], stroopStage: 1, audioCtx: null, canvas: null, ctx: null, woodwindInterval: null, woodwindStep: 0, lineState: 'tracing', audioHardwareUnlocked: false, gameActive: true,
+    stroopDroneOsc1: null, stroopDroneOsc2: null, stroopDroneGain: null,
+    skyCoordinates: [{ x: 15, y: 15 }, { x: 35, y: 12 }, { x: 55, y: 18 }, { x: 75, y: 14 }, { x: 85, y: 35 }, { x: 65, y: 40 }, { x: 45, y: 32 }, { x: 20, y: 45 }, { x: 50, y: 10 }],
+    colors: [{ name: 'Red', hex: '#ff5252', class: 'btn-red' }, { name: 'Blue', hex: '#4a90e2', class: 'btn-blue' }, { name: 'Green', hex: '#66bb6a', class: 'btn-green' }, { name: 'Yellow', hex: '#ffca28', class: 'btn-yellow' }],
+
+    // OPRAH WINFREY INSPIRED ACCESSIBILITY VOCAL MOTOR: Deep, deliberate, intentional chest-resonance storytelling pacing
+    synthesizeAccessibilityVoiceover() {
+        if ('speechSynthesis' in window) {
+            window.speechSynthesis.cancel();
+            
+            // Re-drafted vocal prose layout with explicit contextual breath marks to enforce her commanding rhetorical pacing
+            const oprahScript = "My friend! ... ... Welcome ... to Stargazer. ... ... I want you to first ... watch the sequence of stars ... rolling across that night sky. ... ... Now hold that pattern ... steady in your mind! ... Even as the shifting colors ... and choices ... try to distract you. ... ... Because then? ... ... You are going to tap those stars ... retrace your path ... and complete this spectacular constellation.";
+            const utter = new SpeechSynthesisUtterance(oprahScript);
+            
+            const voicePool = window.speechSynthesis.getVoices();
+            const warmVocalProfile = voicePool.find(v => v.name.includes('Natural') || v.name.includes('Google US English') || v.lang.startsWith('en-US'));
+            if (warmVocalProfile) utter.voice = warmVocalProfile;
+            
+            utter.rate = 0.68; // Soulful story pacing gives each concept absolute intentional weight
+            utter.pitch = 0.72; // Drops register limits down to capture rich chest-vocal resonance 
+            window.speechSynthesis.speak(utter);
+        }
+    },
+
+    backupAudioAwakening() {
+        if (!this.gameActive || this.audioHardwareUnlocked) return;
+        if (!this.audioCtx) this.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        if (this.audioCtx.state === 'suspended') this.audioCtx.resume();
+        this.audioHardwareUnlocked = true;
+        if (!this.woodwindInterval) this.startMellowWoodwindDrone();
+    },
+    initPractice() {
+        if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+        this.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        this.audioCtx.resume().then(() => {
+            this.audioHardwareUnlocked = true;
+            document.getElementById('room-gate').style.opacity = '0';
+            setTimeout(() => { document.getElementById('room-gate').remove(); }, 1500);
+            this.initCanvas(); this.startMellowWoodwindDrone(); this.generateNewRound();
+        });
+    },
+    initCanvas() { this.canvas = document.getElementById('constellation-canvas'); this.ctx = this.canvas.getContext('2d'); this.resizeCanvas(); window.addEventListener('resize', () => this.resizeCanvas()); },
+    resizeCanvas() { const container = document.getElementById('stage-canvas-wrapper'); this.canvas.width = container.clientWidth; this.canvas.height = container.clientHeight; this.redrawConstellationLines(); },
+    triggerAudioNode(frequency, waveType = 'triangle', volume = 0.16, attack = 0.05, duration = 2.2) {
+        if (!this.gameActive || !this.audioCtx || this.audioCtx.state === 'closed') return;
+        const currentTime = this.audioCtx.currentTime; const osc = this.audioCtx.createOscillator(); const gainNode = this.audioCtx.createGain(); const filterNode = this.audioCtx.createBiquadFilter();
+        osc.type = waveType; osc.frequency.setValueAtTime(frequency, currentTime);
+        filterNode.type = 'lowpass'; filterNode.frequency.setValueAtTime(waveType === 'sine' ? frequency * 1.5 : frequency * 2.2, currentTime);
+        gainNode.gain.setValueAtTime(0, currentTime); gainNode.gain.linearRampToValueAtTime(volume, currentTime + attack); gainNode.gain.exponentialRampToValueAtTime(0.0001, duration);
+        osc.connect(filterNode); filterNode.connect(gainNode); gainNode.connect(this.audioCtx.destination);
+        osc.start(currentTime); osc.stop(currentTime + duration);
+    },
+    
+    startStroopFocusTrack() {
+        if (!this.audioCtx || this.audioCtx.state === 'closed' || this.stroopDroneGain) return;
+        const now = this.audioCtx.currentTime;
+        this.stroopDroneGain = this.audioCtx.createGain();
+        this.stroopDroneGain.gain.setValueAtTime(0, now);
+        this.stroopDroneGain.gain.linearRampToValueAtTime(0.045, now + 0.6); 
+        
+        this.stroopDroneOsc1 = this.audioCtx.createOscillator();
+        this.stroopDroneOsc1.type = 'sine';
+        this.stroopDroneOsc1.frequency.setValueAtTime(164.81, now); 
+        
+        this.stroopDroneOsc2 = this.audioCtx.createOscillator();
+        this.stroopDroneOsc2.type = 'sine';
+        this.stroopDroneOsc2.frequency.setValueAtTime(220.00, now); 
+        
+        this.stroopDroneOsc1.connect(this.stroopDroneGain);
+        this.stroopDroneOsc2.connect(this.stroopDroneGain);
+        this.stroopDroneGain.connect(this.audioCtx.destination);
+        
+        this.stroopDroneOsc1.start(now);
+        this.stroopDroneOsc2.start(now);
+    },
+    stopStroopFocusTrack() {
+        if (!this.audioCtx || !this.stroopDroneGain) return;
+        const now = this.audioCtx.currentTime;
+        try {
+            this.stroopDroneGain.gain.setValueAtTime(this.stroopDroneGain.gain.value, now);
+            this.stroopDroneGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.4);
+            const osc1 = this.stroopDroneOsc1; const osc2 = this.stroopDroneOsc2;
+            setTimeout(() => {
+                try { osc1.stop(); osc2.stop(); } catch(e){}
+            }, 500);
+        } catch(err){}
+        this.stroopDroneOsc1 = null; this.stroopDroneOsc2 = null; this.stroopDroneGain = null;
+    },
+
+    triggerJuicyWinMelody() {
+        if (!this.audioCtx || this.audioCtx.state === 'closed') return;
+        const eMajorArpeggio = [329.63, 415.30, 493.88, 659.25];
+        eMajorArpeggio.forEach((noteFreq, offsetIndex) => {
+            setTimeout(() => {
+                if (this.gameActive) {
+                    this.triggerAudioNode(noteFreq, 'sine', 0.18, 0.04, 2.5);
+                }
+            }, offsetIndex * 140);
+        });
+    },
+
+    startMellowWoodwindDrone() {
+        if (!this.gameActive || !this.audioCtx || this.audioCtx.state === 'closed') return;
+        const droneFrequencies = [220.00, 293.66, 329.63];
+        const breathCycle = () => { 
+            if (!this.gameActive || !this.audioCtx || this.audioCtx.state === 'closed') return;
+            const freq = droneFrequencies[this.woodwindStep % droneFrequencies.length]; 
+            this.triggerAudioNode(freq, 'sine', 0.022, 1.2, 7.5); 
+            this.woodwindStep++; 
+        };
+        breathCycle(); this.woodwindInterval = setInterval(breathCycle, 6500);
+    },
+
+    generateNewRound() {
+        if (!this.gameActive) return;
+        document.getElementById('recall-hud-actions').classList.remove('visible');
+        this.playerSequence = []; this.generatedSequence = []; this.lineState = 'tracing'; 
+        if (this.ctx) this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        const zone = document.getElementById('sky-interaction-zone'); zone.innerHTML = ''; zone.style.pointerEvents = 'auto'; zone.style.opacity = '1';
+        
+        let shuffled = [...this.skyCoordinates].sort(() => 0.5 - Math.random());
+        
+        if (window.innerWidth <= 480) {
+            let filteredCoordinates = [];
+            for (let coord of shuffled) {
+                let overlapDetected = filteredCoordinates.some(selected => {
+                    return (Math.abs(selected.x - coord.x) < 32 && Math.abs(selected.y - coord.y) < 32);
+                });
+                if (!overlapDetected) {
+                    filteredCoordinates.push(coord);
+                }
+                if (filteredCoordinates.length >= this.sequenceLength) break;
+            }
+            if (filteredCoordinates.length < this.sequenceLength) {
+                filteredCoordinates = shuffled.slice(0, this.sequenceLength);
+            }
+            this.generatedSequence = filteredCoordinates;
+        } else {
+            for(let i = 0; i < this.sequenceLength; i++) { this.generatedSequence.push(shuffled[i]); }
+        }
+
+        if (this.sequenceLength === 3) this.stroopStage = 1; else if (this.sequenceLength === 4) this.stroopStage = 2; else if (this.sequenceLength === 5) this.stroopStage = 3;
+        setTimeout(() => { this.executeObservationPhase(); }, 1200);
+    },
+    executeObservationPhase() {
+        if (!this.gameActive) return;
+        const zone = document.getElementById('sky-interaction-zone'); zone.innerHTML = ''; const stargazerMelody = [329.63, 392.00, 440.00, 523.25, 587.33];
+        this.generatedSequence.forEach((coord, index) => {
+            const target = document.createElement('div'); target.className = 'star-target'; target.style.left = `${coord.x}%`; target.style.top = `${coord.y}%`; target.innerHTML = `<div class="star-center"></div><div class="star-ripple"></div><div class="star-ripple"></div>`; zone.appendChild(target);
+            const displayDelay = index * 1700;
+            setTimeout(() => { if (this.gameActive) { target.classList.add('reveal'); this.triggerAudioNode(stargazerMelody[index % stargazerMelody.length], 'triangle', 0.15, 0.05, 2.0); } }, displayDelay);
+            setTimeout(() => { if (this.gameActive) target.classList.remove('reveal'); }, displayDelay + 1300);
+        });
+        setTimeout(() => { if (this.gameActive) { zone.innerHTML = ''; this.executeStroopPhase(); } }, this.sequenceLength * 1700 + 400);
+    },
+    executeStroopPhase() {
+        if (!this.gameActive) return;
+        const overlay = document.getElementById('stroop-overlay'); const wordEl = document.getElementById('stroop-word'); const instructionEl = document.getElementById('stroop-instruction'); const panel = document.getElementById('control-panel'); panel.innerHTML = '';
+        const wordData = this.colors[Math.floor(Math.random() * this.colors.length)]; let colorData = this.colors[Math.floor(Math.random() * this.colors.length)];
+        while(colorData.name === wordData.name) { colorData = this.colors[Math.floor(Math.random() * this.colors.length)]; }
+        wordEl.innerText = wordData.name.toUpperCase();
+        
+        wordEl.setAttribute('style', `color: ${colorData.hex} !important`);
+        
+        if (Math.random() > 0.5) {
+            instructionEl.innerText = "Match the LITERAL WORD text";
+            this.correctStroopAnswer = wordData.name;
+        } else {
+            instructionEl.innerText = "Match the ink color";
+            this.correctStroopAnswer = colorData.name;
+        }
+        
+        this.startStroopFocusTrack();
+        
+        overlay.classList.add('active');
+        this.colors.forEach(color => { const btn = document.createElement('button'); btn.className = `ambient-btn ${color.class}`; btn.innerText = `${color.name}`; btn.onclick = () => this.evaluateStroopChoice(color.name); panel.appendChild(btn); setTimeout(() => { if (this.gameActive) btn.classList.add('visible'); }, 200); });
+    },
+    evaluateStroopChoice(selectedColorName) {
+        this.stopStroopFocusTrack();
+        
+        const overlay = document.getElementById('stroop-overlay'); overlay.classList.remove('active'); document.querySelectorAll('.ambient-btn').forEach(btn => btn.classList.remove('visible'));
+        if (selectedColorName === this.correctStroopAnswer) { this.triggerAudioNode(196.00, 'sine', 0.08, 0.1, 2.5); setTimeout(() => { if (this.gameActive) this.initializeRecallPhase(); }, 800); }
+        else { 
+            this.triggerAudioNode(110.00, 'triangle', 0.15, 0.05, 1.8); 
+            this.roundsCompletedInStage = 0; 
+            setTimeout(() => { if (this.gameActive) this.generateNewRound(); }, 1200); 
+        }
+    },
+    initializeRecallPhase() {
+        if (!this.gameActive) return;
+        const zone = document.getElementById('sky-interaction-zone'); zone.innerHTML = ''; zone.style.pointerEvents = 'auto';
+        
+        document.getElementById('recall-hud-actions').classList.add('visible');
+        
+        this.generatedSequence.forEach((coord, index) => {
+            const target = document.createElement('div'); target.className = 'star-target reveal'; target.style.left = `${coord.x}%`; target.style.top = `${coord.y}%`; target.innerHTML = `<div class="star-center"></div>`; 
+            
+            target.dataset.coordX = coord.x;
+            target.dataset.coordY = coord.y;
+            
+            target.onclick = () => this.evaluateRecallTouch(coord, target, index); zone.appendChild(target);
+        });
+    },
+    evaluateRecallTouch(coord, element, index) {
+        element.style.pointerEvents = 'none'; element.classList.add('ignited'); this.playerSequence.push(coord);
+        const stargazerMelody = [329.63, 392.00, 440.00, 523.25, 587.33]; this.triggerAudioNode(stargazerMelody[index % stargazerMelody.length], 'triangle', 0.15, 0.05, 2.2); this.redrawConstellationLines();
+        if (this.playerSequence.length === this.generatedSequence.length) { document.getElementById('sky-interaction-zone').style.pointerEvents = 'none'; setTimeout(() => { if (this.gameActive) { this.verifySequenceAccuracy(); } }, 1000); }
+    },
+
+    undoLastRecallStep() {
+        if (!this.gameActive || this.playerSequence.length === 0) return;
+        
+        const rolledBackCoord = this.playerSequence.pop();
+        
+        const matchingNode = Array.from(document.querySelectorAll('.star-target')).find(target => {
+            return parseFloat(target.dataset.coordX) === rolledBackCoord.x && parseFloat(target.dataset.coordY) === rolledBackCoord.y;
+        });
+        
+        if (matchingNode) {
+            matchingNode.classList.remove('ignited');
+            matchingNode.style.pointerEvents = 'auto';
+        }
+        
+        this.triggerAudioNode(147.14, 'sine', 0.10, 0.05, 0.8);
+        document.getElementById('sky-interaction-zone').style.pointerEvents = 'auto';
+        this.redrawConstellationLines();
+    },
+    
+    redrawConstellationLines() {
+        if (!this.ctx || !this.canvas) return; 
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height); 
+        if (this.playerSequence.length < 1) return;
+        
+        const zone = document.getElementById('sky-interaction-zone');
+        const zoneBounds = zone.getBoundingClientRect();
+        
+        this.ctx.beginPath(); 
+        this.ctx.strokeStyle = '#f7e7ce'; 
+        this.ctx.lineWidth = (this.lineState === 'correct') ? 1.5 : (this.lineState === 'wrong' ? 0.6 : 1.0);
+        
+        const firstPixelX = zoneBounds.left + (this.playerSequence[0].x / 100) * zoneBounds.width;
+        const firstPixelY = zoneBounds.top + (this.playerSequence[0].y / 100) * zoneBounds.height;
+        this.ctx.moveTo(firstPixelX, firstPixelY);
+        
+        for(let i = 1; i < this.playerSequence.length; i++) {
+            const pixelX = zoneBounds.left + (this.playerSequence[i].x / 100) * zoneBounds.width;
+            const pixelY = zoneBounds.top + (this.playerSequence[i].y / 100) * zoneBounds.height;
+            this.ctx.lineTo(pixelX, pixelY);
+        }
+        this.ctx.stroke();
+    },
+    
+    killAllHardwareAudio() {
+        this.gameActive = false;
+        this.stopStroopFocusTrack();
+        if (this.woodwindInterval) { clearInterval(this.woodwindInterval); this.woodwindInterval = null; }
+        if (this.audioCtx) { this.audioCtx.close().then(() => { this.audioCtx = null; this.audioHardwareUnlocked = false; }); }
+    },
+    
+    convertToPixels(percentCoord) { 
+        const zone = document.getElementById('sky-interaction-zone'); 
+        const bounds = zone.getBoundingClientRect();
+        return { x: bounds.left + (percentCoord.x / 100) * bounds.width, y: bounds.top + (percentCoord.y / 100) * bounds.height }; 
+    },
+    verifySequenceAccuracy() {
+        let isPerfect = true; for (let i = 0; i < this.generatedSequence.length; i++) { if (this.generatedSequence[i].x !== this.playerSequence[i].x || this.generatedSequence[i].y !== this.playerSequence[i].y) { isPerfect = false; break; } }
+        const nodes = document.querySelectorAll('.star-target');
+        if (isPerfect) {
+            document.getElementById('recall-hud-actions').classList.remove('visible');
+            this.lineState = 'correct'; 
+            this.redrawConstellationLines(); 
+            nodes.forEach(n => { n.classList.remove('ignited'); n.classList.add('correct-glow'); }); 
+            this.triggerJuicyWinMelody();
+            this.roundsCompletedInStage++;
+            
+            setTimeout(() => {
+                if (this.roundsCompletedInStage >= 5) { this.roundsCompletedInStage = 0; if (this.sequenceLength < 5) { this.sequenceLength++; this.generateNewRound(); } else { 
+                    this.killAllHardwareAudio();
+                    const comp = document.getElementById('completion-screen'); comp.style.visibility = 'visible'; comp.style.opacity = '1'; comp.style.pointerEvents = 'auto'; 
+                } } else { this.generateNewRound(); }
+            }, 1300);
+        } else {
+            document.getElementById('recall-hud-actions').classList.remove('visible');
+            this.lineState = 'wrong'; 
+            this.redrawConstellationLines(); 
+            nodes.forEach(n => { n.classList.remove('ignited'); n.classList.add('wrong-grey'); }); 
+            this.triggerAudioNode(98.00, 'triangle', 0.20, 0.04, 1.5);
+            this.roundsCompletedInStage = 0; 
+            
+            setTimeout(() => { this.generateNewRound(); }, 1400);
+        }
+    },
+    takeABreatherRoute() { this.killAllHardwareAudio(); window.location.href = 'index.html?action=breather'; },
+    exitRoom() {
+        if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+        this.killAllHardwareAudio();
+        if (document.getElementById('stroop-overlay')) document.getElementById('stroop-overlay').style.setProperty('display', 'none', 'important');
+        if (document.getElementById('control-panel')) document.getElementById('control-panel').style.setProperty('display', 'none', 'important');
+        document.getElementById('sky-interaction-zone').style.opacity = '0'; document.getElementById('sky-interaction-zone').style.pointerEvents = 'none';
+        if (document.getElementById('top-hud-navigation-bar')) document.getElementById('top-hud-navigation-bar').style.opacity = '0';
+        if (this.ctx) this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        const exitScreen = document.getElementById('exit-goodbye-screen'); exitScreen.style.display = 'flex'; setTimeout(() => { exitScreen.style.opacity = '1'; }, 50);
+    },
+    confirmStudioExit() { window.location.href = 'index.html?action=studio'; }
+};
+
+window.addEventListener('DOMContentLoaded', () => {
+    if ('speechSynthesis' in window) window.speechSynthesis.getVoices();
+    setTimeout(() => { const card = document.getElementById('entrance-gate-card'); if (card) card.classList.add('ignite-card-reveal'); }, 150);
+});
+</script>
+</body>
+</html>
