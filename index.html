@@ -25,6 +25,43 @@
         #practice-grid .studio-btn{width:100%;max-width:none;margin:0;padding:10px 13px;justify-self:stretch}
         .handle-rod{top:150px;height:calc(100% - 185px)}
         @media(max-height:760px) and (min-width:481px){.universal-viewport-box{width:min(82vw,620px);height:min(91vh,700px)}#portal-inner-practice{grid-template-rows:126px 1fr;padding:0 34px 18px}.panel-header{height:126px}.panel-header .studio-btn{top:8px}.header-line-1{top:42px;font-size:1.22rem}.header-line-2{top:68px;font-size:.74rem}.panel-header .studio-btn{padding:5px 17px!important;margin-bottom:6px!important}.header-line-1{font-size:1.22rem}.header-line-2{font-size:.74rem}#practice-grid{padding-bottom:10px;column-gap:0}.practice-door{row-gap:6px}#practice-grid .studio-btn{padding:7px 11px}}
+        /* Authoritative studio geometry: all coordinates reference the arch itself. */
+        body.show-studio-grid #portal-inner-practice{
+            position:absolute!important; inset:0!important;
+            width:auto!important; height:auto!important;
+            padding:0!important; margin:0!important;
+            display:block!important;
+        }
+        body.show-studio-grid .panel-header{
+            position:absolute!important; top:0!important; left:0!important; right:0!important;
+            width:auto!important; height:148px!important;
+            padding:0!important; margin:0!important;
+            display:block!important; text-align:center!important;
+        }
+        body.show-studio-grid .panel-header .studio-btn{
+            position:absolute!important; top:12px!important; left:50%!important;
+            transform:translateX(-50%)!important; margin:0!important;
+        }
+        body.show-studio-grid .header-line-1{
+            position:absolute!important; top:52px!important; left:0!important; right:0!important;
+            width:auto!important; margin:0!important; text-align:center!important;
+        }
+        body.show-studio-grid .header-line-2{
+            position:absolute!important; top:82px!important; left:0!important; right:0!important;
+            width:auto!important; margin:0!important; text-align:center!important;
+        }
+        body.show-studio-grid #practice-grid{
+            position:absolute!important; top:148px!important; left:40px!important; right:40px!important; bottom:26px!important;
+            width:auto!important; height:auto!important; margin:0!important; padding:4px 0 20px!important;
+            display:grid!important; grid-template-columns:1fr 1fr!important; column-gap:0!important;
+        }
+        @media(max-height:760px) and (min-width:481px){
+            body.show-studio-grid .panel-header{height:126px!important}
+            body.show-studio-grid .panel-header .studio-btn{top:8px!important}
+            body.show-studio-grid .header-line-1{top:42px!important}
+            body.show-studio-grid .header-line-2{top:68px!important}
+            body.show-studio-grid #practice-grid{top:126px!important;left:34px!important;right:34px!important;bottom:18px!important}
+        }
         @media(max-width:480px){#bg-garden{background-image:url('wisteria_mobile.jpeg')!important}#bg-space-backing{background-image:url('star_gazer_mobile.jpeg')!important}}
     </style>
 </head><body><div id="studio-stage"><div id="bg-garden" class="ambient-backdrop"></div><div id="bg-space-backing" class="ambient-backdrop"></div><div id="main-archway" class="universal-viewport-box"><div class="door-panel-wrapper"><div id="door-L" class="door"><div id="handle-L" class="handle-rod"></div></div><div id="door-R" class="door"><div id="handle-R" class="handle-rod"></div></div></div></div><div id="content-portal" class="universal-viewport-box"><div id="portal-inner-home"><div id="top-tier"><div class="welcome-sub" id="welcome-text">Welcome to your</div></div><div id="mid-tier"><h1>Prefrontal Pilates Studio</h1></div><div id="bot-tier"><button class="studio-btn" id="start-btn" style="width:auto;padding:12px 40px" onclick="Studio.showChoice()">BEGIN</button></div></div><div id="portal-inner-practice"><div class="panel-header"><button class="studio-btn" style="font-size:.85rem;padding:6px 20px;margin-bottom:12px;border-radius:20px;width:auto" onclick="window.location.href='index.html'">Exit Studio</button><span class="header-line-1">Prefrontal Pilates Studio</span><span class="header-line-2">Choose your practice</span></div><div id="practice-grid"></div></div></div></div>
