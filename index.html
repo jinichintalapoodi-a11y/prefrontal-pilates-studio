@@ -71,6 +71,41 @@
             body.show-studio-grid .header-line-2{top:68px!important}
             body.show-studio-grid #practice-grid{top:126px!important;left:34px!important;right:34px!important;bottom:18px!important}
         }
+        /* Responsive architectural scale: preserve the single centerline, enlarge the portal with the scene. */
+        @media(min-width:1200px) and (min-height:760px){
+            #main-archway,#content-portal{
+                width:min(52vw,980px)!important;
+                height:min(88vh,900px)!important;
+            }
+            body.show-studio-grid .panel-header{height:172px!important}
+            body.show-studio-grid .panel-header .studio-btn{top:16px!important;padding:7px 22px!important;font-size:.9rem!important}
+            body.show-studio-grid .header-line-1{top:62px!important;font-size:1.75rem!important}
+            body.show-studio-grid .header-line-2{top:98px!important;font-size:.95rem!important}
+            body.show-studio-grid #practice-grid{
+                top:172px!important;left:58px!important;right:58px!important;bottom:42px!important;
+            }
+            .practice-door{row-gap:14px!important}
+            .practice-door.left{padding:0 34px 0 16px!important}
+            .practice-door.right{padding:0 16px 0 34px!important}
+            #practice-grid .studio-btn{padding:12px 16px!important;font-size:.88rem!important}
+            #practice-grid .domain-tag{font-size:.58rem!important}
+        }
+        @media(min-width:1800px) and (min-height:900px){
+            #main-archway,#content-portal{
+                width:min(48vw,1120px)!important;
+                height:min(90vh,980px)!important;
+            }
+            body.show-studio-grid .panel-header{height:190px!important}
+            body.show-studio-grid .panel-header .studio-btn{top:18px!important}
+            body.show-studio-grid .header-line-1{top:70px!important;font-size:1.95rem!important}
+            body.show-studio-grid .header-line-2{top:110px!important;font-size:1.02rem!important}
+            body.show-studio-grid #practice-grid{
+                top:190px!important;left:72px!important;right:72px!important;bottom:52px!important;
+            }
+            .practice-door.left{padding:0 42px 0 20px!important}
+            .practice-door.right{padding:0 20px 0 42px!important}
+            #practice-grid .studio-btn{padding:14px 18px!important;font-size:.94rem!important}
+        }
         @media(max-width:480px){#bg-garden{background-image:url('wisteria_mobile.jpeg')!important}#bg-space-backing{background-image:url('star_gazer_mobile.jpeg')!important}}
     </style>
 </head><body><div id="studio-stage"><div id="bg-garden" class="ambient-backdrop"></div><div id="bg-space-backing" class="ambient-backdrop"></div><div id="main-archway" class="universal-viewport-box"><div class="door-panel-wrapper"><div id="door-L" class="door"><div id="handle-L" class="handle-rod"></div></div><div id="door-R" class="door"><div id="handle-R" class="handle-rod"></div></div></div></div><div id="content-portal" class="universal-viewport-box"><div id="portal-inner-home"><div id="top-tier"><div class="welcome-sub" id="welcome-text">Welcome to your</div></div><div id="mid-tier"><h1>Prefrontal Pilates Studio</h1></div><div id="bot-tier"><button class="studio-btn" id="start-btn" style="width:auto;padding:12px 40px" onclick="Studio.showChoice()">BEGIN</button></div></div><div id="portal-inner-practice"><div class="panel-header"><button class="studio-btn" style="font-size:.85rem;padding:6px 20px;margin-bottom:12px;border-radius:20px;width:auto" onclick="window.location.href='index.html'">Exit Studio</button><span class="header-line-1">Prefrontal Pilates Studio</span><span class="header-line-2">Choose your practice</span></div><div id="practice-grid"></div></div></div></div>
