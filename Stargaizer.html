@@ -199,7 +199,7 @@
             </button>
             <div class="gate-title">Welcome to Stargazer</div>
             <div id="instruction-voice-text" class="gate-desc" style="text-align:center;line-height:1.7;margin-bottom:30px;">
-                Watch the stars, hold their sequence through the color challenge, then retrace the constellation.
+                Watch the stars &rarr; Complete the color challenge &rarr; Tap the stars in the same order
             </div>
             <div id="stargazer-entry-actions" style="display:flex;flex-direction:column;gap:12px;align-items:center;width:100%;"></div>
         </div>
@@ -227,7 +227,7 @@
 
 <script src="pps-session.js?v=dec22e6d"></script><script>
 const Engine = {
-    sequenceLength: 3, roundsCompletedInStage: 0, savedSequenceLength: Math.min(5, Math.max(3, parseInt(localStorage.getItem('stargazerLevel') || '3', 10))), generatedSequence: [], playerSequence: [], stroopStage: 1, audioCtx: null, canvas: null, ctx: null, woodwindInterval: null, woodwindStep: 0, lineState: 'tracing', audioHardwareUnlocked: false, gameActive: true,
+    sequenceLength: 3, roundsCompletedInStage: 0, recentRoundResults: [], declinedStarIncrease: false, roundStroopCorrect: false, savedSequenceLength: Math.min(5, Math.max(3, parseInt(localStorage.getItem('stargazerLevel') || '3', 10))), generatedSequence: [], playerSequence: [], stroopStage: 1, audioCtx: null, canvas: null, ctx: null, woodwindInterval: null, woodwindStep: 0, lineState: 'tracing', audioHardwareUnlocked: false, gameActive: true,
     mainDroneGain: null, stroopFocusGain: null, activeOscillators: [], backgroundMusic: null,
     skyCoordinates: [{ x: 15, y: 15 }, { x: 35, y: 12 }, { x: 55, y: 18 }, { x: 75, y: 14 }, { x: 85, y: 35 }, { x: 65, y: 40 }, { x: 45, y: 32 }, { x: 20, y: 45 }, { x: 50, y: 10 }],
     colors: [{ name: 'Red', hex: '#ff5252', class: 'btn-red' }, { name: 'Blue', hex: '#4a90e2', class: 'btn-blue' }, { name: 'Green', hex: '#66bb6a', class: 'btn-green' }, { name: 'Yellow', hex: '#ffca28', class: 'btn-yellow' }],
@@ -255,16 +255,16 @@ const Engine = {
         const actions = document.getElementById('stargazer-entry-actions'); if (!actions) return;
         const saved = this.savedSequenceLength;
         if (saved > 3) {
-            actions.innerHTML = '<button class="ambient-btn visible" style="pointer-events:auto!important;" id="stargazer-resume">Pick up at '+saved+' Stars</button><button class="ambient-btn visible" style="pointer-events:auto!important;" id="stargazer-ease">Ease in from 3 Stars</button>';
+            actions.innerHTML = '<button class="ambient-btn visible" style="pointer-events:auto!important;" id="stargazer-resume">Continue with '+saved+' stars</button><button class="ambient-btn visible" style="pointer-events:auto!important;" id="stargazer-ease">Ease in with 3 stars</button>';
             document.getElementById('stargazer-resume').onclick=()=>this.initPractice(saved);
             document.getElementById('stargazer-ease').onclick=()=>this.initPractice(3);
         } else {
-            actions.innerHTML = '<button class="ambient-btn visible" style="pointer-events:auto!important;" id="stargazer-begin">Begin Practice</button>';
+            actions.innerHTML = '<button class="ambient-btn visible" style="pointer-events:auto!important;" id="stargazer-begin">Begin with 3 stars</button>';
             document.getElementById('stargazer-begin').onclick=()=>this.initPractice(3);
         }
     },
     initPractice(startLevel = 3) {
-        this.sequenceLength = Math.min(5, Math.max(3, startLevel)); this.roundsCompletedInStage = 0;
+        this.sequenceLength = Math.min(5, Math.max(3, startLevel)); this.roundsCompletedInStage = 0; this.recentRoundResults=[]; this.declinedStarIncrease=false; this.roundStroopCorrect=false;
         if ('speechSynthesis' in window) window.speechSynthesis.cancel();
         this.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         this.audioCtx.resume().then(() => {
@@ -318,7 +318,7 @@ const Engine = {
     generateNewRound() {
         if (!this.gameActive) return;
         document.getElementById('recall-hud-actions').classList.remove('visible');
-        this.playerSequence = []; this.generatedSequence = []; this.lineState = 'tracing'; 
+        this.playerSequence = []; this.generatedSequence = []; this.lineState = 'tracing'; this.roundStroopCorrect=false; 
         if (this.ctx) this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         const zone = document.getElementById('sky-interaction-zone'); zone.innerHTML = ''; zone.style.pointerEvents = 'auto'; zone.style.opacity = '1';
         let shuffled = [...this.skyCoordinates].sort(() => 0.5 - Math.random());
@@ -370,8 +370,8 @@ const Engine = {
         this.returnToCelestialClearance();
         
         const overlay = document.getElementById('stroop-overlay'); overlay.classList.remove('active'); document.querySelectorAll('.ambient-btn').forEach(btn => btn.classList.remove('visible'));
-        if (selectedColorName === this.correctStroopAnswer) { this.triggerAudioNode(196.00, 'sine', 0.08, 0.08, 2.2); setTimeout(() => { if (this.gameActive) this.initializeRecallPhase(); }, 800); }
-        else { this.triggerAudioNode(110.00, 'sine', 0.12, 0.05, 1.5); this.roundsCompletedInStage = 0; setTimeout(() => { if (this.gameActive) this.generateNewRound(); }, 1200); }
+        if (selectedColorName === this.correctStroopAnswer) { this.roundStroopCorrect=true; this.triggerAudioNode(196.00, 'sine', 0.08, 0.08, 2.2); setTimeout(() => { if (this.gameActive) this.initializeRecallPhase(); }, 800); }
+        else { this.roundStroopCorrect=false; this.recordRoundResult(false); this.triggerAudioNode(110.00, 'sine', 0.12, 0.05, 1.5); setTimeout(() => { if (!PPSDaily.naturalStop(() => this.generateNewRound())) this.generateNewRound(); }, 1200); }
     },
     initializeRecallPhase() {
         if (!this.gameActive) return;
@@ -414,17 +414,35 @@ const Engine = {
         try { this.activeOscillators.forEach(osc => osc.stop()); } catch(e){}
         if (this.audioCtx) { this.audioCtx.close().then(() => { this.audioCtx = null; }); } 
     },
+    recordRoundResult(success) {
+        this.recentRoundResults.push(!!success);
+        if (this.recentRoundResults.length > 5) this.recentRoundResults.shift();
+    },
+    readyForAnotherStar() {
+        return this.sequenceLength < 5 && !this.declinedStarIncrease && this.recentRoundResults.length === 5 && this.recentRoundResults.filter(Boolean).length >= 4;
+    },
+    showStarIncreaseChoice() {
+        const current=this.sequenceLength, next=current+1;
+        const gate=document.getElementById('completion-screen'), card=gate.querySelector('.gate-card');
+        card.innerHTML='<div class="gate-title">Beautiful focus.</div><div class="gate-desc">Ready for another star?</div><button class="ambient-btn visible" style="pointer-events:auto!important;" id="tryNextStar">Try '+next+' stars</button><button class="ambient-btn visible" style="pointer-events:auto!important;" id="stayStars">Continue with '+current+' stars</button>';
+        gate.style.visibility='visible'; gate.style.opacity='1'; gate.style.pointerEvents='auto';
+        document.getElementById('tryNextStar').onclick=()=>{this.sequenceLength=next;this.savedSequenceLength=Math.max(this.savedSequenceLength,next);localStorage.setItem('stargazerLevel',String(this.savedSequenceLength));this.recentRoundResults=[];gate.style.visibility='hidden';gate.style.opacity='0';gate.style.pointerEvents='none';this.generateNewRound()};
+        document.getElementById('stayStars').onclick=()=>{this.declinedStarIncrease=true;gate.style.visibility='hidden';gate.style.opacity='0';gate.style.pointerEvents='none';this.generateNewRound()};
+    },
     verifySequenceAccuracy() {
         PPSDaily.pause();
         let isPerfect = true; for (let i = 0; i < this.generatedSequence.length; i++) { if (this.generatedSequence[i].x !== this.playerSequence[i].x || this.generatedSequence[i].y !== this.playerSequence[i].y) { isPerfect = false; break; } }
         const nodes = document.querySelectorAll('.star-target');
+        const roundSuccess = isPerfect && this.roundStroopCorrect;
+        this.recordRoundResult(roundSuccess);
         if (isPerfect) {
-            document.getElementById('recall-hud-actions').classList.remove('visible'); this.lineState = 'correct'; this.redrawConstellationLines(); nodes.forEach(n => { n.classList.remove('ignited'); n.classList.add('correct-glow'); }); this.triggerJuicyWinMelody(); this.roundsCompletedInStage++;
+            document.getElementById('recall-hud-actions').classList.remove('visible'); this.lineState = 'correct'; this.redrawConstellationLines(); nodes.forEach(n => { n.classList.remove('ignited'); n.classList.add('correct-glow'); }); this.triggerJuicyWinMelody();
             setTimeout(() => {
-                if (this.roundsCompletedInStage >= 5) { this.roundsCompletedInStage = 0; if (this.sequenceLength < 5) { this.sequenceLength++; this.savedSequenceLength=Math.max(this.savedSequenceLength,this.sequenceLength); localStorage.setItem('stargazerLevel',String(this.savedSequenceLength)); if (!PPSDaily.naturalStop(() => this.generateNewRound())) this.generateNewRound(); } else { this.killAllHardwareAudio(); const comp = document.getElementById('completion-screen'); comp.style.visibility = 'visible'; comp.style.opacity = '1'; comp.style.pointerEvents = 'auto'; } } else { if (!PPSDaily.naturalStop(() => this.generateNewRound())) this.generateNewRound(); }
+                const next=()=>{ if(this.readyForAnotherStar()) this.showStarIncreaseChoice(); else this.generateNewRound(); };
+                if (!PPSDaily.naturalStop(next)) next();
             }, 1300);
         } else {
-            document.getElementById('recall-hud-actions').classList.remove('visible'); this.lineState = 'wrong'; this.redrawConstellationLines(); nodes.forEach(n => { n.classList.remove('ignited'); n.classList.add('wrong-grey'); }); this.triggerAudioNode(98.00, 'sine', 0.16, 0.05, 1.6); this.roundsCompletedInStage = 0;
+            document.getElementById('recall-hud-actions').classList.remove('visible'); this.lineState = 'wrong'; this.redrawConstellationLines(); nodes.forEach(n => { n.classList.remove('ignited'); n.classList.add('wrong-grey'); }); this.triggerAudioNode(98.00, 'sine', 0.16, 0.05, 1.6);
             setTimeout(() => { if (!PPSDaily.naturalStop(() => this.generateNewRound())) this.generateNewRound(); }, 1400);
         }
     },
