@@ -216,22 +216,12 @@
     </div>
 
     <div id="exit-goodbye-screen" class="gate-outer-container">
-        <div class="gate-card ignite-card-reveal" style="pointer-events: auto;">
+        <div class="gate-card ignite-card-reveal" style="pointer-events:auto;">
             <div class="gate-title">Brilliant.</div>
-            <div class="gate-desc" style="font-size: 1.15rem; text-align: center; margin-bottom: 24px; line-height: 1.6; text-shadow: 0 1px 2px rgba(0,0,0,0.5);">
-                In a world pulling you a million ways, you paused to tend to the garden of your mind. That’s not selfish—that’s you thriving.
-            </div>
-            <hr style="border: 0; border-top: 1px solid rgba(247, 231, 206, 0.15); margin-bottom: 20px;">
-            <div class="gate-desc" style="font-size: 1.15rem; text-align: center; margin-bottom: 32px; line-height: 1.6; opacity: 0.95;">
-                You’ve got too much spectacular living left to lose your focus now.
-            </div>
-            <div class="gate-desc" style="font-size: 1.05rem; font-style: italic; text-align: center; margin-bottom: 32px; opacity: 0.8; letter-spacing: 0.5px;">
-                See you tomorrow. Bring that same beautiful attitude.
-            </div>
-            <div style="display:flex;flex-direction:column;gap:10px;align-items:center;width:100%;margin-top:4px;">
-                <button class="ambient-btn visible" style="pointer-events:auto!important;" onclick="Engine.confirmStudioExit()">Back to Prefrontal Pilates Studio</button>
-                <button class="ambient-btn visible" style="pointer-events:auto!important;" onclick="Engine.returnToOrchard()">Neural Orchard</button>
-                <button class="ambient-btn visible" style="pointer-events:auto!important;opacity:.82;" onclick="Engine.completeExit()">Complete Exit</button>
+            <div class="gate-desc" style="font-size:1.05rem;text-align:center;margin:8px 0 28px;opacity:.9;">Where would you like to go?</div>
+            <div style="display:flex;flex-direction:column;gap:12px;align-items:center;width:100%;">
+                <button class="ambient-btn visible" style="pointer-events:auto!important;" onclick="Engine.confirmStudioExit()">Return to Prefrontal Pilates Studio</button>
+                <button class="ambient-btn visible" style="pointer-events:auto!important;" onclick="Engine.returnToOrchard()">Return to Neural Orchard</button>
             </div>
         </div>
     </div>
@@ -438,7 +428,6 @@ const Engine = {
     },
     confirmStudioExit() { window.location.href = 'index.html?action=studio'; },
     returnToOrchard() { window.location.href = 'index.html'; },
-    completeExit() { window.location.href = 'index.html'; }
 };
 window.addEventListener('DOMContentLoaded', () => { if ('speechSynthesis' in window) window.speechSynthesis.getVoices(); setTimeout(() => { const card = document.getElementById('entrance-gate-card'); if (card) card.classList.add('ignite-card-reveal'); }, 150); });
 </script>
