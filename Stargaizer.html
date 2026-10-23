@@ -198,12 +198,10 @@
                 <svg viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>
             </button>
             <div class="gate-title">Welcome to Stargazer</div>
-            <div id="instruction-voice-text" class="gate-desc" style="text-align: center; line-height: 1.7; margin-bottom: 30px;">
-                First, watch the sequence of stars across the night sky.<br><br>
-                Hold that pattern steady in your mind, even as shifting colors and questions try to distract you.<br><br>
-                Then, tap the stars to retrace the path and complete your constellation.
+            <div id="instruction-voice-text" class="gate-desc" style="text-align:center;line-height:1.7;margin-bottom:30px;">
+                Watch the stars, hold their sequence through the color challenge, then retrace the constellation.
             </div>
-            <button class="ambient-btn visible" style="color:var(--champagne-gold) !important; pointer-events: auto !important;" onclick="Engine.initPractice()">Begin Practice</button>
+            <div id="stargazer-entry-actions" style="display:flex;flex-direction:column;gap:12px;align-items:center;width:100%;"></div>
         </div>
     </div>
 
@@ -229,7 +227,7 @@
 
 <script src="pps-session.js?v=dec22e6d"></script><script>
 const Engine = {
-    sequenceLength: 3, roundsCompletedInStage: 0, generatedSequence: [], playerSequence: [], stroopStage: 1, audioCtx: null, canvas: null, ctx: null, woodwindInterval: null, woodwindStep: 0, lineState: 'tracing', audioHardwareUnlocked: false, gameActive: true,
+    sequenceLength: 3, roundsCompletedInStage: 0, savedSequenceLength: Math.min(5, Math.max(3, parseInt(localStorage.getItem('stargazerLevel') || '3', 10))), generatedSequence: [], playerSequence: [], stroopStage: 1, audioCtx: null, canvas: null, ctx: null, woodwindInterval: null, woodwindStep: 0, lineState: 'tracing', audioHardwareUnlocked: false, gameActive: true,
     mainDroneGain: null, stroopFocusGain: null, activeOscillators: [], backgroundMusic: null,
     skyCoordinates: [{ x: 15, y: 15 }, { x: 35, y: 12 }, { x: 55, y: 18 }, { x: 75, y: 14 }, { x: 85, y: 35 }, { x: 65, y: 40 }, { x: 45, y: 32 }, { x: 20, y: 45 }, { x: 50, y: 10 }],
     colors: [{ name: 'Red', hex: '#ff5252', class: 'btn-red' }, { name: 'Blue', hex: '#4a90e2', class: 'btn-blue' }, { name: 'Green', hex: '#66bb6a', class: 'btn-green' }, { name: 'Yellow', hex: '#ffca28', class: 'btn-yellow' }],
@@ -253,7 +251,20 @@ const Engine = {
         this.audioHardwareUnlocked = true;
         this.startHarmonicLandscape();
     },
-    initPractice() {
+    renderEntryChoices() {
+        const actions = document.getElementById('stargazer-entry-actions'); if (!actions) return;
+        const saved = this.savedSequenceLength;
+        if (saved > 3) {
+            actions.innerHTML = '<button class="ambient-btn visible" style="pointer-events:auto!important;" id="stargazer-resume">Pick up at '+saved+' Stars</button><button class="ambient-btn visible" style="pointer-events:auto!important;" id="stargazer-ease">Ease in from 3 Stars</button>';
+            document.getElementById('stargazer-resume').onclick=()=>this.initPractice(saved);
+            document.getElementById('stargazer-ease').onclick=()=>this.initPractice(3);
+        } else {
+            actions.innerHTML = '<button class="ambient-btn visible" style="pointer-events:auto!important;" id="stargazer-begin">Begin Practice</button>';
+            document.getElementById('stargazer-begin').onclick=()=>this.initPractice(3);
+        }
+    },
+    initPractice(startLevel = 3) {
+        this.sequenceLength = Math.min(5, Math.max(3, startLevel)); this.roundsCompletedInStage = 0;
         if ('speechSynthesis' in window) window.speechSynthesis.cancel();
         this.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         this.audioCtx.resume().then(() => {
@@ -410,7 +421,7 @@ const Engine = {
         if (isPerfect) {
             document.getElementById('recall-hud-actions').classList.remove('visible'); this.lineState = 'correct'; this.redrawConstellationLines(); nodes.forEach(n => { n.classList.remove('ignited'); n.classList.add('correct-glow'); }); this.triggerJuicyWinMelody(); this.roundsCompletedInStage++;
             setTimeout(() => {
-                if (this.roundsCompletedInStage >= 5) { this.roundsCompletedInStage = 0; if (this.sequenceLength < 5) { this.sequenceLength++; if (!PPSDaily.naturalStop(() => this.generateNewRound())) this.generateNewRound(); } else { this.killAllHardwareAudio(); const comp = document.getElementById('completion-screen'); comp.style.visibility = 'visible'; comp.style.opacity = '1'; comp.style.pointerEvents = 'auto'; } } else { if (!PPSDaily.naturalStop(() => this.generateNewRound())) this.generateNewRound(); }
+                if (this.roundsCompletedInStage >= 5) { this.roundsCompletedInStage = 0; if (this.sequenceLength < 5) { this.sequenceLength++; this.savedSequenceLength=Math.max(this.savedSequenceLength,this.sequenceLength); localStorage.setItem('stargazerLevel',String(this.savedSequenceLength)); if (!PPSDaily.naturalStop(() => this.generateNewRound())) this.generateNewRound(); } else { this.killAllHardwareAudio(); const comp = document.getElementById('completion-screen'); comp.style.visibility = 'visible'; comp.style.opacity = '1'; comp.style.pointerEvents = 'auto'; } } else { if (!PPSDaily.naturalStop(() => this.generateNewRound())) this.generateNewRound(); }
             }, 1300);
         } else {
             document.getElementById('recall-hud-actions').classList.remove('visible'); this.lineState = 'wrong'; this.redrawConstellationLines(); nodes.forEach(n => { n.classList.remove('ignited'); n.classList.add('wrong-grey'); }); this.triggerAudioNode(98.00, 'sine', 0.16, 0.05, 1.6); this.roundsCompletedInStage = 0;
@@ -429,7 +440,7 @@ const Engine = {
     confirmStudioExit() { window.location.href = 'index.html?action=studio'; },
     returnToOrchard() { window.location.href = 'index.html'; },
 };
-window.addEventListener('DOMContentLoaded', () => { if ('speechSynthesis' in window) window.speechSynthesis.getVoices(); setTimeout(() => { const card = document.getElementById('entrance-gate-card'); if (card) card.classList.add('ignite-card-reveal'); }, 150); });
+window.addEventListener('DOMContentLoaded', () => { Engine.renderEntryChoices(); if ('speechSynthesis' in window) window.speechSynthesis.getVoices(); setTimeout(() => { const card = document.getElementById('entrance-gate-card'); if (card) card.classList.add('ignite-card-reveal'); }, 150); });
 </script>
 </body>
 </html>
