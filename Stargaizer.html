@@ -236,7 +236,7 @@
 <script>
 const Engine = {
     sequenceLength: 3, roundsCompletedInStage: 0, generatedSequence: [], playerSequence: [], stroopStage: 1, audioCtx: null, canvas: null, ctx: null, woodwindInterval: null, woodwindStep: 0, lineState: 'tracing', audioHardwareUnlocked: false, gameActive: true,
-    mainDroneGain: null, stroopFocusGain: null, activeOscillators: [],
+    mainDroneGain: null, stroopFocusGain: null, activeOscillators: [], backgroundMusic: null,
     skyCoordinates: [{ x: 15, y: 15 }, { x: 35, y: 12 }, { x: 55, y: 18 }, { x: 75, y: 14 }, { x: 85, y: 35 }, { x: 65, y: 40 }, { x: 45, y: 32 }, { x: 20, y: 45 }, { x: 50, y: 10 }],
     colors: [{ name: 'Red', hex: '#ff5252', class: 'btn-red' }, { name: 'Blue', hex: '#4a90e2', class: 'btn-blue' }, { name: 'Green', hex: '#66bb6a', class: 'btn-green' }, { name: 'Yellow', hex: '#ffca28', class: 'btn-yellow' }],
 
@@ -282,65 +282,24 @@ const Engine = {
         osc.connect(gainNode); gainNode.connect(this.audioCtx.destination); osc.start(now); osc.stop(now + duration);
     },
 
-    // ADAPTIVE GROUND HARMONICS: Creates a living sound landscape that continuously weaves through phases
+    // REAL STARGAZER BACKGROUND MUSIC: Pixabay recording; gameplay cue tones remain separate.
     startHarmonicLandscape() {
-        if (!this.gameActive || !this.audioCtx || this.audioCtx.state === 'closed' || this.mainDroneGain) return;
-        const now = this.audioCtx.currentTime;
-        this.mainDroneGain = this.audioCtx.createGain();
-        this.mainDroneGain.gain.setValueAtTime(0.022, now);
-        this.mainDroneGain.connect(this.audioCtx.destination);
-
-        const chordTriad = [220.00, 293.66, 329.63]; // Pristine E-minor anchor notes
-        chordTriad.forEach(freq => {
-            const osc = this.audioCtx.createOscillator();
-            osc.type = 'sine'; osc.frequency.setValueAtTime(freq, now);
-            osc.connect(this.mainDroneGain); osc.start(now);
-            this.activeOscillators.push(osc);
-        });
+        if (!this.gameActive) return;
+        if (!this.backgroundMusic) {
+            this.backgroundMusic = new Audio('atlasaudio-warm-acoustic-621617.mp3');
+            this.backgroundMusic.loop = true;
+            this.backgroundMusic.preload = 'auto';
+            this.backgroundMusic.volume = 0.24;
+        }
+        this.backgroundMusic.play().catch(() => {});
     },
 
-    // CROSS-FADE MECHANICS: Smoothly blends structural soundscapes to prevent audio cuts
+    // Keep the real recording gently behind the higher-attention Stroop phase.
     crossFadeToStroopFocus() {
-        if (!this.audioCtx || !this.mainDroneGain) return;
-        const now = this.audioCtx.currentTime;
-        // Softly dip celestial backing track volume by half
-        this.mainDroneGain.gain.setValueAtTime(this.mainDroneGain.gain.value, now);
-        this.mainDroneGain.gain.linearRampToValueAtTime(0.010, now + 0.4);
-
-        if (!this.stroopFocusGain) {
-            this.stroopFocusGain = this.audioCtx.createGain();
-            this.stroopDroneOsc1 = this.audioCtx.createOscillator();
-            this.stroopDroneOsc2 = this.audioCtx.createOscillator();
-            
-            this.stroopFocusGain.gain.setValueAtTime(0, now);
-            this.stroopFocusGain.gain.linearRampToValueAtTime(0.035, now + 0.5); // Warm transition fade
-            
-            this.stroopDroneOsc1.type = 'sine'; this.stroopDroneOsc1.frequency.setValueAtTime(164.81, now); // Grounding E3 bass hum
-            this.stroopDroneOsc2.type = 'sine'; this.stroopDroneOsc2.frequency.setValueAtTime(220.00, now); // Shared harmonic anchor
-            
-            this.stroopDroneOsc1.connect(this.stroopFocusGain);
-            this.stroopDroneOsc2.connect(this.stroopFocusGain);
-            this.stroopFocusGain.connect(this.audioCtx.destination);
-            
-            this.stroopDroneOsc1.start(now); this.stroopDroneOsc2.start(now);
-        }
+        if (this.backgroundMusic) this.backgroundMusic.volume = 0.14;
     },
     returnToCelestialClearance() {
-        if (!this.audioCtx) return;
-        const now = this.audioCtx.currentTime;
-        // Return sky drone back to full volume safely
-        if (this.mainDroneGain) {
-            this.mainDroneGain.gain.setValueAtTime(this.mainDroneGain.gain.value, now);
-            this.mainDroneGain.gain.linearRampToValueAtTime(0.022, now + 0.5);
-        }
-        // Fade out low grounding hum smoothly
-        if (this.stroopFocusGain) {
-            const currentGain = this.stroopFocusGain; const o1 = this.stroopDroneOsc1; const o2 = this.stroopDroneOsc2;
-            currentGain.gain.setValueAtTime(currentGain.gain.value, now);
-            currentGain.gain.linearRampToValueAtTime(0.0001, now + 0.5);
-            setTimeout(() => { try { o1.stop(); o2.stop(); } catch(e){} }, 600);
-            this.stroopFocusGain = null; this.stroopDroneOsc1 = null; this.stroopDroneOsc2 = null;
-        }
+        if (this.backgroundMusic) this.backgroundMusic.volume = 0.24;
     },
 
     triggerJuicyWinMelody() {
@@ -443,7 +402,8 @@ const Engine = {
         this.ctx.stroke();
     },
     killAllHardwareAudio() { 
-        this.gameActive = false; this.returnToCelestialClearance();
+        this.gameActive = false;
+        if (this.backgroundMusic) { this.backgroundMusic.pause(); this.backgroundMusic.currentTime = 0; }
         try { this.activeOscillators.forEach(osc => osc.stop()); } catch(e){}
         if (this.audioCtx) { this.audioCtx.close().then(() => { this.audioCtx = null; }); } 
     },
