@@ -148,6 +148,23 @@
             body:not(.show-studio-grid) #portal-inner-home .choice-kicker{font-size:.62rem}
             body:not(.show-studio-grid) #portal-inner-home .choice-note{font-size:.72rem}
         }
+        /* Shared architecture: Neural Orchard and PPS use the same arch dimensions. */
+        @media(min-width:900px){
+            #main-archway,#content-portal{width:min(48vw,980px)!important;max-width:980px!important;height:min(88vh,900px)!important}
+        }
+        @media(min-width:1800px) and (min-height:900px){
+            #main-archway,#content-portal{width:min(48vw,980px)!important;max-width:980px!important;height:min(88vh,900px)!important}
+        }
+        /* Delicate but legible home typography. */
+        body:not(.show-studio-grid) #portal-inner-home{color:rgba(255,246,226,.96);text-shadow:0 1px 2px rgba(20,12,25,.28)}
+        body:not(.show-studio-grid) #portal-inner-home .welcome-sub{opacity:.92;font-weight:500}
+        body:not(.show-studio-grid) #portal-inner-home h1{color:#fff3da;font-weight:700!important}
+        body:not(.show-studio-grid) #portal-inner-home .orchard-tagline{opacity:.94;font-weight:500}
+        body:not(.show-studio-grid) #portal-inner-home .choice-kicker{opacity:.82;font-weight:500}
+        body:not(.show-studio-grid) #portal-inner-home .choice-name{color:#fff1d4;font-weight:600}
+        body:not(.show-studio-grid) #portal-inner-home .choice-note{opacity:.88;font-weight:500}
+        body:not(.show-studio-grid) #portal-inner-home .orchard-foot{opacity:.78;font-weight:500}
+        body:not(.show-studio-grid) #portal-inner-home .orchard-choice{border-color:rgba(255,239,205,.58);background:rgba(255,245,225,.035)}
 </style>
 </head><body><div id="studio-stage"><div id="bg-garden" class="ambient-backdrop"></div><div id="bg-space-backing" class="ambient-backdrop"></div><div id="main-archway" class="universal-viewport-box"><div class="door-panel-wrapper"><div id="door-L" class="door"><div id="handle-L" class="handle-rod"></div></div><div id="door-R" class="door"><div id="handle-R" class="handle-rod"></div></div></div></div><div id="content-portal" class="universal-viewport-box"><div id="portal-inner-home"><div id="top-tier"><div class="welcome-sub" id="welcome-text">WELCOME TO</div></div><div id="mid-tier"><h1 style="font-size:2.15rem">Neural Orchard</h1><div class="orchard-tagline">A place where you thrive.</div></div><div id="bot-tier" class="orchard-menu"><button class="studio-btn orchard-choice" onclick="Studio.enterStudio()"><span class="choice-kicker">You are what you think</span><span class="choice-name">Prefrontal Pilates Studio</span><span class="choice-note">Cognitive practice</span></button><button class="studio-btn orchard-choice" onclick="Studio.openMyPlate()"><span class="choice-kicker">You are what you eat</span><span class="choice-name">MyPlate</span><span class="choice-note">Nutrition intelligence · coming next</span></button><button class="studio-btn orchard-choice" onclick="Studio.selectCycles()"><span class="choice-name">Breathe</span></button><div class="orchard-foot">Healthy aging, deliberately cultivated.</div></div></div><div id="portal-inner-practice"><div class="panel-header"><button class="studio-btn" style="font-size:.85rem;padding:6px 20px;margin-bottom:12px;border-radius:20px;width:auto" onclick="window.location.href='index.html'">Exit Studio</button><span class="header-line-1">Prefrontal Pilates Studio</span><span class="header-line-2">Choose your practice</span></div><div id="practice-grid"></div></div></div></div>
 <script>
