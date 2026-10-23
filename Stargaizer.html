@@ -233,7 +233,7 @@
     </div>
 </div>
 
-<script>
+<script src="pps-session.js?v=b2418b1f"></script><script>
 const Engine = {
     sequenceLength: 3, roundsCompletedInStage: 0, generatedSequence: [], playerSequence: [], stroopStage: 1, audioCtx: null, canvas: null, ctx: null, woodwindInterval: null, woodwindStep: 0, lineState: 'tracing', audioHardwareUnlocked: false, gameActive: true,
     mainDroneGain: null, stroopFocusGain: null, activeOscillators: [], backgroundMusic: null,
@@ -334,6 +334,7 @@ const Engine = {
     },
     executeObservationPhase() {
         if (!this.gameActive) return;
+        PPSDaily.start();
         const zone = document.getElementById('sky-interaction-zone'); zone.innerHTML = ''; const stargazerMelody = [329.63, 392.00, 440.00, 523.25, 587.33];
         this.generatedSequence.forEach((coord, index) => {
             const target = document.createElement('div'); target.className = 'star-target'; target.style.left = `${coord.x}%`; target.style.top = `${coord.y}%`; target.innerHTML = `<div class="star-center"></div><div class="star-ripple"></div><div class="star-ripple"></div>`; zone.appendChild(target);
@@ -402,22 +403,24 @@ const Engine = {
         this.ctx.stroke();
     },
     killAllHardwareAudio() { 
+        PPSDaily.pause();
         this.gameActive = false;
         if (this.backgroundMusic) { this.backgroundMusic.pause(); this.backgroundMusic.currentTime = 0; }
         try { this.activeOscillators.forEach(osc => osc.stop()); } catch(e){}
         if (this.audioCtx) { this.audioCtx.close().then(() => { this.audioCtx = null; }); } 
     },
     verifySequenceAccuracy() {
+        PPSDaily.pause();
         let isPerfect = true; for (let i = 0; i < this.generatedSequence.length; i++) { if (this.generatedSequence[i].x !== this.playerSequence[i].x || this.generatedSequence[i].y !== this.playerSequence[i].y) { isPerfect = false; break; } }
         const nodes = document.querySelectorAll('.star-target');
         if (isPerfect) {
             document.getElementById('recall-hud-actions').classList.remove('visible'); this.lineState = 'correct'; this.redrawConstellationLines(); nodes.forEach(n => { n.classList.remove('ignited'); n.classList.add('correct-glow'); }); this.triggerJuicyWinMelody(); this.roundsCompletedInStage++;
             setTimeout(() => {
-                if (this.roundsCompletedInStage >= 5) { this.roundsCompletedInStage = 0; if (this.sequenceLength < 5) { this.sequenceLength++; this.generateNewRound(); } else { this.killAllHardwareAudio(); const comp = document.getElementById('completion-screen'); comp.style.visibility = 'visible'; comp.style.opacity = '1'; comp.style.pointerEvents = 'auto'; } } else { this.generateNewRound(); }
+                if (this.roundsCompletedInStage >= 5) { this.roundsCompletedInStage = 0; if (this.sequenceLength < 5) { this.sequenceLength++; if (!PPSDaily.naturalStop(() => this.generateNewRound())) this.generateNewRound(); } else { this.killAllHardwareAudio(); const comp = document.getElementById('completion-screen'); comp.style.visibility = 'visible'; comp.style.opacity = '1'; comp.style.pointerEvents = 'auto'; } } else { if (!PPSDaily.naturalStop(() => this.generateNewRound())) this.generateNewRound(); }
             }, 1300);
         } else {
             document.getElementById('recall-hud-actions').classList.remove('visible'); this.lineState = 'wrong'; this.redrawConstellationLines(); nodes.forEach(n => { n.classList.remove('ignited'); n.classList.add('wrong-grey'); }); this.triggerAudioNode(98.00, 'sine', 0.16, 0.05, 1.6); this.roundsCompletedInStage = 0;
-            setTimeout(() => { this.generateNewRound(); }, 1400);
+            setTimeout(() => { if (!PPSDaily.naturalStop(() => this.generateNewRound())) this.generateNewRound(); }, 1400);
         }
     },
     takeABreatherRoute() { this.killAllHardwareAudio(); window.location.href = 'index.html?action=breather'; },
