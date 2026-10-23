@@ -228,7 +228,7 @@
             <div class="gate-desc" style="font-size: 1.05rem; font-style: italic; text-align: center; margin-bottom: 32px; opacity: 0.8; letter-spacing: 0.5px;">
                 See you tomorrow. Bring that same beautiful attitude.
             </div>
-            <button class="ambient-btn visible" onclick="Engine.confirmStudioExit()">Close Studio Session</button>
+            <div style="display:flex;flex-direction:column;gap:12px;align-items:center;width:100%;"><button class="ambient-btn visible" style="pointer-events:auto!important;" onclick="Engine.confirmStudioExit()">Return to Prefrontal Pilates Studio</button><button class="ambient-btn visible" style="pointer-events:auto!important;" onclick="Engine.returnToOrchard()">Return to Neural Orchard</button></div>
         </div>
     </div>
 </div>
@@ -432,7 +432,8 @@ const Engine = {
         if (document.getElementById('top-hud-navigation-bar')) document.getElementById('top-hud-navigation-bar').style.opacity = '0'; if (this.ctx) this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         const exitScreen = document.getElementById('exit-goodbye-screen'); exitScreen.style.display = 'flex'; setTimeout(() => { exitScreen.style.opacity = '1'; }, 50);
     },
-    confirmStudioExit() { window.location.href = 'index.html?action=studio'; }
+    confirmStudioExit() { window.location.href = 'index.html?action=studio'; },
+    returnToOrchard() { window.location.href = 'index.html'; }
 };
 window.addEventListener('DOMContentLoaded', () => { if ('speechSynthesis' in window) window.speechSynthesis.getVoices(); setTimeout(() => { const card = document.getElementById('entrance-gate-card'); if (card) card.classList.add('ignite-card-reveal'); }, 150); });
 </script>
