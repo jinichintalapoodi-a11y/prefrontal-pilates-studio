@@ -193,11 +193,7 @@
     <div id="control-panel"></div>
 
     <div id="room-gate" class="gate-outer-container">
-        <div class="gate-card" id="entrance-gate-card">
-            <button class="ada-audio-trigger" onclick="Engine.synthesizeAccessibilityVoiceover()" title="Listen to Instructions">
-                <svg viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>
-            </button>
-            <div class="gate-title">Welcome to Stargazer</div>
+        <div class="gate-card" id="entrance-gate-card"><div class="gate-title">Welcome to Stargazer</div>
             <div id="instruction-voice-text" class="gate-desc" style="text-align:center;line-height:1.7;margin-bottom:30px;">
                 Watch the stars &rarr; Complete the color challenge &rarr; Tap the stars in the same order
             </div>
@@ -231,18 +227,6 @@ const Engine = {
     mainDroneGain: null, stroopFocusGain: null, activeOscillators: [], backgroundMusic: null,
     skyCoordinates: [{ x: 15, y: 15 }, { x: 35, y: 12 }, { x: 55, y: 18 }, { x: 75, y: 14 }, { x: 85, y: 35 }, { x: 65, y: 40 }, { x: 45, y: 32 }, { x: 20, y: 45 }, { x: 50, y: 10 }],
     colors: [{ name: 'Red', hex: '#ff5252', class: 'btn-red' }, { name: 'Blue', hex: '#4a90e2', class: 'btn-blue' }, { name: 'Green', hex: '#66bb6a', class: 'btn-green' }, { name: 'Yellow', hex: '#ffca28', class: 'btn-yellow' }],
-
-    synthesizeAccessibilityVoiceover() {
-        if ('speechSynthesis' in window) {
-            window.speechSynthesis.cancel();
-            const oprahScript = "My friend! ... ... Welcome ... to Stargazer. ... ... I want you to first ... watch the sequence of stars ... rolling across that night sky. ... ... Now hold that pattern ... steady in your mind! ... Even as the shifting colors ... and choices ... try to distract you. ... ... Because then? ... ... You are going to tap those stars ... retrace your path ... and complete this spectacular constellation.";
-            const utter = new SpeechSynthesisUtterance(oprahScript);
-            const voicePool = window.speechSynthesis.getVoices();
-            const warmVocalProfile = voicePool.find(v => v.name.includes('Natural') || v.name.includes('Google US English') || v.lang.startsWith('en-US'));
-            if (warmVocalProfile) utter.voice = warmVocalProfile;
-            utter.rate = 0.68; utter.pitch = 0.72; window.speechSynthesis.speak(utter);
-        }
-    },
 
     backupAudioAwakening() {
         if (!this.gameActive || this.audioHardwareUnlocked) return;
