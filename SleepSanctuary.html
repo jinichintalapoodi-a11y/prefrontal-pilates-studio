@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#111522">
+<title>Sleep Sanctuary | Neural Orchard</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400;1,600&display=swap" rel="stylesheet">
+<style>
+:root{--ivory:#fff5df;--soft:#eadfc9;--sage:#aebba3;--sage2:#7f927c;--glass:rgba(18,20,35,.58);--glass2:rgba(36,31,49,.42);--line:rgba(255,240,210,.38);--night:#101522;--champagne:#f7e7ce;--ease:cubic-bezier(.22,.72,.25,1)}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;background:var(--night);color:var(--ivory);font-family:"Playfair Display",Georgia,serif}
+body{min-height:100svh;overflow-x:hidden}
+button,textarea{font:inherit}
+button{color:inherit}
+.sanctuary{position:relative;min-height:100svh;isolation:isolate;overflow:hidden}
+.garden{position:fixed;inset:0;z-index:-4;background:#111722 url('wisteria_path.jpg') center/cover no-repeat;transform:scale(1.025)}
+.garden:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,15,30,.56),rgba(18,22,37,.47) 42%,rgba(28,27,37,.66)),radial-gradient(circle at 74% 14%,rgba(246,223,170,.18),transparent 24%),linear-gradient(90deg,rgba(22,39,41,.18),rgba(75,56,84,.12))}
+.moonwash{position:fixed;inset:0;z-index:-3;pointer-events:none;background:radial-gradient(circle at 78% 11%,rgba(255,241,203,.15),transparent 11%),radial-gradient(ellipse at 50% 75%,rgba(109,125,110,.12),transparent 45%)}
+.wisteria-shadow{position:fixed;inset:-5% -2% auto;height:34vh;z-index:-2;opacity:.25;filter:blur(.2px);background:linear-gradient(180deg,rgba(74,57,96,.28),transparent);clip-path:polygon(0 0,100% 0,100% 36%,94% 28%,90% 76%,85% 39%,79% 88%,73% 45%,66% 71%,60% 32%,54% 92%,48% 38%,42% 76%,35% 30%,29% 88%,23% 43%,17% 73%,11% 34%,6% 84%,0 52%)}
+.topbar{position:relative;z-index:10;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:12px;padding:22px clamp(18px,4vw,52px);color:var(--soft)}
+.wordmark{font-size:.72rem;letter-spacing:3px;text-transform:uppercase;opacity:.88}
+.title-mini{font-size:.9rem;letter-spacing:1.6px;text-align:center}
+.nav{justify-self:end;display:flex;gap:8px}
+.ghost{border:1px solid rgba(247,231,206,.34);background:rgba(15,18,29,.2);border-radius:999px;padding:8px 14px;cursor:pointer;backdrop-filter:blur(10px)}
+.ghost:hover,.ghost:focus-visible{border-color:rgba(247,231,206,.75);background:rgba(247,231,206,.08);outline:none}
+main{width:min(94vw,960px);margin:0 auto;padding:3vh 0 8vh}
+.arch{position:relative;width:min(92vw,790px);min-height:min(80svh,820px);margin:0 auto;padding:clamp(62px,9vh,100px) clamp(24px,7vw,74px) 54px;border:1.5px solid rgba(247,231,206,.55);border-bottom-color:rgba(247,231,206,.25);border-radius:48% 48% 34px 34px/18% 18% 34px 34px;background:linear-gradient(180deg,rgba(28,28,47,.54),rgba(27,31,42,.64));box-shadow:0 28px 80px rgba(4,7,14,.28),inset 0 1px rgba(255,255,255,.06);backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px)}
+.screen{display:none;animation:arrive .7s var(--ease) both}
+.screen.active{display:block}
+.eyebrow{text-align:center;text-transform:uppercase;letter-spacing:4px;font-size:.7rem;color:var(--sage);margin-bottom:17px}
+h1,h2{font-weight:500;text-align:center;margin:0;color:var(--ivory)}
+h1{font-size:clamp(2.3rem,5vw,4.2rem);line-height:1.02}
+h2{font-size:clamp(1.85rem,4vw,3rem);line-height:1.08}
+.lede{text-align:center;max-width:600px;margin:18px auto 30px;color:rgba(255,245,223,.88);font-size:clamp(1rem,2vw,1.16rem);line-height:1.65}
+.question{margin:34px auto 8px;text-align:center;font-size:clamp(1.35rem,3vw,2rem);font-weight:500}
+.hint{text-align:center;color:rgba(234,223,201,.72);font-size:.92rem;line-height:1.5;margin:0 auto 25px}
+.choices{display:grid;grid-template-columns:1fr 1fr;gap:13px;margin:0 auto;max-width:690px}
+.choice{appearance:none;text-align:left;min-height:124px;padding:19px 20px;border-radius:22px;border:1px solid rgba(247,231,206,.25);background:linear-gradient(145deg,rgba(255,247,229,.075),rgba(109,125,110,.055));cursor:pointer;transition:.3s var(--ease)}
+.choice:hover,.choice:focus-visible{transform:translateY(-2px);border-color:rgba(247,231,206,.62);background:rgba(255,247,229,.11);outline:none}
+.choice.selected{border-color:rgba(224,207,168,.92);background:linear-gradient(145deg,rgba(247,231,206,.16),rgba(127,146,124,.13));box-shadow:0 0 0 1px rgba(247,231,206,.08),0 12px 30px rgba(6,9,15,.16)}
+.choice strong{display:block;font-size:1.05rem;font-weight:600;margin-bottom:7px;color:#fff3dc}
+.choice span{display:block;font-size:.87rem;line-height:1.45;color:rgba(255,245,223,.75)}
+.actions{display:flex;justify-content:center;gap:11px;margin-top:28px;flex-wrap:wrap}
+.primary,.secondary{min-width:190px;border-radius:999px;padding:13px 24px;cursor:pointer;transition:.3s var(--ease)}
+.primary{border:1px solid rgba(247,231,206,.7);background:rgba(247,231,206,.12);color:var(--ivory)}
+.primary:disabled{opacity:.34;cursor:not-allowed}
+.primary:not(:disabled):hover,.primary:not(:disabled):focus-visible{background:rgba(247,231,206,.2);box-shadow:0 0 24px rgba(247,231,206,.1);outline:none}
+.secondary{border:1px solid rgba(247,231,206,.25);background:transparent;color:rgba(255,245,223,.78)}
+.secondary:hover,.secondary:focus-visible{border-color:rgba(247,231,206,.55);outline:none}
+.branch-label{text-align:center;color:var(--sage);letter-spacing:2px;text-transform:uppercase;font-size:.7rem;margin-bottom:14px}
+textarea{display:block;width:min(100%,650px);min-height:128px;margin:26px auto 0;padding:17px 18px;border-radius:20px;border:1px solid rgba(247,231,206,.25);background:rgba(10,14,25,.28);color:var(--ivory);resize:vertical;outline:none;line-height:1.55}
+textarea:focus{border-color:rgba(247,231,206,.65);box-shadow:0 0 0 3px rgba(247,231,206,.06)}
+.context-title{text-align:center;margin:31px 0 13px;font-size:1rem;color:rgba(255,245,223,.86)}
+.chips{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;max-width:650px;margin:0 auto}
+.chip{border:1px solid rgba(174,187,163,.34);background:rgba(91,111,92,.08);padding:9px 13px;border-radius:999px;cursor:pointer;color:rgba(255,245,223,.82);font-size:.84rem}
+.chip[aria-pressed="true"]{background:rgba(174,187,163,.19);border-color:rgba(198,211,188,.7);color:#fff7e7}
+.safety{display:none;max-width:650px;margin:20px auto 0;padding:15px 17px;border-left:2px solid rgba(224,207,168,.7);background:rgba(255,247,229,.055);font-size:.88rem;line-height:1.55;color:rgba(255,245,223,.82)}
+.safety.show{display:block}
+.summary-card{max-width:620px;margin:28px auto 0;padding:25px;border:1px solid rgba(247,231,206,.25);border-radius:24px;background:rgba(10,14,25,.2)}
+.summary-card .answer{font-size:1.15rem;color:#fff3dc;margin-bottom:8px}
+.summary-card p{line-height:1.6;color:rgba(255,245,223,.78);margin:8px 0}
+.gate-note{max-width:620px;margin:18px auto 0;text-align:center;font-size:.87rem;line-height:1.55;color:rgba(234,223,201,.72)}
+.reassurance{text-align:center;margin-top:32px;font-size:.78rem;letter-spacing:.8px;color:rgba(234,223,201,.62)}
+.boundary{border:0;background:none;color:inherit;text-decoration:underline;text-underline-offset:3px;cursor:pointer;padding:0}
+.dialog{position:fixed;inset:0;z-index:50;display:none;place-items:center;padding:20px;background:rgba(5,8,14,.68);backdrop-filter:blur(10px)}
+.dialog.show{display:grid}
+.dialog-card{width:min(92vw,560px);padding:28px;border-radius:24px;border:1px solid rgba(247,231,206,.4);background:#202231;color:var(--ivory);box-shadow:0 30px 90px rgba(0,0,0,.35)}
+.dialog-card h3{font-size:1.45rem;margin:0 0 12px;font-weight:500}.dialog-card p{line-height:1.6;color:rgba(255,245,223,.8)}
+@keyframes arrive{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+@media(max-width:680px){.topbar{grid-template-columns:1fr auto;padding:16px 16px}.title-mini{display:none}.wordmark{font-size:.64rem;letter-spacing:2.4px}.nav{gap:5px}.ghost{padding:7px 10px;font-size:.78rem}main{padding-top:1vh}.arch{width:94vw;min-height:84svh;padding:68px 18px 38px;border-radius:46% 46% 26px 26px/12% 12% 26px 26px}.choices{grid-template-columns:1fr}.choice{min-height:auto}.lede{margin-bottom:22px}.question{margin-top:26px}.primary,.secondary{width:100%}}
+@media(max-width:480px){.garden{background-image:url('wisteria_mobile.jpeg')}}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{animation-duration:.001ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important}.garden{transform:none}}
+</style>
+</head>
+<body>
+<div class="sanctuary">
+ <div class="garden" aria-hidden="true"></div><div class="moonwash" aria-hidden="true"></div><div class="wisteria-shadow" aria-hidden="true"></div>
+ <header class="topbar">
+  <div class="wordmark">Neural Orchard</div><div class="title-mini">Sleep Sanctuary</div>
+  <nav class="nav" aria-label="Sleep Sanctuary navigation"><button class="ghost" id="backTop">Back</button><button class="ghost" onclick="location.href='index.html'">Exit</button></nav>
+ </header>
+ <main>
+  <section class="arch">
+   <div class="screen active" id="welcome">
+    <div class="eyebrow">Sleep Sanctuary</div>
+    <h1>A little space,<br>just for you.</h1>
+    <p class="lede">Your rest deserves care and attention. Let's begin by understanding how your nights have been feeling lately.</p>
+    <div class="question">How have your nights been?</div>
+    <p class="hint">Choose what feels closest to your experience. There's no right or wrong answer.</p>
+    <div class="choices" id="choices">
+     <button class="choice" data-key="rested"><strong>I've been sleeping beautifully</strong><span>I wake feeling rested and would love to keep it that way.</span></button>
+     <button class="choice" data-key="mostly"><strong>My sleep is mostly good</strong><span>I'd like to make my evenings a little more restful and enjoyable.</span></button>
+     <button class="choice" data-key="time"><strong>I wish I had more time for sleep</strong><span>My days are full, and rest often gets squeezed out.</span></button>
+     <button class="choice" data-key="unsettled"><strong>My nights have been unsettled</strong><span>I'd like to understand what might help me sleep better.</span></button>
+    </div>
+    <div class="actions"><button class="primary" id="continue1" disabled>Continue</button></div>
+    <div class="reassurance">Your sanctuary. Your pace. Your choices. <button class="boundary" id="boundaryOpen">Wellness & medical boundaries</button></div>
+   </div>
+
+   <div class="screen" id="context">
+    <div class="branch-label" id="branchLabel">Your nights</div>
+    <h2 id="branchQuestion"></h2>
+    <p class="hint">Share only what feels useful. You can leave this blank, change your answer, or go back.</p>
+    <textarea id="reflection" aria-label="Optional reflection" placeholder="Optional — a few words is enough."></textarea>
+    <div class="context-title">Anything else that feels relevant?</div>
+    <div class="chips" id="chips">
+     <button class="chip" aria-pressed="false">Schedule</button><button class="chip" aria-pressed="false">Caffeine</button><button class="chip" aria-pressed="false">Daylight</button><button class="chip" aria-pressed="false">Awakenings</button><button class="chip" aria-pressed="false">Comfort</button><button class="chip concern" aria-pressed="false">Night sweats</button><button class="chip concern" aria-pressed="false">Other symptoms</button>
+    </div>
+    <div class="safety" id="safety">If sleep problems or symptoms are persistent, concerning, or causing marked daytime impairment, professional care may be appropriate. Sleep Sanctuary is educational wellness support and does not diagnose or treat medical conditions.</div>
+    <div class="actions"><button class="secondary" id="back1">Back</button><button class="primary" id="continue2">Continue</button></div>
+   </div>
+
+   <div class="screen" id="ready">
+    <div class="eyebrow">Sleep Sanctuary</div>
+    <h2>Your choices stay yours.</h2>
+    <p class="lede">We'll use only what you chose to understand the kind of support you're looking for.</p>
+    <div class="summary-card">
+     <div class="answer" id="summaryChoice"></div>
+     <p id="summaryQuestion"></p>
+     <p id="summaryContext"></p>
+    </div>
+    <p class="gate-note"><strong>No sleep protocol is being invented here.</strong> Personalized options will be added only from founder-approved, evidence-reviewed protocol entries. When those are loaded, this is where one or two relevant choices and the personal ritual builder will continue.</p>
+    <div class="actions"><button class="secondary" id="edit">Change my answers</button><button class="primary" onclick="location.href='index.html'">Return to Neural Orchard</button></div>
+    <div class="reassurance">No score. No streak. No judgment.</div>
+   </div>
+  </section>
+ </main>
+</div>
+<div class="dialog" id="boundary" role="dialog" aria-modal="true" aria-labelledby="boundaryTitle">
+ <div class="dialog-card"><h3 id="boundaryTitle">Wellness, not diagnosis</h3><p>Sleep Sanctuary is designed for educational wellness support. It does not diagnose or promise treatment. Persistent insomnia, significant night sweats, possible sleep apnea, or marked daytime impairment are reasons to consider appropriate professional care.</p><div class="actions"><button class="primary" id="boundaryClose">Close</button></div></div>
+</div>
+<script>
+const state={choice:null,reflection:'',context:[]};
+const branches={
+ rested:{label:'Rested',question:'What is already working?'},
+ mostly:{label:'Mostly good',question:'What would make evenings nicer?'},
+ time:{label:'Not enough time',question:'What limits your sleep opportunity?'},
+ unsettled:{label:'Unsettled',question:'What feels most difficult?'}
+};
+const screens=[document.getElementById('welcome'),document.getElementById('context'),document.getElementById('ready')];
+let step=0;
+function show(n){step=n;screens.forEach((s,i)=>s.classList.toggle('active',i===n));window.scrollTo({top:0,behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});document.getElementById('backTop').style.visibility=n===0?'hidden':'visible'}
+function choose(btn){document.querySelectorAll('.choice').forEach(x=>x.classList.remove('selected'));btn.classList.add('selected');state.choice=btn.dataset.key;document.getElementById('continue1').disabled=false}
+document.querySelectorAll('.choice').forEach(btn=>btn.addEventListener('click',()=>choose(btn)));
+document.getElementById('continue1').onclick=()=>{const b=branches[state.choice];document.getElementById('branchLabel').textContent=b.label;document.getElementById('branchQuestion').textContent=b.question;show(1)};
+document.querySelectorAll('.chip').forEach(btn=>btn.onclick=()=>{const on=btn.getAttribute('aria-pressed')!=='true';btn.setAttribute('aria-pressed',String(on));state.context=[...document.querySelectorAll('.chip[aria-pressed="true"]')].map(x=>x.textContent);document.getElementById('safety').classList.toggle('show',[...document.querySelectorAll('.concern')].some(x=>x.getAttribute('aria-pressed')==='true'))});
+document.getElementById('continue2').onclick=()=>{state.reflection=document.getElementById('reflection').value.trim();const selected=document.querySelector('.choice.selected');const b=branches[state.choice];document.getElementById('summaryChoice').textContent=selected?selected.querySelector('strong').textContent:'';document.getElementById('summaryQuestion').textContent=b.question+(state.reflection?' — '+state.reflection:'');document.getElementById('summaryContext').textContent=state.context.length?'Also relevant: '+state.context.join(', ')+'.':'No additional context selected.';show(2)};
+document.getElementById('back1').onclick=()=>show(0);document.getElementById('edit').onclick=()=>show(1);document.getElementById('backTop').onclick=()=>step>0?show(step-1):location.href='index.html';
+const dialog=document.getElementById('boundary');document.getElementById('boundaryOpen').onclick=()=>dialog.classList.add('show');document.getElementById('boundaryClose').onclick=()=>dialog.classList.remove('show');dialog.onclick=e=>{if(e.target===dialog)dialog.classList.remove('show')};
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&dialog.classList.contains('show'))dialog.classList.remove('show')});
+show(0);
+</script>
+</body>
+</html>
