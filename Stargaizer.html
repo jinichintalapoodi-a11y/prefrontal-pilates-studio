@@ -69,7 +69,7 @@
         }
         #recall-hud-actions.visible { opacity: 1; pointer-events: auto; }
         #undo-last-star{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-width:155px;min-height:44px;padding:10px 14px;font-size:.82rem;touch-action:manipulation}
-        #undo-last-star:disabled{opacity:.45;cursor:not-allowed;pointer-events:none}
+        #undo-last-star:disabled{opacity:.45;cursor:not-allowed;pointer-events:none!important}
         #undo-last-star:focus-visible{outline:2px solid var(--champagne-gold);outline-offset:3px}
         .brain-in-bloom{border:1px solid rgba(247,231,206,.6);border-radius:14px;padding:11px;margin:12px 0;color:#f7e7ce;text-align:left;font-size:.91rem;line-height:1.45}
         .brain-in-bloom summary{cursor:pointer;font-weight:700;min-height:44px;display:flex;align-items:center}
@@ -231,7 +231,7 @@
 
 <script src="pps-session.js?v=62124007"></script><script>
 const Engine = {
-    sequenceLength: 3, roundsCompletedInStage: 0, recentRoundResults: [], declinedStarIncrease: false, roundStroopCorrect: false, savedSequenceLength: Math.min(5, Math.max(3, parseInt(localStorage.getItem('stargazerLevel') || '3', 10))), generatedSequence: [], playerSequence: [], stroopStage: 1, audioCtx: null, canvas: null, ctx: null, woodwindInterval: null, woodwindStep: 0, lineState: 'tracing', audioHardwareUnlocked: false, gameActive: true,
+    sequenceLength: 3, roundsCompletedInStage: 0, recentRoundResults: [], declinedStarIncrease: false, roundStroopCorrect: false, savedSequenceLength: Math.min(5, Math.max(3, parseInt(localStorage.getItem('stargazerLevel') || '3', 10))), generatedSequence: [], playerSequence: [], stroopStage: 1, audioCtx: null, canvas: null, ctx: null, woodwindInterval: null, woodwindStep: 0, lineState: 'tracing', audioHardwareUnlocked: false, gameActive: true, completedRecallRounds: 0, recallVerificationToken: 0,
     mainDroneGain: null, stroopFocusGain: null, activeOscillators: [], backgroundMusic: null,
     skyCoordinates: [{ x: 15, y: 15 }, { x: 35, y: 12 }, { x: 55, y: 18 }, { x: 75, y: 14 }, { x: 85, y: 35 }, { x: 65, y: 40 }, { x: 45, y: 32 }, { x: 20, y: 45 }, { x: 50, y: 10 }],
     colors: [{ name: 'Red', hex: '#ff5252', class: 'btn-red' }, { name: 'Blue', hex: '#4a90e2', class: 'btn-blue' }, { name: 'Green', hex: '#66bb6a', class: 'btn-green' }, { name: 'Yellow', hex: '#ffca28', class: 'btn-yellow' }],
@@ -256,7 +256,7 @@ const Engine = {
         }
     },
     initPractice(startLevel = 3) {
-        this.sequenceLength = Math.min(5, Math.max(3, startLevel)); this.roundsCompletedInStage = 0; this.recentRoundResults=[]; this.declinedStarIncrease=false; this.roundStroopCorrect=false;
+        this.sequenceLength = Math.min(5, Math.max(3, startLevel)); this.roundsCompletedInStage = 0; this.completedRecallRounds=0; this.recentRoundResults=[]; this.declinedStarIncrease=false; this.roundStroopCorrect=false;
         if ('speechSynthesis' in window) window.speechSynthesis.cancel();
         this.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         this.audioCtx.resume().then(() => {
@@ -377,14 +377,14 @@ const Engine = {
         });
     },
     evaluateRecallTouch(coord, element, index) {
-        element.style.pointerEvents = 'none'; element.classList.add('ignited'); this.playerSequence.push(coord); this.updateUndoState();
+        element.style.pointerEvents = 'none'; element.classList.add('ignited'); this.playerSequence.push(coord); this.recallVerificationToken++; this.updateUndoState();
         const stargazerMelody = [329.63, 392.00, 440.00, 523.25, 587.33]; this.triggerAudioNode(stargazerMelody[index % stargazerMelody.length], 'sine', 0.12, 0.06, 1.8); this.redrawConstellationLines();
-        if (this.playerSequence.length === this.generatedSequence.length) { document.getElementById('sky-interaction-zone').style.pointerEvents = 'none'; setTimeout(() => { if (this.gameActive && this.playerSequence.length === this.generatedSequence.length) { this.verifySequenceAccuracy(); } }, 1000); }
+        if (this.playerSequence.length === this.generatedSequence.length) { document.getElementById('sky-interaction-zone').style.pointerEvents = 'none'; const token=this.recallVerificationToken; setTimeout(() => { if (this.gameActive && token===this.recallVerificationToken && this.playerSequence.length === this.generatedSequence.length) { this.verifySequenceAccuracy(); } }, 1000); }
     },
     updateUndoState() { const undo=document.getElementById('undo-last-star'); if(undo) undo.disabled=!this.gameActive||!document.getElementById('recall-hud-actions').classList.contains('visible')||this.playerSequence.length===0; },
     undoLastRecallStep() {
         if (!this.gameActive || !document.getElementById('recall-hud-actions').classList.contains('visible') || this.playerSequence.length === 0) return;
-        const rolledBackCoord = this.playerSequence.pop();
+        const rolledBackCoord = this.playerSequence.pop(); this.recallVerificationToken++;
         const matchingNode = Array.from(document.querySelectorAll('.star-target')).find(target => { return parseFloat(target.dataset.coordX) === rolledBackCoord.x && parseFloat(target.dataset.coordY) === rolledBackCoord.y; });
         if (matchingNode) { matchingNode.classList.remove('ignited'); matchingNode.style.pointerEvents = 'auto'; }
         this.triggerAudioNode(147.14, 'sine', 0.08, 0.04, 1.2); document.getElementById('sky-interaction-zone').style.pointerEvents = 'auto'; this.redrawConstellationLines(); this.updateUndoState();
@@ -426,6 +426,7 @@ const Engine = {
     verifySequenceAccuracy() {
         PPSDaily.pause();
         let isPerfect = true; for (let i = 0; i < this.generatedSequence.length; i++) { if (this.generatedSequence[i].x !== this.playerSequence[i].x || this.generatedSequence[i].y !== this.playerSequence[i].y) { isPerfect = false; break; } }
+        this.completedRecallRounds++;
         const nodes = document.querySelectorAll('.star-target');
         const roundSuccess = isPerfect && this.roundStroopCorrect;
         this.recordRoundResult(roundSuccess);
@@ -447,7 +448,7 @@ const Engine = {
         if (document.getElementById('control-panel')) document.getElementById('control-panel').style.setProperty('display', 'none', 'important');
         document.getElementById('sky-interaction-zone').style.opacity = '0'; document.getElementById('sky-interaction-zone').style.pointerEvents = 'none';
         if (document.getElementById('top-hud-navigation-bar')) document.getElementById('top-hud-navigation-bar').style.opacity = '0'; if (this.ctx) this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-        const insight=document.getElementById('stargazer-brain-in-bloom'); if(insight){insight.hidden=this.recentRoundResults.length===0;insight.open=false;}
+        const insight=document.getElementById('stargazer-brain-in-bloom'); if(insight){insight.hidden=this.completedRecallRounds===0;insight.open=false;}
         const exitScreen = document.getElementById('exit-goodbye-screen'); exitScreen.style.display = 'flex'; setTimeout(() => { exitScreen.style.opacity = '1'; }, 50);
     },
     confirmStudioExit() { window.location.href = 'index.html?action=studio'; },
