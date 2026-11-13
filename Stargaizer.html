@@ -68,6 +68,13 @@
             opacity: 0; pointer-events: none; transition: opacity 0.4s var(--luxury-bezier);
         }
         #recall-hud-actions.visible { opacity: 1; pointer-events: auto; }
+        #undo-last-star{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-width:155px;min-height:44px;padding:10px 14px;font-size:.82rem;touch-action:manipulation}
+        #undo-last-star:disabled{opacity:.45;cursor:not-allowed;pointer-events:none}
+        #undo-last-star:focus-visible{outline:2px solid var(--champagne-gold);outline-offset:3px}
+        .brain-in-bloom{border:1px solid rgba(247,231,206,.6);border-radius:14px;padding:11px;margin:12px 0;color:#f7e7ce;text-align:left;font-size:.91rem;line-height:1.45}
+        .brain-in-bloom summary{cursor:pointer;font-weight:700;min-height:44px;display:flex;align-items:center}
+        .brain-in-bloom p{margin:8px 0 0}
+        .brain-in-bloom[hidden]{display:none!important}
 
         #constellation-canvas { position: absolute; inset: 0; z-index: 5; pointer-events: none; width: 100%; height: 100%; }
         #sky-interaction-zone { position: absolute; left: 50%; transform: translateX(-50%); width: 100%; max-width: 440px; height: 35%; top: 16%; z-index: 10; pointer-events: auto; }
@@ -184,7 +191,7 @@
     </div>
 
     <div id="recall-hud-actions">
-        <button class="hud-nav-btn" style="font-size: 0.78rem; padding: 4px 14px;" onclick="Engine.undoLastRecallStep()">Undo Last Star</button>
+        <button id="undo-last-star" type="button" class="hud-nav-btn" disabled aria-label="Undo Last Star" onclick="Engine.undoLastRecallStep()"><svg aria-hidden="true" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14 4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 0 12h-2"/></svg><span>Undo Last Star</span></button>
     </div>
     
     <canvas id="constellation-canvas"></canvas>
@@ -193,9 +200,9 @@
     <div id="control-panel"></div>
 
     <div id="room-gate" class="gate-outer-container">
-        <div class="gate-card" id="entrance-gate-card"><div class="gate-title">Welcome to Stargazer</div>
+        <div class="gate-card" id="entrance-gate-card"><div class="gate-title">How to Play Stargazer</div>
             <div id="instruction-voice-text" class="gate-desc" style="text-align:center;line-height:1.7;margin-bottom:30px;">
-                Watch the stars &rarr; Complete the color challenge &rarr; Tap the stars in the same order
+                <span style="display:block;text-align:left"><strong>1. Remember the stars.</strong> Pay attention to the constellation pattern.<br><strong>2. Answer the color question.</strong> Look carefully and choose your answer.<br><strong>3. Retrace the constellation.</strong> Recreate the star pattern you saw at the beginning.</span>
             </div>
             <div id="stargazer-entry-actions" style="display:flex;flex-direction:column;gap:12px;align-items:center;width:100%;"></div>
         </div>
@@ -213,6 +220,7 @@
         <div class="gate-card ignite-card-reveal" style="pointer-events:auto;">
             <div class="gate-title">Brilliant.</div>
             <div class="gate-desc" style="font-size:1.05rem;text-align:center;margin:8px 0 28px;opacity:.9;">Do you want to?</div>
+            <details class="brain-in-bloom" id="stargazer-brain-in-bloom" hidden><summary>Your Brain in Bloom</summary><div><strong>Working Memory &amp; Attention</strong><p><strong>Ever walk into a room and forget why you went there?</strong></p><p>Working memory is your brain's mental notepad. It helps you hold onto an intention while your attention shifts—whether you're following a conversation, remembering the next step in a recipe, or keeping track of what you meant to do.</p><p>Stargazer gives you an opportunity to engage this remarkable ability.</p></div></details>
             <div style="display:flex;flex-direction:column;gap:12px;align-items:center;width:100%;">
                 <button class="ambient-btn visible" style="pointer-events:auto!important;" onclick="Engine.confirmStudioExit()">Return to Prefrontal Pilates Studio</button>
                 <button class="ambient-btn visible" style="pointer-events:auto!important;" onclick="Engine.returnToOrchard()">Return to Neural Orchard</button>
@@ -361,6 +369,7 @@ const Engine = {
         if (!this.gameActive) return;
         const zone = document.getElementById('sky-interaction-zone'); zone.innerHTML = ''; zone.style.pointerEvents = 'auto';
         document.getElementById('recall-hud-actions').classList.add('visible');
+        this.updateUndoState();
         this.generatedSequence.forEach((coord, index) => {
             const target = document.createElement('div'); target.className = 'star-target reveal'; target.style.left = `${coord.x}%`; target.style.top = `${coord.y}%`; target.innerHTML = `<div class="star-center"></div>`; 
             target.dataset.coordX = coord.x; target.dataset.coordY = coord.y;
@@ -368,16 +377,17 @@ const Engine = {
         });
     },
     evaluateRecallTouch(coord, element, index) {
-        element.style.pointerEvents = 'none'; element.classList.add('ignited'); this.playerSequence.push(coord);
+        element.style.pointerEvents = 'none'; element.classList.add('ignited'); this.playerSequence.push(coord); this.updateUndoState();
         const stargazerMelody = [329.63, 392.00, 440.00, 523.25, 587.33]; this.triggerAudioNode(stargazerMelody[index % stargazerMelody.length], 'sine', 0.12, 0.06, 1.8); this.redrawConstellationLines();
-        if (this.playerSequence.length === this.generatedSequence.length) { document.getElementById('sky-interaction-zone').style.pointerEvents = 'none'; setTimeout(() => { if (this.gameActive) { this.verifySequenceAccuracy(); } }, 1000); }
+        if (this.playerSequence.length === this.generatedSequence.length) { document.getElementById('sky-interaction-zone').style.pointerEvents = 'none'; setTimeout(() => { if (this.gameActive && this.playerSequence.length === this.generatedSequence.length) { this.verifySequenceAccuracy(); } }, 1000); }
     },
+    updateUndoState() { const undo=document.getElementById('undo-last-star'); if(undo) undo.disabled=!this.gameActive||!document.getElementById('recall-hud-actions').classList.contains('visible')||this.playerSequence.length===0; },
     undoLastRecallStep() {
-        if (!this.gameActive || this.playerSequence.length === 0) return;
+        if (!this.gameActive || !document.getElementById('recall-hud-actions').classList.contains('visible') || this.playerSequence.length === 0) return;
         const rolledBackCoord = this.playerSequence.pop();
         const matchingNode = Array.from(document.querySelectorAll('.star-target')).find(target => { return parseFloat(target.dataset.coordX) === rolledBackCoord.x && parseFloat(target.dataset.coordY) === rolledBackCoord.y; });
         if (matchingNode) { matchingNode.classList.remove('ignited'); matchingNode.style.pointerEvents = 'auto'; }
-        this.triggerAudioNode(147.14, 'sine', 0.08, 0.04, 1.2); document.getElementById('sky-interaction-zone').style.pointerEvents = 'auto'; this.redrawConstellationLines();
+        this.triggerAudioNode(147.14, 'sine', 0.08, 0.04, 1.2); document.getElementById('sky-interaction-zone').style.pointerEvents = 'auto'; this.redrawConstellationLines(); this.updateUndoState();
     },
     redrawConstellationLines() {
         if (!this.ctx || !this.canvas) return; this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height); if (this.playerSequence.length < 1) return;
@@ -437,6 +447,7 @@ const Engine = {
         if (document.getElementById('control-panel')) document.getElementById('control-panel').style.setProperty('display', 'none', 'important');
         document.getElementById('sky-interaction-zone').style.opacity = '0'; document.getElementById('sky-interaction-zone').style.pointerEvents = 'none';
         if (document.getElementById('top-hud-navigation-bar')) document.getElementById('top-hud-navigation-bar').style.opacity = '0'; if (this.ctx) this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        const insight=document.getElementById('stargazer-brain-in-bloom'); if(insight){insight.hidden=this.recentRoundResults.length===0;insight.open=false;}
         const exitScreen = document.getElementById('exit-goodbye-screen'); exitScreen.style.display = 'flex'; setTimeout(() => { exitScreen.style.opacity = '1'; }, 50);
     },
     confirmStudioExit() { window.location.href = 'index.html?action=studio'; },
