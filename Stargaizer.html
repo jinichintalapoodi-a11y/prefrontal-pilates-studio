@@ -172,6 +172,15 @@
         .ada-audio-trigger svg { width: 16px; height: 16px; fill: var(--champagne-gold); }
 
         #exit-goodbye-screen { display: none; position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; height: 100%; background: transparent; z-index: 99999; text-align: center; opacity: 0; transition: opacity 1s ease; }
+        /* Scoped exit-screen readability; preserve the existing Stargazer gate and theme. */
+        #exit-goodbye-screen .gate-card{height:min(90dvh,900px);max-height:100dvh;padding:clamp(56px,8vh,96px) clamp(18px,4vw,32px) 28px;overflow-y:auto;overscroll-behavior:contain;scrollbar-gutter:stable}
+        #exit-goodbye-screen .gate-title{margin-bottom:14px}
+        #exit-goodbye-screen .exit-science-copy{font-size:clamp(.86rem,1.45vw,1rem);line-height:1.55;text-align:left}
+        #exit-goodbye-screen .exit-science-copy p{margin:0 0 13px}
+        #exit-goodbye-screen .exit-navigation{display:flex;flex-direction:column;gap:12px;align-items:center;width:100%;padding-bottom:max(14px,env(safe-area-inset-bottom))}
+        #exit-goodbye-screen .exit-navigation button{min-height:44px;max-width:100%;white-space:normal}
+        @media(max-width:480px){#exit-goodbye-screen .gate-card{height:92dvh;padding:clamp(44px,6vh,64px) 18px 22px}#exit-goodbye-screen .exit-science-copy{font-size:.91rem;line-height:1.5}}
+
 
         @media (max-width: 480px) {
             #stage-canvas-wrapper { background-image: url('star_gazer_mobile.jpeg') !important; background-size: cover; background-position: center center; }
@@ -218,10 +227,14 @@
 
     <div id="exit-goodbye-screen" class="gate-outer-container">
         <div class="gate-card ignite-card-reveal" style="pointer-events:auto;">
-            <div class="gate-title">Brilliant.</div>
-            <div class="gate-desc" style="font-size:1.05rem;text-align:center;margin:8px 0 28px;opacity:.9;">Do you want to?</div>
-            <details class="brain-in-bloom" id="stargazer-brain-in-bloom" hidden><summary>Your Brain in Bloom</summary><div><strong>Working Memory &amp; Attention</strong><p><strong>Ever walk into a room and forget why you went there?</strong></p><p>Working memory is your brain's mental notepad. It helps you hold onto an intention while your attention shifts—whether you're following a conversation, remembering the next step in a recipe, or keeping track of what you meant to do.</p><p>Stargazer gives you an opportunity to engage this remarkable ability.</p></div></details>
-            <div style="display:flex;flex-direction:column;gap:12px;align-items:center;width:100%;">
+            <div class="gate-title">Brilliantly done.</div>
+            <div class="exit-science-copy">
+                <p>You've just challenged one of your brain's most important cognitive systems: <strong>working memory</strong>.</p>
+                <p>Working memory is your brain's mental workspace. It allows you to temporarily hold, update, and manipulate information while staying focused on a goal. It plays a vital role in reasoning, learning, decision-making, and following complex conversations.</p>
+                <p>By remembering constellations, shifting your attention to a color question, and reconstructing the original pattern, you've practiced coordinating <strong>working memory, selective attention, and sequential recall</strong>.</p>
+                <p><strong>That's cognitive engagement with a purpose.</strong></p>
+            </div>
+            <div class="exit-navigation">
                 <button class="ambient-btn visible" style="pointer-events:auto!important;" onclick="Engine.confirmStudioExit()">Return to Prefrontal Pilates Studio</button>
                 <button class="ambient-btn visible" style="pointer-events:auto!important;" onclick="Engine.returnToOrchard()">Return to Neural Orchard</button>
             </div>
@@ -448,7 +461,6 @@ const Engine = {
         if (document.getElementById('control-panel')) document.getElementById('control-panel').style.setProperty('display', 'none', 'important');
         document.getElementById('sky-interaction-zone').style.opacity = '0'; document.getElementById('sky-interaction-zone').style.pointerEvents = 'none';
         if (document.getElementById('top-hud-navigation-bar')) document.getElementById('top-hud-navigation-bar').style.opacity = '0'; if (this.ctx) this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-        const insight=document.getElementById('stargazer-brain-in-bloom'); if(insight){insight.hidden=this.completedRecallRounds===0;insight.open=false;}
         const exitScreen = document.getElementById('exit-goodbye-screen'); exitScreen.style.display = 'flex'; setTimeout(() => { exitScreen.style.opacity = '1'; }, 50);
     },
     confirmStudioExit() { window.location.href = 'index.html?action=studio'; },
