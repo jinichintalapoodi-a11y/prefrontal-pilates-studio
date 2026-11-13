@@ -1,0 +1,17 @@
+name = "neural-orchard-nourish"
+main = "src/worker.js"
+compatibility_date = "2026-10-01"
+[vars]
+ALLOWED_ORIGIN = "https://jinichintalapoodi-a11y.github.io"
+PILOT_ENABLED = "false"
+DAILY_USER_LIMIT = "5"
+DAILY_GLOBAL_LIMIT = "50"
+GEMINI_MODEL = "gemini-2.5-flash"
+# Set ACCESS_TEAM_DOMAIN and ACCESS_AUD using Cloudflare Worker environment settings.
+# Set GEMINI_API_KEY with: npx wrangler secret put GEMINI_API_KEY
+[[durable_objects.bindings]]
+name = "USAGE_GATE"
+class_name = "UsageGate"
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["UsageGate"]
