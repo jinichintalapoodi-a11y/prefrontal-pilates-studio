@@ -4,6 +4,7 @@
 const P=window.NeuralOrchardPreferences,N=window.NeuralOrchardProgress;
 if(!P||!N)return;
 const css=`
+.no-personalized-greeting{white-space:normal!important;overflow-wrap:anywhere;text-transform:none!important;letter-spacing:1px!important;line-height:1.25!important;font-size:clamp(.8rem,2vw,1rem)!important}
 .no-tools{position:fixed;top:max(12px,env(safe-area-inset-top));right:12px;z-index:50000;display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;max-width:90vw}
 .no-tools[hidden]{display:none!important}
 .no-tools button,.no-modal button{font-family:'Playfair Display',Georgia,serif;font-style:italic;background:rgba(29,18,43,.85);color:#f7e7ce;border:1px solid rgba(247,231,206,.8);border-radius:24px;min-height:44px;padding:9px 15px;cursor:pointer}
@@ -48,7 +49,8 @@ function actions(...children){const d=elt('div',undefined,'no-modal-actions');d.
 function greeting(){
  const w=document.getElementById('welcome-text');if(!w)return;
  const nick=P.profile().nickname;
- w.textContent=nick?'WELCOME BACK, '+nick+'.':'WELCOME TO';
+ w.textContent=nick?'Welcome back, '+nick+'.':'Welcome back.';
+ w.classList.toggle('no-personalized-greeting',!!nick);
 }
 function notice(){const p=elt('p','Your practice history stays in this browser. Optional aggregate gameplay analytics are off by default. No data will be transmitted during this development phase. After a separately approved launch, sharing would require your choice and would not use a persistent participant ID. You can stop future sharing, but past aggregate counts generally cannot be individually removed. Clearing your browser data can erase local history.','no-muted');return p}
 function check(initial){const label=elt('label',undefined,'no-check'),input=document.createElement('input');input.type='checkbox';input.checked=!!initial;label.append(input,document.createTextNode('Optional: allow future aggregate gameplay statistics after backend activation. Declining does not affect the games.'));return {label,input}}
