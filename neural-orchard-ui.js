@@ -41,6 +41,7 @@ updateToolbar();
 const wrap=document.createElement('div');wrap.className='no-modal-wrap';wrap.hidden=true;
 const panel=document.createElement('section');panel.className='no-modal';panel.setAttribute('role','dialog');panel.setAttribute('aria-modal','true');wrap.appendChild(panel);document.body.appendChild(wrap);
 let previousFocus=null;
+const firstVisit=!P.profile().onboardingSeen;
 const elt=(tag,text,cls)=>{const e=document.createElement(tag);if(text!==undefined)e.textContent=text;if(cls)e.className=cls;return e};
 const btn=(text,fn)=>{const e=elt('button',text);e.type='button';e.addEventListener('click',fn);return e};
 function open(){previousFocus=document.activeElement;wrap.hidden=false;panel.scrollTop=0;panel.tabIndex=-1;panel.focus()}
@@ -49,7 +50,7 @@ function actions(...children){const d=elt('div',undefined,'no-modal-actions');d.
 function greeting(){
  const w=document.getElementById('welcome-text');if(!w)return;
  const nick=P.profile().nickname;
- w.textContent=nick?'Welcome back, '+nick+'.':'Welcome back.';
+ w.textContent=firstVisit?(nick?'Welcome, '+nick+'.':'WELCOME TO'):(nick?'Welcome back, '+nick+'.':'Welcome back.');
  w.classList.toggle('no-personalized-greeting',!!nick);
 }
 function notice(){const p=elt('p','Your practice history stays in this browser. Optional aggregate gameplay analytics are off by default. No data will be transmitted during this development phase. After a separately approved launch, sharing would require your choice and would not use a persistent participant ID. You can stop future sharing, but past aggregate counts generally cannot be individually removed. Clearing your browser data can erase local history.','no-muted');return p}
