@@ -54,3 +54,24 @@ Desktop 1440x900 and mobile 390x844:
 - Stargazer/Sentinel game mechanics, audio, artwork, navigation, localStorage keys and progress remain unaffected.
 
 Release restrictions: no production merge/deploy, no DNS or hosting changes, no claims of operational authentication until E2E verified.
+
+
+## Founder architecture decision — approved 2026-11-13
+
+**Approved: Option A, account protection only.** The public GitHub Pages game pages and assets remain publicly accessible. Invitation-only admission applies to participant accounts and protected personal data, not to direct access to `Stargaizer.html` or `Sentinel.html`. Do not imply the beta content is private.
+
+**Approved participant experience:** full name, preferred username, approved email; passwordless email verification; remembered authenticated session on the same device until sign-out, expiry or revocation; greeting from the protected participant profile. Do not store passwords or service-role credentials in the browser.
+
+**Explicit release boundary:** this approval authorizes isolated development planning only. No merge to `main`, production deployment, DNS change, live Supabase activation, or unreviewed changes to games.
+
+## Ordered implementation plan and gates
+
+1. **Baseline and hotfix reconciliation (before feature code):** Verify `main` and the existing registration branch against their recorded SHAs. Inspect the Stargazer hotfix commit `16eb9bdede506c230fc0805539721078dc5aa313` (based on `b94d62c263d606c6ea48d1a33d83f346e890c02d`). Incorporate its `Stargaizer.html`-only CSS correction into the registration feature branch via a clean cherry-pick or equivalent reviewed patch. Preserve the exact approved scientific copy, navigation handlers and other game behavior. Confirm the registration branch comparison contains only the architecture/planning documentation and that specific Stargazer hotfix before adding authentication code. Do not touch production `main`. Re-run desktop/mobile exit-screen acceptance tests after integration; earlier testing does not replace regression testing.
+2. **Nonproduction infrastructure:** Founder creates or authorizes a development Supabase project. Configure redirect allowlist, PKCE/passwordless email flow, SMTP, rate limits, CAPTCHA as appropriate, and separate dev credentials. No secret/service-role key in client assets. Document configuration without secrets.
+3. **Admission and profiles:** Build private invitation allowlist with exact normalized emails and expiry/revocation. Enforce at account creation with a server-side hook, and separately enforce authorization for existing users/sessions. Create participant profiles linked to `auth.users`, with strict RLS, grants and uniqueness checks. Validate profile fields on the trusted side. Avoid account enumeration.
+4. **Frontend integration:** Implement registration and returning sign-in as a separate module with loading, expired-link, retry and sign-out states. After verified authentication load only the participant's own profile; show the preferred username. Existing static game URLs stay public by design. No false claims of private game access.
+5. **Progress isolation:** Preserve `stargazerLevel`, `sentinelLevel` and `ppsDailyPracticeV1` untouched; do not automatically bind existing local progress to an account. Specify behavior on shared devices and after sign-out.
+6. **Acceptance/security gate:** Test approved and unapproved addresses, verified link redemption, refresh/persistent session, sign-out, session expiry/revocation, duplicate username, two-user RLS isolation, direct game URL access, mobile/desktop, and gameplay/audio/progress regression. Document actual screenshots and results; do not mark pending tests passed.
+7. **Founder review:** Supply changed-file inventory, security checklist, evidence of test results, and a rollback plan. Seek separate explicit founder approval before any merge or production deployment.
+
+**Unresolved configuration choices:** invitation expiry, username policy, email-change policy, and session lifetime. Use documented conservative development defaults and obtain founder approval before live activation.
