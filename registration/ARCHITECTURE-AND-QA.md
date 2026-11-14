@@ -1,3 +1,5 @@
+> **HISTORICAL / SUPERSEDED FOR MVP 1.1 (2026-11-13):** This mandatory-email registration proposal is retained for reference only. The founder-approved MVP 1.1 product direction has no mandatory email registration or authentication. See [MVP-1.1-ARCHITECTURE-PRIVACY-PLAN.md](MVP-1.1-ARCHITECTURE-PRIVACY-PLAN.md). No registration service is activated.
+
 # Neural Orchard Registration MVP — Technical Audit & Implementation Gates
 
 Status: architecture review; authentication NOT operational.
