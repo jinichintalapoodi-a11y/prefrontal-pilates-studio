@@ -96,8 +96,8 @@ function progress(){
    let detail='';
    if(x.game==='stargazer'){
      const color=(m.stroop_correct||0)+(m.stroop_incorrect||0),recall=(m.recall_correct||0)+(m.recall_incorrect||0);
-     detail=' · color choices '+(color?(m.stroop_correct||0)+'/'+color:'not recorded')+' · recall '+(recall?(m.recall_correct||0)+'/'+recall:'not recorded');
-   }else detail=' · matches '+(m.matches_hit||0)+' · missed '+(m.matches_missed||0)+' · false alarms '+(m.false_alarms||0);
+     detail=' · color choices '+(color?(m.stroop_correct||0)+'/'+color:'not recorded')+' · recall '+(recall?(m.recall_correct||0)+'/'+recall:'not recorded')+(m.stroop_timed_choices?' · average color-response '+((m.stroop_response_ms||0)/m.stroop_timed_choices/1000).toFixed(1)+'s':'');
+   }else detail=' · matches '+(m.matches_hit||0)+' · missed '+(m.matches_missed||0)+' · false alarms '+(m.false_alarms||0)+(m.timed_taps?' · average tap latency '+((m.match_tap_response_ms||0)/m.timed_taps/1000).toFixed(1)+'s':'');
    const level=x.levelAtEnd==null?'unknown':x.levelAtStart+' → '+x.levelAtEnd;
    trends.append(elt('p',x.endTimeISO.slice(0,10)+' · '+which+' · level '+level+' · '+minutes(x.elapsedActiveMs)+' min · '+x.outcome+detail));
  }
