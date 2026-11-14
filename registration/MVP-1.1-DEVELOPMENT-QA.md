@@ -74,3 +74,12 @@ The corrected JPEG is an EXACT Git blob match to current `main`; its visual remo
 - Do not merge to `main`, deploy GitHub Pages, modify hosting/DNS or activate backend analytics without separate founder authorization.
 - Current production content remains directly recoverable from `main` and its known commit `1251c7725b75896c26765adbf77f7a51527b86f4`. Revert feature commits only on the isolated branch after review; never force-push production.
 - A safe production release would require visual/interaction acceptance, retention/consent audit and separate founder signoff.
+
+
+## Follow-up synthetic QA evidence (2026-11-14)
+- **Per-tab lifecycle mock:** starting Stargazer in Tab A and loading Tab B does not fabricate an interruption; same-tab reload of a pending Sentinel checkpoint does register one interrupted record. Actual browser suspension/close still pending.
+- **Progress/storage mock:** initial 0 sessions, one 40-second Stargazer record, no duplicate second finish, exact preservation of `stargazerLevel`, `sentinelLevel`, `ppsDailyPracticeV1`, and refusal to overwrite intentionally malformed `neuralOrchardProgressV1`: PASS.
+- **Stargazer hook mock:** original `initPractice`, `executeStroopPhase`, `verifySequenceAccuracy`, `exitRoom` functions were all called once through wrappers; synthetic color-correct, recall-correct, round-attempt and response-time counters appeared locally: PASS.
+- **Source checks:** JavaScript parse for all five new modules and inline source scripts; exact patched desktop image blob SHA matches `main`; no telemetry endpoint, network client, credentials or participant profile upload added. These are source checks, NOT browser-level security certification.
+- **Timing interpretation:** task-specific color-response delay starts at Stroop phase presentation; Sentinel tap latency begins when the meerkat rise animation starts. Do not compare these timings with clinical reaction-time benchmarks or combine them into a clinical score. A paired speed-versus-accuracy analysis is not justified by the current aggregate counters.
+- **Remaining:** actual desktop/tablet/mobile screenshots, visual JPEG confirmation, smoke tests for all navigation/audio/gameplay, accessibility interaction, network inspection, and founder acceptance.
