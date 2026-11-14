@@ -23,7 +23,7 @@ const css=`
 .no-modal table{width:100%;border-collapse:collapse;text-align:left;font-size:.91rem}
 .no-modal td,.no-modal th{padding:9px 5px;border-bottom:1px solid rgba(247,231,206,.28)}
 .no-modal .no-panel{margin:14px auto;padding:12px;border:1px solid rgba(247,231,206,.32);border-radius:12px;text-align:left}
-@media(max-width:480px){.no-tools{top:auto;bottom:max(8px,env(safe-area-inset-bottom));left:8px;right:8px;justify-content:center}.no-tools button{font-size:.77rem;padding:8px 11px}.no-modal{max-height:94dvh;padding:44px 14px 20px}.no-modal h2{font-size:1.35rem}}
+@media(max-width:480px){.no-tools{top:max(8px,env(safe-area-inset-top));bottom:auto;left:8px;right:8px;justify-content:center}.no-tools button{font-size:.77rem;padding:8px 11px}.no-modal{max-height:94dvh;padding:44px 14px 20px}.no-modal h2{font-size:1.35rem}}
 `;
 const style=document.createElement('style');style.textContent=css;document.head.appendChild(style);
 const tools=document.createElement('nav');tools.className='no-tools';tools.setAttribute('aria-label','Personal progress and privacy');
