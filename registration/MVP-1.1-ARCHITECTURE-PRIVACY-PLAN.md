@@ -1,7 +1,7 @@
 # Neural Orchard MVP 1.1 — Architecture, Data Dictionary, Privacy Model & Implementation Plan
 
-**Status:** Founder-approved direction, DESIGN ONLY; implementation, live analytics, data collection and deployment NOT authorized.
-**Prepared:** 2026-11-13.
+**Status:** Founder-selected aggregate-only analytics direction; DESIGN ONLY. Implementation, live analytics, collection of real data, and deployment are NOT authorized.
+**Prepared:** 2026-11-13. **Revised:** 2026-11-14 — aggregate-only analytics, no persistent transmitted participant/installation identifiers.
 **Source:** production `main` at `b94d62c263d606c6ea48d1a33d83f346e890c02d`.
 **Design branch:** `feature/registration-mvp-v1` (historical branch reused for documentation only).
 **Previously approved hotfix:** `hotfix/stargazer-exit-buttons-v1` at `16eb9bdede506c230fc0805539721078dc5aa313` — requires reviewed reconciliation into implementation baseline.
@@ -26,106 +26,124 @@ My Progress: new dashboard entry. Show current Stargazer and Sentinel levels fro
 
 | Key | Type / fields | Purpose / source | Transmission |
 |---|---|---|---|
-| `stargazerLevel` | existing integer | Historical game level; PRESERVE as-is | Only consensual derived level event, never raw storage |
-| `sentinelLevel` | existing integer | Historical game level; PRESERVE as-is | Only consensual derived level event |
-| `ppsDailyPracticeV1` | existing `{date,ms,farewellShown}` | Daily wellbeing gate; PRESERVE as-is | Never upload raw object |
-| `neuralOrchardProfileV1` | `{schemaVersion:1,nickname:string,onboardingSeen:boolean}` | Optional local display name | NEVER |
-| `neuralOrchardConsentV1` | `{schemaVersion:1,analytics:boolean,updatedAt:string,noticeVersion:string}` | Explicit optional analytics choice; default false | Consent status only controls transport; not central participant profile |
-| `neuralOrchardProgressV1` | `{schemaVersion:1,sessions:[],dailyTotals:{},lastUpdatedAt}` | NEW accurately measured game sessions and dates | Local data not bulk-uploaded |
-| `neuralOrchardAnalyticsV1` | `{schemaVersion:1,installId?:UUID,queue:[],lastConsentVersion:string}` | Created only after affirmative consent; short-lived allowed event queue | Approved schema only |
+| `stargazerLevel` | existing integer | Existing game level; PRESERVE exactly | Never upload raw key/value; may report game-valid level bucket after consent |
+| `sentinelLevel` | existing integer | Existing game level; PRESERVE exactly | Never upload raw key/value; may report game-valid level bucket after consent |
+| `ppsDailyPracticeV1` | existing `{date,ms,farewellShown}` | Daily-practice gate; PRESERVE exactly | Never upload |
+| `neuralOrchardProfileV1` | `{schemaVersion:1,nickname:string,onboardingSeen:boolean}` | Optional local greeting | NEVER |
+| `neuralOrchardConsentV1` | `{schemaVersion:1,analytics:boolean,updatedAt:string,noticeVersion:string}` | Explicit optional choice; default OFF | Not uploaded as a participant profile; browser checks before every permitted request |
+| `neuralOrchardProgressV1` | `{schemaVersion:1,sessions:[],dailyTotals:{},lastUpdatedAt}` | NEW practice activity recorded on this device | Never bulk-upload; no local history backfill |
+| `neuralOrchardAnalyticsV1` | `{schemaVersion:1,noticeVersion:string}` | Non-identifying settings metadata only; **no installId, persistent pseudonym or cross-session event queue** | Never |
 
-Suggested `sessions[]`: `{sessionId:UUID,game:'stargazer'|'sentinel',startTimeISO,endTimeISO?,elapsedActiveMs?,outcome:'completed'|'exited'|'interrupted',levelAtStart?:number,levelAtEnd?:number}`. Do not count a session as complete based on a finished round alone. Define game-specific completion explicitly and test its triggers. A reload/crash can become local interrupted after next startup, but should not fabricate an exit event. Session timing should pause for hidden tabs and resume on visible state; clock jumps need defensive handling. Define bounded local retention and aggregation (e.g. max 90-day daily buckets and a capped 200-session list); avoid unbounded localStorage.
+Suggested device-only `sessions[]`: `{localSessionId:UUID,game:'stargazer'|'sentinel',startTimeISO,endTimeISO?,elapsedActiveMs?,outcome:'completed'|'exited'|'interrupted',levelAtStart?:number,levelAtEnd?:number}`. **This localSessionId is never transmitted** and is solely for device-local progress accuracy. Complete versus exited versus interrupted require separate, tested game-specific definitions; successful rounds are not completed sessions. On reload/crash an unfinished local session may be recorded as interrupted locally without fabricating a server-side exit. Pause timing while page hidden; protect against clock jumps. Cap device-local history (proposed 90 days of daily totals and 200 recent sessions). Browser data clearance, profile switching and moving devices can remove or separate progress; device-local nickname is not a verified identity.
 
-Migration: never mutate the three legacy keys; read defensively, clamp for display ONLY, add new keys atomically with schema version guards. If malformed new data, show error/recovery and don't erase legacy data. Existing levels are not historical sessions. Clearing browser data or another browser/device loses local information; no verified person identity exists.
+Migration: leave the three legacy keys byte-for-byte unchanged; read defensively and display valid existing levels distinctly from new session history. Add only separate versioned keys; do not manufacture historical counts, migrate local events to the server, or link local progress to any account. Confirm before clearing MVP 1.1 local profile/history; never erase existing gameplay keys as a side effect. A separate, explicit consent and confirmation would be needed if a future tool offers erasing legacy gameplay progress.
 
-## 4. Proposed consent-first event dictionary (not implemented)
+## 4. Proposed consent-first **aggregate-only** event dictionary (NOT IMPLEMENTED)
 
-`schema_version` integer, required (=1);
-`event_id` UUID, required for idempotent ingestion;
-`event_type` enum: `game_started`, `game_completed`, `game_exited`, `level_reached`, `usability_error`;
-`game` enum `stargazer`|`sentinel`, required;
-`occurred_date` YYYY-MM-DD UTC or locally derived day (document which; prefer server-derived UTC);
-`level` integer game-validated range;
-`duration_bucket` enum `under_1m`|`1_3m`|`3_5m`|`5_10m`|`10m_plus`|null, if measured accurately;
-`error_code` fixed allowlist, only for usability_error;
-`installation_id` UUID, ONLY if separately needed for opted-in longitudinal analysis; never nickname/email/full name.
-No raw constellation selections, sentinel positions, precise event location, precise user-agent, IP, cookies, personal text, raw session timeline or user-supplied arbitrary fields. Use allowlist validator and fixed payload size limits. Consider a session-level UUID only if needed to deduplicate started/completed events; avoid sending it for MVP if aggregate-only counts suffice.
+**Selected policy:** No transmitted persistent installation ID, user ID, session ID, cookie, fingerprint, nickname, email, free text, raw game content or cross-session linkage. No central participant timeline, unique-user metric, per-install return-rate metric or longitudinal retention metric. The backend receives a narrowly validated event and immediately increments an aggregate counter. It does not store an event row. Game-specific local progress remains device-only.
 
-Consent default OFF; on consent, initialize ID only if truly necessary; collect no historical backfill. No outbound analytics POST, keepalive, beacon, image ping or analytics queue before consent. On withdrawal: atomically disable sending, drop queued events, discard installation ID unless needed for deletion request and explicitly retained with consent, and prevent in-flight retries. A request already sent cannot be recalled; a deletion flow should use a server-generated revocation/deletion token or authenticated possession proof, not just a publicly known UUID. Without a durable verification token, promise no guaranteed deletion of prior pseudonymous records. Only store necessary event aggregates.
+Proposed bounded, consented event payload fields:
+| Field | Type and permitted values | Required? | Notes |
+|---|---|---|---|
+| `schema_version` | integer `1` | Yes | Reject unknown versions |
+| `event_type` | `game_started`, `session_completed`, `session_exited`, `usability_error` | Yes | Start/completion/exit counted separately; no crash inferred centrally |
+| `game` | `stargazer`, `sentinel` | Yes | No user-provided strings |
+| `level_bucket` | `1`, `2`, `3`, `4`, `5`, `unknown` | Optional | Use only when accurately measured; validation per game |
+| `duration_bucket` | `under_1m`, `1_3m`, `3_5m`, `5_10m`, `10m_plus`, `unknown` | Optional | Terminal events only, based on active time |
+| `error_code` | short enumerated code, e.g. `UI_NAVIGATION`, `MEDIA_LOAD`, `SESSION_SAVE` | Optional | For `usability_error` only; no error messages, stack traces, URL, nickname |
+| `period` | **server derived weekly UTC bucket** | Server only | Do not transmit precise user timestamp |
 
-Illustrative SYNTHETIC payload (never real participant data):
+**Synthetic illustrative payload, no identifier:**
 ```json
-{"schema_version":1,"event_id":"00000000-0000-4000-8000-000000000001","event_type":"game_completed","game":"stargazer","level":3,"duration_bucket":"3_5m"}
+{"schema_version":1,"event_type":"session_completed","game":"stargazer","level_bucket":"3","duration_bucket":"3_5m"}
 ```
-If longitudinal retention is approved, add a fresh random UUID (not derived from nickname/device fingerprint) after consent; document that this is pseudonymous, not anonymous.
 
-## 5. Backend recommendation
+The client emits `game_started` once per actual new session and sends a single terminal event (completed or explicitly exited) if observed. Do not treat a round finish as a session completion. A closed tab, crash or offline failure may produce no terminal report; no centralized crash attribution. If the network retries, **without a transmitted idempotency key duplicate events are possible**. MVP must therefore either disable automated retries or adopt a short-lived **request-scoped** duplicate safeguard after separate privacy review. Counters can be inaccurate due to non-delivery, tab closure and fabricated requests; show this limitation in founder reporting.
 
-**Recommended:** separate Cloudflare Worker + D1 (or Worker Analytics Engine if only irreversible aggregates are needed), completely separate from Nourish Me deployment. A dedicated route `POST /v1/analytics/events` validates strictly, rate-limits, filters CORS origin, sets no analytics cookies, and writes only permitted fields. Treat CORS as browser boundary, **not authentication**; malicious scripts can fabricate events. Apply abuse caps; use Turnstile only if necessary and with privacy/UX review. Avoid reporting event totals as unique people. Use separate D1 `events` table with scheduled deletion at proposed 30 days and aggregated daily metrics retained 90 days, pending founder review and applicable law. Implement deletion by a secure per-install secret and server-side request protocol if longitudinal data are retained; aggregate-only deletion may be technically impossible after identifier removal.
+**Metrics definition:** 'reported starts' and 'reported terminal outcomes' are independent aggregate counters. A completion share can be defined as completed / (completed + explicitly exited), labeled **'share of reported terminal outcomes'**, not an exact start-to-finish completion rate. Avoid a conventional 'sessions completed / sessions started' claim until end-to-end accounting is validated. Never report unique participants, unique devices or return engagement. Levels are session observations, not demonstrated neurological progress.
 
-The founder dashboard is separately hosted behind strong admin authentication (Cloudflare Access or equivalent) with MFA, no admin secret in GitHub Pages. Backend checks authorization on every request before querying D1. For 8–12 testers, default to aggregate overview with no date-by-user paths; suppress count breakouts for any group smaller than 5 (proposed `k=5`), suppress complementary cells, and permit time bucketing weekly instead of daily. If all participants have opted out, show “Insufficient consented data,” not zero usage. Counts describe consenting usage only. Founder screens: consented sessions, game split, completion counts/rates where denominator explicitly defined, level distribution only when cell sizes are safe, repeat *installations* where consented and identifiable only pseudonymously, error categories.
+**Consent:** OFF by default. No analytics requests, beacons, pings, batch uploads, deferred analytics queues or ID creation before opt-in. After consent, only schema-validated minimal events may be sent. Skip/decline works normally. Withdrawing consent disables future events immediately and cancels queued work; already initiated network requests cannot be recalled. No historical backfill. No analytics cookies. Use strict CSP, minimize third-party dependencies, and test browser request capture.
 
-Host technical reality: GitHub Pages is public; front-end access is not restricted by this design. Hosting/CDN/Cloudflare may still transiently process IP, TLS info and browser headers during requests. Audit and minimize access logs, analytics telemetry, sampling and retention in provider dashboards; do not claim absolutely no provider-side metadata.
+**Deletion:** Locally stored MVP 1.1 profile/history/consent can be erased on-device with confirmation; game legacy keys require a separate explicitly confirmed action. Aggregate counters without per-person IDs cannot reliably identify and delete one person's previous contributions. Disclose that limitation *before consent*; withdrawal stops future sharing but cannot selectively delete contributions already aggregated. If a legal or security requirement demands individual erasure, revisit architecture before collection. Provider-level network logs, IP handling and backups require a separately audited retention notice.
 
-Cloudflare's Analytics Engine documented 3-month retention (as of Nov 2026) makes granular deletion unsuitable for a strict deletion promise. Cloudflare D1 can implement per-row deletion with audited SQL if secure possession proof is implemented, but backups and infrastructural log retention must be disclosed.
+## 5. Backend recommendation and founder analytics
 
-## 6. Proposed interfaces (text wireframes only; existing styling retained)
+**Recommended:** new, separate Cloudflare Worker + D1 aggregate-counter table, not the old Nourish Me Worker or Gemini credentials. `POST /v1/analytics/events` accepts *only* the allowlisted event schema after optional participant consent is checked in the browser. Backend validates types, length and enum values, derives a UTC week, applies conservative abuse controls and increments one aggregate row transactionally. **No raw event rows, participant profiles, persistent session keys, installation IDs or per-user timelines in D1.**
 
-Onboarding:
+A proposed aggregate table can use `(week_utc, game, event_type, level_bucket, duration_bucket, error_code, count)` with strict dimensional restrictions. Limit combinations and avoid exact timestamps in storage. Proposed default retention: 90 days for weekly aggregate rows; automatic scheduled purge with test evidence. **The prior 30-day detailed-event retention proposal is removed** because no detailed-event table is proposed. D1 is chosen for modest volume, controlled schema, timed deletion of aggregate rows and founder reporting. Infrastructure-level logs/backups can still have separate retention periods; verify before privacy statements are released.
+
+**Operational limits:** This is a public submission endpoint, not identity verification. CORS is not authentication and clients could fabricate counters. Use request body caps, origin checks as supplementary protection, abuse throttling/rate limiting without durable visitor fingerprints, bot safeguards only if needed and separately reviewed, and no analytics processing that records raw IP/user-agent by default. Verify Cloudflare's platform logs and network metadata configuration; the network provider will still process IP and TLS/request metadata while serving traffic.
+
+**Founder dashboard:** hosted separately, access-controlled with strong authentication/MFA (e.g. Cloudflare Access) and least-privilege server-side aggregate query. Never embed founder credentials or D1 binding secrets in public GitHub Pages. Proposed measures: total reported starts, completed/explicit-exit terminal counts, game split, broad level/duration buckets, and allowlisted usability-error counts. **Exclude unique participants, repeat visitors, return engagement/retention and personally identified outcomes.** Without a persistent identifier those cannot be measured reliably. For the small 8–12-person pilot, prefer an overall rolling 30/90-day total; avoid daily or participant-level reporting. Avoid interpreting event count thresholds as k-anonymity: many events may come from one consenting participant. Suppress sparse breakdowns and complementary cells, and note insufficient consented data when results are too sparse; defer precise suppression policy and operational thresholds to review.
+
+**Interpretation:** Numbers are events from opted-in browsers only, not all participants. “0 received events” is not “0 practices.” Completion share among reported terminal outcomes is descriptive and susceptible to reporting loss and anonymous event spoofing. Do not present gameplay data as clinical markers or proof of improved cognition.
+
+## 6. Proposed interfaces (text wireframes only; retain current styling)
+
+First visit:
 ```
 WELCOME TO
 Neural Orchard
 A celebration of becoming.
 
 What would you like us to call you?
-[ Preferred nickname (optional)           ]
+[ Preferred nickname (optional) ]
 No email address, full name, or password required.
 
-[ ] I agree to share limited game-use statistics to help improve Neural Orchard.
-    Optional. You can change this choice any time.
+[ ] I agree to share limited aggregate gameplay counts to improve Neural Orchard.
+    Optional; no account is created and no return-visit tracking is used.
+    Previous contributions to aggregate counts generally cannot be removed individually.
 [ Read privacy details ]
-[ Enter Neural Orchard ]    [ Skip for now ]
+[ Enter Neural Orchard ]   [ Skip for now ]
 ```
 
-Returning home:
-```
-Welcome back, Jane.    [ My Progress ] [ Privacy Settings ]
-[ Existing Studio / Nourish Me / Sleep Sanctuary / Breathe cards unchanged ]
-```
+Returning Orchard: `Welcome back, Jane.` (or neutral greeting) and `My Progress` plus `Privacy Settings` entries, existing Studio/Nourish Me/Sleep Sanctuary/Breathe navigation unchanged.
 
-My Progress:
-```
-My Progress                      [ Return to Neural Orchard ]
-Stargazer — saved level 3     Sentinel — saved level 2
-Sessions recorded since MVP 1.1: 4
-Practice dates: [new observations only]   [recent trends / empty state]
-Privacy & Data [Analytics consent: Off] [Clear MVP 1.1 local data…]
-```
+My Progress: saved Stargazer and Sentinel level separately from sessions recorded **since MVP 1.1**; local-only dated practice history and trends, clear empty-state labels, consent controls, local clear with confirmation. No clinical scoring or historical completion fabrication.
 
-Founder dashboard: [MFA-protected] aggregate counts, game split, completion rate, level distribution, return *installation* engagement, suppressed small cells, errors, retention notices. Never show nicknames or individual-level timelines.
+Founder dashboard (MFA-protected):
+```
+NEURAL ORCHARD — Aggregate usage from consented sessions only
+Reported starts | Reported completed sessions | Reported explicit exits
+Stargazer vs Sentinel | Reported terminal-outcome completion share
+Level/duration groupings (only if privacy-safe) | Usability error counts
+[Data limitations: no unique users, return rate or cross-session tracking]
+```
+All interface designs are noninteractive proposals, not implemented screens.
 
 ## 7. Phased implementation gates (NO CODE AUTHORIZED)
-1. Founder approves this architecture, precise definitions of completed/exited, data retention, the role of pseudonymous IDs, deletion promises, analytics hosting and consent copy.
-2. Reconcile and test `hotfix/stargazer-exit-buttons-v1` into an isolated successor of `feature/registration-mvp-v1` BEFORE game instrumentation; leave production untouched.
-3. Build local-only nickname, consent/settings, progress screen and new versioned local store; retain exact legacy keys. Visual review at 1440×900 and 390×844.
-4. Add narrowly scoped per-game start/end/level hooks with unit and browser tests; no change to game mechanics. Synthetic local fixtures to validate stats.
-5. Implement isolated Worker + D1 in nonproduction, strictly allowlisted event schema, rate limiting, retention, per-install deletion if promised, protected founder reporting; use only synthetic events.
-6. Verify no network telemetry before consent, after withdrawal or with nickname; simulate failing endpoints and offline queue, Browser Back/refresh, legacy progress and storage clear.
-7. Desktop/mobile screenshots, consent acceptance, security tests, two-user separation where relevant, unauthorized founder access denied, rollback/kill switch; independent founder approval before live event collection or any production deployment.
+1. Founder reviews aggregate-only definition, allowed event list, session completion rules, terminal-outcome reporting caveats, disclosure that historic aggregates cannot be individually erased, weekly retention and founder-report suppression.
+2. Before feature integration, reconcile and test `hotfix/stargazer-exit-buttons-v1` against an isolated implementation successor; keep production and historical registration documentation unchanged.
+3. Implement optional local nickname, consent/settings and truthful My Progress with versioned keys only after separate authorization.
+4. Add minimally invasive local per-game start/end/level hooks without changing scoring/audio/navigation; test terminal events and interrupted-session handling with synthetic fixtures.
+5. Build isolated Worker + D1 in nonproduction, accepting **synthetic** aggregate-only events with no install ID or raw event table; verify no pre-consent network requests.
+6. Implement a protected aggregate founder dashboard; test rate limiting, invalid payload rejection, expiry purges, role restrictions, suppressed reports and accurate denominator labels.
+7. Desktop/mobile screenshots and interaction QA; verify all three existing storage keys remain unchanged and both games/exit screens work. Require explicit founder authorization before enabling real collection or deploying anything.
 
-## 8. Acceptance tests to execute in a real browser
-- Initial nickname, blank nickname, returning greeting; safe text rendering and Unicode.
-- Preserve all three legacy keys byte-for-byte for a returning device across onboarding/consent.
-- Exact completion vs exit vs interruption counts for Stargazer and Sentinel.
-- My Progress reads both saved levels, truthful day/session data, no invented historical observations, graphs correct.
-- No analytics request in default/declined/skip flows; request starts only after opt-in; stop on withdrawal including queues; consent persisted.
-- Network payload contains no nickname, email, raw stars/savanna content, fingerprint or exact user-agent; enforce server-side schema.
-- Synthetic analytics and aggregate dashboard with k-suppression, complementary suppression and restricted access; revocation/deletion and TTL.
-- Browser cache/localStorage erase; cross-device/profile no transfer.
-- Desktop 1440×900 and mobile 390×844 visual testing; real touch, scroll, navigation, audio, gameplay and approved scientific exit messages.
-- Production `main` unchanged, no live metrics enabled and no secrets committed.
+## 8. Acceptance tests to execute in a real browser (NOT YET RUN)
+- Nickname, blank nickname, returning greeting, Unicode-safe rendering and no server transmission of nickname.
+- Byte-for-byte preservation of `stargazerLevel`, `sentinelLevel`, `ppsDailyPracticeV1` on returning browser profiles.
+- Correct local sessions versus level/round completions, with no invented historical session counts.
+- My Progress accurate for local history, dates, session outcomes, graphs and empty states.
+- Network inspector: **zero analytics requests** before opt-in, when skipped/declined and after consent withdrawal; do not assume an already-sent request can be recalled.
+- Payload has **no installation_id, user_id, session_id, nickname, email, IP field, arbitrary text or event timestamp**; strictly validate on server.
+- Synthetic backend payloads increment intended aggregate counters exactly once in ordinary conditions; quantify missing-terminal and duplicate-delivery limitations; enforce fixed schema, 90-day TTL and refusal of arbitrary fields.
+- Founder dashboard shows aggregate reporting only, omits retention and unique visitor metrics, handles opt-out bias and small-cell suppression, rejects unauthorized access.
+- Verify local clear confirmation, retention/deletion explanations, browser data loss and cross-device separation.
+- Desktop 1440×900 and mobile 390×844; real scrolling and clicking, all existing game audio, scoring and approved exit text preserved.
+- Production `main` and live analytics unchanged; no credentials or new network analytics in public code.
 
-## 9. Invitation privacy statement — DRAFT, DO NOT DISTRIBUTE BEFORE VERIFIED
+## 9. Invitation privacy statement — DRAFT; DO NOT DISTRIBUTE BEFORE TESTED
+
+"Neural Orchard welcomes you without requiring an email address, full name, or password. You may enter a nickname or skip it. Your personal practice history is saved locally in your browser on this device, so other participants cannot see it through Neural Orchard. Clearing browser data or using another device may mean your history is unavailable.
+
+If you choose, Neural Orchard can share limited, aggregate gameplay statistics—such as game starts and completed sessions—to help us improve the experience. This is optional and you can still use the games if you decline. No nickname or persistent participant identifier is sent with these statistics, and the founder dashboard does not track individual participants or return visits.
+
+You can change your preference at any time to stop future analytics. Once an event has contributed to aggregate statistics, we generally cannot identify and remove that individual contribution. Hosting providers may process routine network information needed to deliver the service. The detailed privacy notice explains data handling, retention and deletion limits."
+
+Publish only after actual consent, transport, retention, dashboard and provider-log behavior have been verified.
+
+ — DRAFT, DO NOT DISTRIBUTE BEFORE VERIFIED
 
 "Neural Orchard welcomes you without requiring an email address, full name, or password. You may choose a nickname, or skip it. Your personal practice history is saved in this browser on your device; other participants cannot view it. You can optionally share limited gameplay statistics to help us improve Neural Orchard. This is entirely your choice, and declining does not limit the games. Founder reports show aggregated usage rather than personally identified profiles. You can change your analytics preference at any time. Clearing your browser data may erase your local progress. Review the in-app privacy notice for what is collected, how long it is kept, and deletion limitations."
 
