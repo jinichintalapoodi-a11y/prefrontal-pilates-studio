@@ -10,6 +10,10 @@
   const get=k=>{try{return localStorage.getItem(k)}catch(_){return null}};
   const put=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v));return true}catch(_){return false}};
   const del=k=>{try{localStorage.removeItem(k)}catch(_){}};
+  // Pending session checkpoints are per-tab; opening another tab must not interrupt active play.
+  const activeGet=()=>{try{return sessionStorage.getItem(ACTIVE)}catch(_){return null}};
+  const activePut=x=>{try{sessionStorage.setItem(ACTIVE,JSON.stringify(x));return true}catch(_){return false}};
+  const activeDel=()=>{try{sessionStorage.removeItem(ACTIVE)}catch(_){}};
   const fresh=()=>({schemaVersion:1,sessions:[],dailyTotals:{},lastUpdatedAt:null});
   const id=()=>{try{return crypto.randomUUID()}catch(_){return String(Date.now())+String(Math.random()).slice(2)}};
   const validDate=s=>Number.isFinite(Date.parse(s));
@@ -53,18 +57,18 @@
   function recover(){
     if(current)return;
     try{
-      const x=JSON.parse(get(ACTIVE)||'null');
+      const x=JSON.parse(activeGet()||'null');
       if(x&&games.includes(x.game)&&validDate(x.started)&&!load().sessions.some(y=>y.localSessionId===x.localSessionId)){
         record({localSessionId:x.localSessionId,game:x.game,outcome:'interrupted',startTimeISO:x.started,
           elapsedActiveMs:Math.max(0,Math.min(86400000,Number(x.elapsedActiveMs)||0)),
           levelAtStart:x.levelAtStart,levelAtEnd:x.levelAtEnd,metrics:x.metrics||{},deviceCategory:x.deviceCategory});
       }
     }catch(_){}
-    del(ACTIVE);
+    activeDel();
   }
   function checkpoint(){
     if(!current)return;
-    put(ACTIVE,{localSessionId:current.localSessionId,game:current.game,started:current.started,
+    activePut({localSessionId:current.localSessionId,game:current.game,started:current.started,
       elapsedActiveMs:elapsed(),levelAtStart:current.levelAtStart,levelAtEnd:current.levelAtEnd,
       metrics:current.metrics,deviceCategory:current.deviceCategory});
   }
@@ -111,7 +115,7 @@
       levelAtStart:current.levelAtStart,levelAtEnd:current.levelAtEnd,
       deviceCategory:current.deviceCategory,metrics:current.metrics};
     const ok=record(x);
-    if(ok){current=null;del(ACTIVE)}return ok;
+    if(ok){current=null;activeDel()}return ok;
   }
   function summary(){
     const data=load(),result={};
@@ -125,7 +129,7 @@
     }
     return {games:result,dailyTotals:data.dailyTotals,historyStartsWithMvp11:true,storageWarning:!writable()};
   }
-  function clearHistory(){del(KEY);del(ACTIVE);current=null;return true}
+  function clearHistory(){del(KEY);activeDel();current=null;return true}
   document.addEventListener('visibilitychange',()=>{if(document.hidden)pause('hidden');else if(current&&current.holdReason==='hidden')resume()});
   document.addEventListener('pointerdown',activity,{passive:true});
   document.addEventListener('keydown',activity,{passive:true});
