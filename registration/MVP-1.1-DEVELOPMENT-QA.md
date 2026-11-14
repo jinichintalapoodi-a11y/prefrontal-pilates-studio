@@ -83,3 +83,10 @@ The corrected JPEG is an EXACT Git blob match to current `main`; its visual remo
 - **Source checks:** JavaScript parse for all five new modules and inline source scripts; exact patched desktop image blob SHA matches `main`; no telemetry endpoint, network client, credentials or participant profile upload added. These are source checks, NOT browser-level security certification.
 - **Timing interpretation:** task-specific color-response delay starts at Stroop phase presentation; Sentinel tap latency begins when the meerkat rise animation starts. Do not compare these timings with clinical reaction-time benchmarks or combine them into a clinical score. A paired speed-versus-accuracy analysis is not justified by the current aggregate counters.
 - **Remaining:** actual desktop/tablet/mobile screenshots, visual JPEG confirmation, smoke tests for all navigation/audio/gameplay, accessibility interaction, network inspection, and founder acceptance.
+
+
+## Mobile artwork routing discovered during audit
+- `Stargaizer.html` uses `star_gazer.jpeg` by default but, at viewport widths <=480 CSS pixels, **overrides the background with `star_gazer_mobile.jpeg`**.
+- `index.html` likewise uses a separate mobile Stargazer background asset under its mobile media query.
+- Therefore the founder-corrected `star_gazer.jpeg` copied from `main` applies to desktop/default CSS; it **cannot be claimed to correct the visual on a 390px-wide phone**. The existing mobile JPEG remains unchanged by design.
+- **Founder review required:** compare both actual images at mobile viewport before deciding whether a separate corrected `star_gazer_mobile.jpeg` is necessary. No mobile image change or CSS override is authorized or performed.
