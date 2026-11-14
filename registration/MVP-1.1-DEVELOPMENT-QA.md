@@ -26,7 +26,7 @@ The corrected JPEG is an EXACT Git blob match to current `main`; its visual remo
 - `neuralOrchardProfileV1`: local `nickname` and `onboardingSeen` only.
 - `neuralOrchardConsentV1`: optional local preference, default OFF. **Not authorization to turn on collection automatically**; request renewed explicit consent when the future production backend actually becomes available.
 - `neuralOrchardProgressV1`: device-local bounded session observations (maximum 200 recent sessions, 90 days). Local-only session IDs are used for deduplicating local records; NONE are transmitted.
-- `neuralOrchardActiveV1`: local-only unfinished-session checkpoint. On a later browser load, a previously unfinished checkpoint is recorded as `interrupted` (not intentionally exited).
+- `neuralOrchardActiveV1`: **sessionStorage (per browser tab)** unfinished-session checkpoint. A reload/navigation in the same tab can be recorded as `interrupted` when the checkpoint is next read; a fully closed tab usually destroys this checkpoint and may leave an interruption unrecorded. Opening a separate tab cannot falsely mark an ongoing game interrupted.
 - No persistent central participant identifier, server event store or telemetry queue is created.
 
 ## Explicit session definitions (founder review required)
@@ -56,7 +56,7 @@ The corrected JPEG is an EXACT Git blob match to current `main`; its visual remo
 - Actual screenshot captures at desktop 1440x900, phone 390x844 and tablet.
 - Real browser flow: first-time nickname/skip/consent, returning greeting, My Progress scroll and trends, optional feedback visibility and skip, both game task flows, touch interactions, exit button navigation, browser Back/refresh and audio.
 - Corrected JPEG visual/content verification and browser-cache behavior in both Stargazer and Orchard.
-- Real page lifecycle/idle measurements under tab switching, navigation, multi-tab use, crash/refresh and background suspend.
+- Real page lifecycle/idle measurements under tab switching, navigation, multi-tab use, crash/refresh and background suspend. An abrupt tab close may have no terminal record, by design; do not invent an interrupted event.
 - Regressions for existing Breathe, all Coming Soon disabled states and preserved game progression.
 - Full network inspector verification including no real analytics; security/privacy review; precise feedback form accessibility.
 - Provider-side network logs and production policies.
