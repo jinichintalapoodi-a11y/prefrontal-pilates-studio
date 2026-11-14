@@ -40,4 +40,11 @@
    if(container&&window.NeuralOrchardFeedback)window.NeuralOrchardFeedback.attach(container);
  });
  patch('takeABreatherRoute',function(){if(N.getActive())N.finish('exited',Number(this.sequenceLength)||3)});
+ // Shared five-minute farewell has its own Return action; close the local session before navigation.
+ document.addEventListener('click',function(e){
+   if(e.target&&e.target.closest&&e.target.closest('#pps-return')){
+     const active=N.getActive();
+     if(active){const completed=active.activeMs>=300000&&sessionRounds>=1;N.finish(completed?'completed':'exited',Number(E.sequenceLength)||3)}
+   }
+ },true);
 })();
