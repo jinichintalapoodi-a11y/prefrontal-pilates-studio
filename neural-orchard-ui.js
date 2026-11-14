@@ -66,6 +66,7 @@ function savedLevel(key){try{const n=Number(localStorage.getItem(key));return Nu
 function progress(){
  const d=N.load(),s=N.summary(),st=s.games.stargazer,se=s.games.sentinel;
  panel.replaceChildren(elt('h2','My Progress'),elt('p','Your practice history is recorded on this browser starting with MVP 1.1.','no-muted'));
+ if(s.storageWarning)panel.append(elt('p','An unsupported or damaged local progress record was found. It has not been overwritten. Clear MVP 1.1 data through Privacy & Nickname to start fresh.','no-muted'));
  const t=document.createElement('table'),tbody=document.createElement('tbody');
  for(const row of [['','Stargazer','Sentinel'],['Saved level',savedLevel('stargazerLevel'),savedLevel('sentinelLevel')],['Newly tracked sessions',st.recordedSessions,se.recordedSessions],['Active practice minutes',minutes(st.activeMs),minutes(se.activeMs)],['Average active session minutes',minutes(st.averageSessionMs),minutes(se.averageSessionMs)],['Completed sessions',st.completed,se.completed],['Explicit exits',st.exited,se.exited],['Interrupted sessions',st.interrupted,se.interrupted]]){
  const tr=document.createElement('tr');row.forEach((cell,i)=>tr.appendChild(elt(i===0?'th':'td',String(cell))));tbody.appendChild(tr)}
