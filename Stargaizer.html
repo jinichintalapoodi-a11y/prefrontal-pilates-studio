@@ -182,6 +182,52 @@
         @media(max-width:480px){#exit-goodbye-screen .gate-card{height:92dvh;padding:clamp(44px,6vh,64px) 18px 22px}#exit-goodbye-screen .exit-science-copy{font-size:.91rem;line-height:1.5}}
 
 
+        /*
+           Stargazer exit hotfix: the entire exit overlay, rather than a
+           height-constrained inner gate, scrolls. The gate stays bottom
+           anchored when short and can grow naturally when the approved
+           scientific message exceeds the viewport. Other gates unchanged.
+        */
+        #exit-goodbye-screen{
+            height:100dvh;
+            max-height:100dvh;
+            overflow-x:hidden;
+            overflow-y:auto;
+            overscroll-behavior-y:contain;
+            -webkit-overflow-scrolling:touch;
+            align-items:center;
+            justify-content:flex-start;
+        }
+        #exit-goodbye-screen .gate-card{
+            flex:0 0 auto;
+            margin-top:auto;
+            height:auto;
+            min-height:min(90dvh,900px);
+            max-height:none;
+            overflow:visible;
+            padding:clamp(56px,9vh,105px) clamp(18px,4vw,32px) max(24px,env(safe-area-inset-bottom));
+        }
+        #exit-goodbye-screen .exit-navigation{
+            flex:0 0 auto;
+            margin-top:6px;
+            padding-bottom:14px;
+        }
+        #exit-goodbye-screen .exit-navigation button{
+            display:block;
+            position:relative;
+            min-height:44px;
+            visibility:visible;
+            flex:0 0 auto;
+        }
+        @media (max-width: 480px) {
+            #exit-goodbye-screen .gate-card{
+                height:auto;
+                min-height:92dvh;
+                max-height:none;
+                padding:clamp(52px,8vh,76px) 18px max(20px,env(safe-area-inset-bottom));
+            }
+        }
+
         @media (max-width: 480px) {
             #stage-canvas-wrapper { background-image: url('star_gazer_mobile.jpeg') !important; background-size: cover; background-position: center center; }
             .gate-card { height: 82vh; padding-top: 20vh; }
