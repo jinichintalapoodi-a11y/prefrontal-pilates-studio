@@ -67,7 +67,7 @@ function progress(){
  const d=N.load(),s=N.summary(),st=s.games.stargazer,se=s.games.sentinel;
  panel.replaceChildren(elt('h2','My Progress'),elt('p','Your practice history is recorded on this browser starting with MVP 1.1.','no-muted'));
  const t=document.createElement('table'),tbody=document.createElement('tbody');
- for(const row of [['','Stargazer','Sentinel'],['Saved level',savedLevel('stargazerLevel'),savedLevel('sentinelLevel')],['Newly tracked sessions',st.recordedSessions,se.recordedSessions],['Active practice minutes',minutes(st.activeMs),minutes(se.activeMs)],['Completed sessions',st.completed,se.completed],['Explicit exits',st.exited,se.exited],['Interrupted sessions',st.interrupted,se.interrupted]]){
+ for(const row of [['','Stargazer','Sentinel'],['Saved level',savedLevel('stargazerLevel'),savedLevel('sentinelLevel')],['Newly tracked sessions',st.recordedSessions,se.recordedSessions],['Active practice minutes',minutes(st.activeMs),minutes(se.activeMs)],['Average active session minutes',minutes(st.averageSessionMs),minutes(se.averageSessionMs)],['Completed sessions',st.completed,se.completed],['Explicit exits',st.exited,se.exited],['Interrupted sessions',st.interrupted,se.interrupted]]){
  const tr=document.createElement('tr');row.forEach((cell,i)=>tr.appendChild(elt(i===0?'th':'td',String(cell))));tbody.appendChild(tr)}
  t.appendChild(tbody);panel.append(t,elt('p','Combined active practice: '+minutes(st.activeMs+se.activeMs)+' minutes.'));
  const recent=Object.keys(s.dailyTotals).sort().reverse().slice(0,14),box=elt('div',undefined,'no-panel');
@@ -75,6 +75,21 @@ function progress(){
  if(!recent.length)box.append(elt('p','No new sessions recorded yet. Your previously saved game levels remain available.'));
  for(const day of recent){const v=s.dailyTotals[day];box.append(elt('p',day+': Stargazer '+minutes(v.stargazer)+' min · Sentinel '+minutes(v.sentinel)+' min'))}
  panel.append(box);
+ const recentSessions=d.sessions.slice().sort((a,b)=>Date.parse(b.endTimeISO)-Date.parse(a.endTimeISO)).slice(0,8);
+ const trends=elt('div',undefined,'no-panel');trends.append(elt('h3','Recent sessions and task trends'));
+ if(!recentSessions.length)trends.append(elt('p','Accuracy and difficulty trends will appear once new practice sessions have been recorded.'));
+ for(const x of recentSessions){
+   const m=x.metrics||{},which=x.game==='stargazer'?'Stargazer':'Sentinel';
+   let detail='';
+   if(x.game==='stargazer'){
+     const color=(m.stroop_correct||0)+(m.stroop_incorrect||0),recall=(m.recall_correct||0)+(m.recall_incorrect||0);
+     detail=' · color choices '+(color?(m.stroop_correct||0)+'/'+color:'not recorded')+' · recall '+(recall?(m.recall_correct||0)+'/'+recall:'not recorded');
+   }else detail=' · matches '+(m.matches_hit||0)+' · missed '+(m.matches_missed||0)+' · false alarms '+(m.false_alarms||0);
+   const level=x.levelAtEnd==null?'unknown':x.levelAtStart+' → '+x.levelAtEnd;
+   trends.append(elt('p',x.endTimeISO.slice(0,10)+' · '+which+' · level '+level+' · '+minutes(x.elapsedActiveMs)+' min · '+x.outcome+detail));
+ }
+ trends.append(elt('p','Task figures summarize responses recorded in this browser; they are not clinical cognitive measurements.','no-muted'));
+ panel.append(trends);
  for(const [label,key] of [['Stargazer',st],['Sentinel',se]]){const m=key.metrics||{};const p=elt('div',undefined,'no-panel');p.append(elt('h3',label+' task observations'));
  if(label==='Stargazer'){p.append(elt('p','Color choices: '+(m.stroop_correct||0)+' correct, '+(m.stroop_incorrect||0)+' incorrect. Recall rounds: '+(m.recall_correct||0)+' correct, '+(m.recall_incorrect||0)+' incorrect.'))}
  else p.append(elt('p','Spatial matches: '+(m.matches_hit||0)+' detected; missed '+(m.matches_missed||0)+'; false alarms '+(m.false_alarms||0)+'.'));
