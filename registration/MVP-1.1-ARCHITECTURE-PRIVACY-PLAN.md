@@ -195,3 +195,22 @@ The founder will supply a corrected **JPEG** removing an unwanted diamond-shaped
 - Device categories are coarse and no persistent identifier is created or transmitted.
 - Existing gameplay and navigation continue to work, including the Stargazer exit-button hotfix.
 - Corrected Stargazer JPEG is reviewed before any production release.
+
+
+## 11. Isolated MVP 1.1 implementation checkpoint — 2026-11-14
+
+This section reports implementation status and does not change the founder-selected aggregate-only privacy architecture.
+
+- Development branch: `feature/neural-orchard-mvp-1-1-development`. Production `main` was verified at `1251c7725b75896c26765adbf77f7a51527b86f4`. No merge/deployment was made.
+- The approved Stargazer exit-button hotfix CSS has been integrated; game text and navigation destinations remain unchanged.
+- `star_gazer.jpeg` on development is now the exact same Git blob as the corrected main-branch asset (SHA `8d97450d90e2f87afdf052e46a01058174d95d78`, 850,953 bytes). Actual visual confirmation, pixel-size comparison, desktop/mobile crop inspection and cache verification are still pending.
+- MVP 1.1 scripts provide optional local nickname, analytics preference OFF by default, My Progress, locally recorded session metrics, device categories and a synthetic-only six-question feedback interface. **No live analytics endpoint or feedback submission exists.**
+- Proposed future aggregate event schema extension: `device_category` in `mobile` / `tablet` / `desktop` / `unknown`, measured coarsely on client and only shared after future consent and separate backend authorization. No exact browser, device model or raw user-agent.
+- Synthetic example for future reviewed backend (NOT sent):
+```json
+{"schema_version":1,"event_type":"session_completed","game":"stargazer","level_bucket":"3","duration_bucket":"3_5m","device_category":"mobile"}
+```
+- New session outcomes are **product-defined**. Stargazer is marked completed after at least five active minutes and one verified recall attempt followed by leaving the game. Sentinel is marked completed after achieving an existing five-match level milestone followed by leaving. Both definitions need explicit founder acceptance before testing with participants.
+- Active durations pause for hidden tabs, explicit game interstitials and after 120 seconds without interaction. Per-tab unfinished-session checkpoints use sessionStorage to avoid phantom interruption across tabs; abrupt tab closure may be unobserved and is not invented as an intentional exit. Sessions spanning midnight are assigned to local end date; intermediate per-level active duration is not yet available.
+- The consent flag stored in development is a **preference preview**; users must receive a fresh applicable notice and make a new affirmative choice before any live analytics service is activated. Feedback consent remains separate and unimplemented because real submission is not approved.
+- See `registration/MVP-1.1-DEVELOPMENT-QA.md` for actual synthetic source/runtime checks, privacy findings, untested browser acceptance items, and reproducible private Codespaces preview steps.
