@@ -148,3 +148,50 @@ Publish only after actual consent, transport, retention, dashboard and provider-
 "Neural Orchard welcomes you without requiring an email address, full name, or password. You may choose a nickname, or skip it. Your personal practice history is saved in this browser on your device; other participants cannot view it. You can optionally share limited gameplay statistics to help us improve Neural Orchard. This is entirely your choice, and declining does not limit the games. Founder reports show aggregated usage rather than personally identified profiles. You can change your analytics preference at any time. Clearing your browser data may erase your local progress. Review the in-app privacy notice for what is collected, how long it is kept, and deletion limitations."
 
 Do not publish until testing confirms each statement, especially access control and withdrawal/deletion behavior.
+
+
+## 10. Founder-approved MVP 1.1 development addendum — 2026-11-14
+
+**Authorization:** Founder authorized starting development on an isolated branch. This supersedes the earlier blanket "NO CODE AUTHORIZED" language **for local Phase 1 development only**. Production merge/deployment, real analytics collection, central backend activation and real feedback submission remain separately gated.
+
+### 10.1 Measurements and definitions
+- Per-game task accuracy, difficulty/level, attempts/retries, task-specific errors and response time **only where game mechanics support accurate measurement**. No invented neuroscience score or clinical claims.
+- **Active gameplay duration** per session, by game, by practice date and (where reliably available) difficulty; local cumulative duration and average session length. Pause on hidden tab, explicit pause and inactivity according to a documented tested threshold; do not count an open idle browser as practice. Do not backfill historical game-specific durations.
+- Preserve separately defined **started / completed / explicitly exited / interrupted** session outcomes; completing a round does not complete a practice session.
+- Broad **desktop/laptop / tablet / mobile** and coarse screen-width categories; viewport classification is approximate and is not a fingerprint. Avoid raw user agents and exact device models.
+- Participant-local practice frequency and trends are allowed; founder cannot see individual longitudinal records.
+
+### 10.2 Optional end-of-game feedback (Stargazer and Sentinel)
+Show an optional, skippable feedback invitation after a completed or explicitly exited session; do not block exit/navigation or repeatedly interrupt play. Proposed questions:
+1. Enjoyment: Loved it / Liked it / It was okay / Didn't enjoy it.
+2. Challenge: Too easy / Just right / Too difficult / Some parts were confusing.
+3. Would play again: Yes / Maybe / No.
+4. Free text: What did you enjoy most?
+5. Free text: What would make this game more interesting or enjoyable?
+6. Free text: Was anything confusing, frustrating, or difficult to use?
+
+Feedback consent must be separate from gameplay analytics consent. A participant declining analytics may still voluntarily submit feedback. Multiple-choice responses may later be summarized as aggregate counts. **Written comments are not aggregate-only analytics**: design a separate secure, access-restricted submission and retention/deletion policy, avoid attaching local nickname/session IDs/history, discourage identifying/sensitive disclosures, and clearly explain that voluntarily supplied text may identify its author. In Phase 1 use an interface with synthetic/local-only test responses, **no live submission**.
+
+### 10.3 Dashboard boundaries
+Participant's **My Progress** (device-only): saved level, newly measured session count, active minutes per game and combined, practice dates, available task-specific accuracy/difficulty trends, clear history-start/empty states. Preserve legacy storage keys unchanged.
+
+Future founder dashboard (separately approved): consented reported starts/completions/explicit exits, game split, broad duration and level distributions, coarse device/screen categories, enumerated errors, aggregate enjoyment/challenge/return-intent ratings. Written comments appear **only in a separately protected feedback-review interface**. Do not infer unique players, actual return rates or longitudinal change. Small pilot breakdowns need privacy review.
+
+### 10.4 Stargazer artwork correction
+The founder will supply a corrected **JPEG** removing an unwanted diamond-shaped mark introduced in an earlier image edit. Source inspection shows the Stargazer backdrop references `star_gazer.jpeg` in `Stargaizer.html` and also on the landing page `index.html`. Replace that **same-path, same-name image asset** on this development branch only once provided, ideally preserving dimensions and composition. Confirm both pages render the corrected artwork and the image cache is refreshed. Do not redraw the sculpture or alter game mechanics. **Asset replacement pending founder's corrected JPEG.**
+
+### 10.5 Development order and QA
+1. Reconcile and regression-test the already approved Stargazer exit-button hotfix in the isolated branch.
+2. Implement local-only nickname, consent/settings, session metrics and My Progress; preserve `stargazerLevel`, `sentinelLevel`, `ppsDailyPracticeV1` byte-for-byte.
+3. Integrate game-specific accurate session hooks and active-time tracking, then optional skippable feedback interface (no network submission).
+4. Stage founder-supplied JPEG replacement and verify both image references.
+5. Run desktop/mobile gameplay, navigation, audio, timer, local-storage and no-pre-consent-network-request checks. Provide screenshots and founder review.
+6. **Stop before** production merge, deployment, live aggregate analytics backend, or real feedback collection until separate approval.
+
+### 10.6 Acceptance criteria
+- Local sessions and practice durations reflect actual game use; no phantom completions or historical backfill.
+- Returning participant sees saved original levels plus correctly labeled new local metrics.
+- Feedback is optional, game-specific, and does not send data in Phase 1.
+- Device categories are coarse and no persistent identifier is created or transmitted.
+- Existing gameplay and navigation continue to work, including the Stargazer exit-button hotfix.
+- Corrected Stargazer JPEG is reviewed before any production release.
