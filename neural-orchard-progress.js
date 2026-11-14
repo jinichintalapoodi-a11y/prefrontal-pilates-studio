@@ -71,19 +71,20 @@
     const now=performance.now();
     return current.elapsedActiveMs+(current.activeSince===null?0:Math.max(0,Math.min(now,current.lastInteraction+IDLE)-current.activeSince));
   }
-  function pause(){
-    if(!current||current.activeSince===null)return;
-    current.elapsedActiveMs=elapsed();current.activeSince=null;checkpoint();
+  function pause(reason='explicit'){
+    if(!current)return;
+    if(current.activeSince!==null){current.elapsedActiveMs=elapsed();current.activeSince=null}
+    current.holdReason=reason;checkpoint();
   }
   function resume(){
     if(!current||document.hidden||current.activeSince!==null)return;
-    current.lastInteraction=performance.now();current.activeSince=current.lastInteraction;checkpoint();
+    current.lastInteraction=performance.now();current.activeSince=current.lastInteraction;current.holdReason=null;checkpoint();
   }
   function activity(){
     if(!current||document.hidden)return;
     const now=performance.now();
-    if(current.activeSince!==null&&now>current.lastInteraction+IDLE)pause();
-    if(current.activeSince===null)resume();
+    if(current.activeSince!==null&&now>current.lastInteraction+IDLE)pause('idle');
+    if(current.activeSince===null&&current.holdReason==='idle')resume();
     current.lastInteraction=now;
   }
   function begin(game,level){
@@ -93,7 +94,7 @@
     const now=performance.now();
     current={localSessionId:id(),game,started:new Date().toISOString(),levelAtStart:Number.isInteger(level)?level:null,
       levelAtEnd:Number.isInteger(level)?level:null,elapsedActiveMs:0,activeSince:document.hidden?null:now,
-      lastInteraction:now,deviceCategory:category(),metrics:{}};
+      lastInteraction:now,holdReason:document.hidden?'hidden':null,deviceCategory:category(),metrics:{}};
     checkpoint();return true;
   }
   function metric(name,amount=1){if(!current||!/^([a-z][a-z0-9_]{1,35})$/.test(name)||!Number.isFinite(amount)||amount<0)return;
@@ -102,7 +103,7 @@
   function finish(outcome,endingLevel){
     if(!current||!outcomes.includes(outcome))return false;
     if(Number.isSafeInteger(endingLevel))current.levelAtEnd=endingLevel;
-    pause();
+    pause('ended');
     const x={localSessionId:current.localSessionId,game:current.game,outcome,startTimeISO:current.started,
       endTimeISO:new Date().toISOString(),elapsedActiveMs:Math.round(current.elapsedActiveMs),
       levelAtStart:current.levelAtStart,levelAtEnd:current.levelAtEnd,
@@ -123,11 +124,11 @@
     return {games:result,dailyTotals:data.dailyTotals,historyStartsWithMvp11:true};
   }
   function clearHistory(){del(KEY);del(ACTIVE);current=null;return true}
-  document.addEventListener('visibilitychange',()=>{if(document.hidden)pause();else if(current)resume()});
+  document.addEventListener('visibilitychange',()=>{if(document.hidden)pause('hidden');else if(current&&current.holdReason==='hidden')resume()});
   document.addEventListener('pointerdown',activity,{passive:true});
   document.addEventListener('keydown',activity,{passive:true});
-  window.addEventListener('pagehide',()=>{pause();checkpoint()});
-  timer=setInterval(()=>{if(current&&current.activeSince!==null){const now=performance.now();if(now-current.lastInteraction>=IDLE)pause();else checkpoint()}},15000);
+  window.addEventListener('pagehide',()=>{pause('pagehide');checkpoint()});
+  timer=setInterval(()=>{if(current&&current.activeSince!==null){const now=performance.now();if(now-current.lastInteraction>=IDLE)pause('idle');else checkpoint()}},15000);
   recover();
   window.NeuralOrchardProgress=Object.freeze({load,record,summary,begin,pause,resume,activity,metric,level,finish,clearHistory,
     getActive:()=>current?{game:current.game,activeMs:elapsed(),level:current.levelAtEnd}:null,IDLE_MS:IDLE});
