@@ -129,7 +129,7 @@
     }
     return {games:result,dailyTotals:data.dailyTotals,historyStartsWithMvp11:true,storageWarning:!writable()};
   }
-  function clearHistory(){del(KEY);activeDel();current=null;return true}
+  function clearHistory(){try{localStorage.removeItem(KEY);sessionStorage.removeItem(ACTIVE);current=null;return true}catch(_){return false}}
   document.addEventListener('visibilitychange',()=>{if(document.hidden)pause('hidden');else if(current&&current.holdReason==='hidden')resume()});
   document.addEventListener('pointerdown',activity,{passive:true});
   document.addEventListener('keydown',activity,{passive:true});
