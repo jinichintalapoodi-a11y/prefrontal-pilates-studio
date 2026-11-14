@@ -39,7 +39,7 @@ if(welcome)new MutationObserver(updateToolbar).observe(welcome,{attributes:true,
 new MutationObserver(updateToolbar).observe(document.body,{attributes:true,attributeFilter:['class']});
 updateToolbar();
 const wrap=document.createElement('div');wrap.className='no-modal-wrap';wrap.hidden=true;
-const panel=document.createElement('section');panel.className='no-modal';panel.setAttribute('role','dialog');panel.setAttribute('aria-modal','true');wrap.appendChild(panel);document.body.appendChild(wrap);
+const panel=document.createElement('section');panel.className='no-modal';panel.setAttribute('role','dialog');panel.setAttribute('aria-modal','true');panel.setAttribute('aria-label','Neural Orchard personal settings and progress');wrap.appendChild(panel);document.body.appendChild(wrap);
 let previousFocus=null;
 const firstVisit=!P.profile().onboardingSeen;
 const elt=(tag,text,cls)=>{const e=document.createElement(tag);if(text!==undefined)e.textContent=text;if(cls)e.className=cls;return e};
@@ -111,7 +111,15 @@ function progress(){
 }
 progressBtn.addEventListener('click',progress);privacyBtn.addEventListener('click',settings);
 wrap.addEventListener('click',e=>{if(e.target===wrap)close()});
-wrap.addEventListener('keydown',e=>{if(e.key==='Escape')close()});
+wrap.addEventListener('keydown',e=>{
+ if(e.key==='Escape'){close();return}
+ if(e.key!=='Tab')return;
+ const focusable=[...panel.querySelectorAll('button,input,select,textarea,a[href]')].filter(x=>!x.disabled&&x.offsetParent!==null);
+ if(!focusable.length){e.preventDefault();panel.focus();return}
+ const first=focusable[0],last=focusable[focusable.length-1];
+ if(e.shiftKey&&(document.activeElement===first||document.activeElement===panel)){e.preventDefault();last.focus()}
+ else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus()}
+});
 greeting();
 const param=new URLSearchParams(location.search);if(!P.profile().onboardingSeen&&!param.has('action'))onboarding();
 })();
