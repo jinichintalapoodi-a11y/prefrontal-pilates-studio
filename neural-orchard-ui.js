@@ -5,6 +5,7 @@ const P=window.NeuralOrchardPreferences,N=window.NeuralOrchardProgress;
 if(!P||!N)return;
 const css=`
 .no-tools{position:fixed;top:max(12px,env(safe-area-inset-top));right:12px;z-index:50000;display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;max-width:90vw}
+.no-tools[hidden]{display:none!important}
 .no-tools button,.no-modal button{font-family:'Playfair Display',Georgia,serif;font-style:italic;background:rgba(29,18,43,.85);color:#f7e7ce;border:1px solid rgba(247,231,206,.8);border-radius:24px;min-height:44px;padding:9px 15px;cursor:pointer}
 .no-tools button:focus-visible,.no-modal button:focus-visible,.no-modal input:focus-visible{outline:2px solid #fff;outline-offset:3px}
 .no-modal-wrap{position:fixed;inset:0;z-index:90000;background:rgba(12,8,20,.77);display:flex;align-items:center;justify-content:center;padding:12px;box-sizing:border-box}
@@ -28,6 +29,14 @@ const tools=document.createElement('nav');tools.className='no-tools';tools.setAt
 const progressBtn=document.createElement('button');progressBtn.textContent='My Progress';
 const privacyBtn=document.createElement('button');privacyBtn.textContent='Privacy & Nickname';
 tools.append(progressBtn,privacyBtn);document.body.appendChild(tools);
+function updateToolbar(){
+ const welcome=document.getElementById('welcome-text');
+ tools.hidden=document.body.classList.contains('show-studio-grid')||!!(welcome&&welcome.style.display==='none');
+}
+const welcome=document.getElementById('welcome-text');
+if(welcome)new MutationObserver(updateToolbar).observe(welcome,{attributes:true,attributeFilter:['style']});
+new MutationObserver(updateToolbar).observe(document.body,{attributes:true,attributeFilter:['class']});
+updateToolbar();
 const wrap=document.createElement('div');wrap.className='no-modal-wrap';wrap.hidden=true;
 const panel=document.createElement('section');panel.className='no-modal';panel.setAttribute('role','dialog');panel.setAttribute('aria-modal','true');wrap.appendChild(panel);document.body.appendChild(wrap);
 let previousFocus=null;
