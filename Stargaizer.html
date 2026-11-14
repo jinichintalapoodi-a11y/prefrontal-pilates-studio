@@ -288,7 +288,7 @@
     </div>
 </div>
 
-<script src="pps-session.js?v=62124007"></script><script>
+<script src="pps-session.js?v=62124007"></script><script src="neural-orchard-progress.js?v=mvp11-1"></script><script src="neural-orchard-feedback.js?v=mvp11-1"></script><script>
 const Engine = {
     sequenceLength: 3, roundsCompletedInStage: 0, recentRoundResults: [], declinedStarIncrease: false, roundStroopCorrect: false, savedSequenceLength: Math.min(5, Math.max(3, parseInt(localStorage.getItem('stargazerLevel') || '3', 10))), generatedSequence: [], playerSequence: [], stroopStage: 1, audioCtx: null, canvas: null, ctx: null, woodwindInterval: null, woodwindStep: 0, lineState: 'tracing', audioHardwareUnlocked: false, gameActive: true, completedRecallRounds: 0, recallVerificationToken: 0,
     mainDroneGain: null, stroopFocusGain: null, activeOscillators: [], backgroundMusic: null,
@@ -514,5 +514,6 @@ const Engine = {
 };
 window.addEventListener('DOMContentLoaded', () => { Engine.renderEntryChoices(); if ('speechSynthesis' in window) window.speechSynthesis.getVoices(); setTimeout(() => { const card = document.getElementById('entrance-gate-card'); if (card) card.classList.add('ignite-card-reveal'); }, 150); });
 </script>
+<script src="neural-orchard-stargazer-hooks.js?v=mvp11-1"></script>
 </body>
 </html>
