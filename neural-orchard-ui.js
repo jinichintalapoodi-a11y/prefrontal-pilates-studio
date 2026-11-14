@@ -59,15 +59,15 @@ function onboarding(){
  panel.replaceChildren(elt('p','WELCOME TO','no-muted'),elt('h2','Neural Orchard'),elt('p','A celebration of becoming.'),elt('h3','What would you like us to call you?'));
  const name=nicknameField('');panel.append(name,elt('p','No email address, full name, or password required.','no-muted'),notice());
  const c=check(false);panel.append(c.label);
- const save=()=>{P.saveProfile(name.value);P.saveConsent(c.input.checked);greeting();close()};
+ const save=()=>{const ok=P.saveProfile(name.value)&&P.saveConsent(c.input.checked);if(ok){greeting();close()}else window.alert('This browser could not save your preferences. You can still enter Neural Orchard without saving a nickname.')};
  panel.append(actions(btn('Enter Neural Orchard',save),btn('Skip for now',()=>{P.saveProfile('');P.saveConsent(false);greeting();close()})));open();
 }
 function settings(){
  const pf=P.profile();panel.replaceChildren(elt('h2','Privacy & Nickname'),elt('p','What would you like us to call you?'));
  const name=nicknameField(pf.nickname),c=check(P.consent());panel.append(name,notice(),c.label);
- panel.append(actions(btn('Save preferences',()=>{P.saveProfile(name.value);P.saveConsent(c.input.checked);greeting();close()}),btn('Cancel',close)));
+ panel.append(actions(btn('Save preferences',()=>{if(P.saveProfile(name.value)&&P.saveConsent(c.input.checked)){greeting();close()}else window.alert('Unable to save your preferences in this browser.')}),btn('Cancel',close)));
  const wipe=elt('div',undefined,'no-panel');wipe.append(elt('h3','Clear local MVP 1.1 information'),elt('p','This removes your nickname, analytics preference and newly tracked practice history. Your existing Stargazer and Sentinel levels and the daily-practice key are preserved.'));
- wipe.append(btn('Clear MVP 1.1 data…',()=>{if(window.confirm('Clear your local nickname, consent choice and newly recorded history? Existing game levels will be kept.')){N.clearHistory();P.clearPersonal();greeting();close()}}));
+ wipe.append(btn('Clear MVP 1.1 data…',()=>{if(window.confirm('Clear your local nickname, consent choice and newly recorded history? Existing game levels will be kept.')){if(N.clearHistory()&&P.clearPersonal()){greeting();close()}else window.alert('Some local information could not be cleared. Please check browser storage permissions.')}}));
  panel.append(wipe);open();
 }
 const minutes=ms=>(Math.round((ms||0)/60000*10)/10).toFixed(1);
