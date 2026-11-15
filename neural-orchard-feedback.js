@@ -22,6 +22,10 @@ function gameName(){
 }
 function elt(tag,text){const x=document.createElement(tag);if(text!==undefined)x.textContent=text;return x}
 function attach(parent){
+ // Friends-and-family game pilot: hide unfinished in-game feedback, preserve implementation.
+ // External survey is distributed independently by the founder.
+ const PILOT_FEEDBACK_DISABLED=true;
+ if(PILOT_FEEDBACK_DISABLED)return;
  if(!parent||parent.querySelector('.no-feedback'))return;
  const game=gameName();if(!game)return;
  const shell=elt('section');shell.className='no-feedback';shell.style.cssText='width:100%;max-width:480px;margin:16px auto 22px;text-align:left;border:1px solid rgba(247,231,206,.6);border-radius:14px;padding:clamp(10px,3vw,18px);color:#f7e7ce;box-sizing:border-box;';
