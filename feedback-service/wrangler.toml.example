@@ -1,0 +1,20 @@
+# NON-DEPLOYABLE REVIEW TEMPLATE. Copy to wrangler.toml only after founder approval.
+name = "neural-orchard-feedback-qa"
+main = "src/worker.js"
+compatibility_date = "2026-11-14"
+workers_dev = false
+# DO NOT enable production route. Configure a distinct private staging hostname
+# behind Cloudflare Access, with MFA and an allow policy for the founder.
+[vars]
+ENABLE_REAL_FEEDBACK = "false"
+ENABLE_SYNTHETIC_QA = "true"
+PUBLIC_ORIGIN = "https://REPLACE-WITH-PRIVATE-QA-ORIGIN.example"
+# ACCESS_TEAM_DOMAIN, ACCESS_AUD, FOUNDER_EMAIL must be configured as
+# protected environment settings, never committed or hardcoded.
+[[d1_databases]]
+binding = "FEEDBACK_DB"
+database_name = "neural-orchard-feedback-qa"
+database_id = "REPLACE_WITH_PRIVATE_STAGING_D1_DATABASE_ID"
+[[triggers]]
+# Placeholder reminder only: configure daily cron in the actual deployment.
+# cron: 0 3 * * *
