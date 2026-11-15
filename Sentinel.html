@@ -25,6 +25,17 @@
 .card.instruction-card .begin{min-height:48px;background:rgba(247,231,206,.17);font-style:normal;font-weight:700}
 .card.instruction-card .instruction-credit{font-size:10px;letter-spacing:.3px;text-transform:none;margin-top:4px}
 @media(max-height:500px){.card.instruction-card{gap:7px;padding:15px 22px}.card.instruction-card h1{font-size:clamp(22px,3vw,30px)}.card.instruction-card p{font-size:clamp(14px,1.6vw,17px);line-height:1.3}.card.instruction-card .instruction-first{font-size:13px}}
+/* Pilot Sentinel instruction panel; isolated to the instructional card. */
+.card.instruction-card{background:#24160F;color:#F8EBD7;max-height:100%;overflow-y:auto;overscroll-behavior:contain;justify-content:flex-start;gap:12px;padding:clamp(40px,7vh,74px) clamp(18px,4vw,42px) 22px;scrollbar-gutter:stable}
+.card.instruction-card h1{font-size:clamp(22px,3.2vw,36px);line-height:1.18;color:#F8EBD7}
+.card.instruction-card .instruction-content{width:100%;max-width:490px;text-align:left;flex:0 0 auto}
+.card.instruction-card .instruction-content p{font-family:'Playfair Display',Georgia,serif;font-style:italic;font-weight:400;font-size:clamp(15px,1.5vw,18px);line-height:1.48;margin:0 0 12px;color:#F8EBD7}
+.card.instruction-card .instruction-content strong{font-weight:700}
+.card.instruction-card .instruction-example{font-size:clamp(17px,1.7vw,20px)!important;letter-spacing:.02em}
+.card.instruction-card .instruction-shared{padding:11px 13px;border:1px solid rgba(248,235,215,.65);border-radius:12px}
+.card.instruction-card .begin{flex-shrink:0;min-height:48px;position:relative;cursor:pointer}
+.card.instruction-card .instruction-credit{padding-bottom:max(12px,env(safe-area-inset-bottom))}
+@media(max-height:600px){.card.instruction-card{padding:22px 18px 16px}.card.instruction-card .instruction-content p{font-size:15px;line-height:1.37;margin-bottom:9px}}
 </style></head><body><main class="shell"><section class="stage" id="stage"><div class="sentinel-wrap" id="sentinelWrap"><img class="sentinel" id="sentinelImg" src="sentinel_meerkat_upperbody.png?v=4cb7a0a9" alt="Sentinel meerkat"></div><div class="feedback" id="feedback"></div><button class="pill match" id="match">MATCH</button><div class="veil" id="veil"><div class="card" id="card"></div></div></section><div class="hud"><button class="pill" id="exit">Exit</button><div class="readout" id="readout">Sentinel<br>Level 1</div><button class="pill" id="sound">Sound On</button></div></main><aside class="rotate">Rotate your phone to landscape to enter Sentinel.</aside><script src="pps-session.js?v=62124007"></script><script src="neural-orchard-progress.js?v=mvp11-1"></script><script src="neural-orchard-feedback.js?v=mvp11-1"></script><script>
 const BURROWS={
 1:{x:14.0,y:47.7,w:12.8,shown:29,hidden:72,clip:'polygon(0 0,100% 0,100% 96%,76% 98%,52% 100%,27% 98%,0 95%)'},
@@ -43,7 +54,22 @@ function ensureMusic(){if(!music){music=new Audio(MUSIC_SRC);music.loop=true;mus
 function startAmbient(){if(!soundOn)return;const a=ensureMusic();a.play().catch(()=>{})}
 function playSentinelCall(){} // Reserved for a future separate emergence cue; no synthesized layer.
 function stopAmbient(){if(music){music.pause()}}
-function instruction(){const turns=['previous turn','two turns ago','three turns ago','four turns ago','five turns ago'];const comparison=span===1?'the previous turn':turns[span-1];card.classList.add('instruction-card');card.innerHTML='<div class="eyebrow">Sentinel · Level '+span+'</div><h1>Watch. Remember. Match.</h1><p>Watch where the meerkat appears.</p><p class="instruction-rule">Tap <strong>MATCH</strong> if it appears in the same burrow as '+comparison+'.</p><p>Otherwise, keep watching.</p>'+(span===1?'<p class="instruction-first">First, watch and remember. Tap only when you spot a match.</p>':'')+'<button class="pill begin" id="begin">Begin</button><div class="eyebrow instruction-credit">Music: African Reggae Underscore — YeahMusic, via Pixabay</div>';veil.style.display='flex';document.getElementById('begin').onclick=()=>{card.classList.remove('instruction-card');tone(392,.16);startAmbient();startWatch()};readout.innerHTML='Sentinel<br>Level '+span}
+const SENTINEL_INSTRUCTIONS=[
+ {title:'Remember the Last Burrow',watch:'Watch the meerkat appear in different burrows.',task:'Remember where the meerkat appeared on the previous turn.',ask:'Is this the same burrow I saw one turn ago?',example:'2 → 4 → 4',explain:'The last two appearances are both in burrow 4, so tap MATCH on the final appearance.',otherwise:'If the current burrow differs from the previous one, do nothing.'},
+ {title:'Remember Two Turns Back',watch:'Watch the meerkat move between burrows.',task:'Compare the current burrow with the one you saw two turns ago.',ask:'Is this the same burrow I saw two turns ago?',example:'2 → 4 → 2',explain:'The third appearance matches the first, so tap MATCH on the third appearance.',otherwise:'If they do not match, do nothing.'},
+ {title:'Remember Three Turns Back',watch:"Keep track of the meerkat's earlier locations.",task:'Compare the current burrow with the one you saw three turns ago.',ask:'Is this the same burrow I saw three turns ago?',example:'1 → 5 → 3 → 1',explain:'The fourth appearance matches the first, so tap MATCH on the fourth appearance.',otherwise:'Otherwise, do nothing.'},
+ {title:'Remember Four Turns Back',watch:'Follow the sequence of burrows carefully.',task:'Compare the current burrow with the one you saw four turns ago.',ask:'Is this the same burrow I saw four turns ago?',example:'2 → 5 → 1 → 4 → 2',explain:'The fifth appearance matches the first, so tap MATCH on the fifth appearance.',otherwise:'Otherwise, do nothing.'},
+ {title:'Remember Five Turns Back',watch:'This level requires remembering a longer sequence.',task:'Compare the current burrow with the one you saw five turns ago.',ask:'Is this the same burrow I saw five turns ago?',example:'3 → 1 → 5 → 2 → 4 → 3',explain:'The sixth appearance matches the first, so tap MATCH on the sixth appearance.',otherwise:'Otherwise, do nothing.'}
+];
+function instruction(){
+ const data=SENTINEL_INSTRUCTIONS[span-1];
+ card.classList.add('instruction-card');
+ // Static founder-approved instructions; all interpolated values come from the fixed in-file array.
+ card.innerHTML='<div class="eyebrow">Sentinel · Level '+span+'</div><h1>'+data.title+'</h1><div class="instruction-content"><p>'+data.watch+'</p><p><strong>Your task:</strong> '+data.task+'</p><p><strong>Ask yourself:</strong> '+data.ask+'</p><p class="instruction-example"><strong>Example:</strong> '+data.example+'</p><p>'+data.explain+'</p><p>'+data.otherwise+'</p><p class="instruction-shared"><strong>Only tap MATCH while the meerkat is visible. If there is no match, do nothing.</strong></p></div><button class="pill begin" id="begin">Begin</button><div class="eyebrow instruction-credit">Music: African Reggae Underscore — YeahMusic, via Pixabay</div>';
+ veil.style.display='flex';
+ document.getElementById('begin').onclick=()=>{card.classList.remove('instruction-card');tone(392,.16);startAmbient();startWatch()};
+ readout.innerHTML='Sentinel<br>Level '+span;
+}
 function chooseEntry(){const saved=Math.min(MAX_LEVEL,Math.max(1,parseInt(localStorage.getItem('sentinelLevel')||'1',10)));span=saved;if(saved<=1){instruction();return}
 card.innerHTML='<h1>Welcome back to Sentinel</h1><p>Would you like to pick up where you left off, or ease into it?</p><button class="pill begin" id="resume" style="margin:6px 0">Pick up at Level '+saved+'</button><button class="pill begin" id="ease" style="margin:6px 0">Ease in from Level 1</button>';veil.style.display='flex';readout.innerHTML='Sentinel<br>Welcome back';document.getElementById('resume').onclick=()=>{startAmbient();span=saved;instruction()};document.getElementById('ease').onclick=()=>{startAmbient();span=1;instruction()}}
 function place(n){const p=BURROWS[n];wrap.style.left=p.x+'%';wrap.style.top=p.y+'%';wrap.style.width=p.w+'%';wrap.style.clipPath=p.clip;wrap.style.setProperty('--shown',p.shown+'%');wrap.style.setProperty('--hidden',p.hidden+'%')}
