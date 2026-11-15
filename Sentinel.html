@@ -36,6 +36,12 @@
 .card.instruction-card .begin{flex-shrink:0;min-height:48px;position:relative;cursor:pointer}
 .card.instruction-card .instruction-credit{padding-bottom:max(12px,env(safe-area-inset-bottom))}
 @media(max-height:600px){.card.instruction-card{padding:22px 18px 16px}.card.instruction-card .instruction-content p{font-size:15px;line-height:1.37;margin-bottom:9px}}
+/* Portrait instruction access only; gameplay still requires the existing landscape orientation. */
+@media(max-width:700px) and (orientation:portrait){
+ .shell:has(.instruction-card)+.rotate{display:none}
+ .stage:has(.instruction-card) .veil{position:fixed;inset:0;align-items:center;justify-content:center;background:#160d06;z-index:110}
+ .stage:has(.instruction-card) .card.instruction-card{width:min(95vw,620px);max-height:95dvh;min-height:0;max-width:95vw;border-bottom:2px solid rgba(248,235,215,.72);border-radius:36% 36% 18px 18px/9% 9% 18px 18px;padding:clamp(34px,6vh,64px) 18px 22px}
+}
 </style></head><body><main class="shell"><section class="stage" id="stage"><div class="sentinel-wrap" id="sentinelWrap"><img class="sentinel" id="sentinelImg" src="sentinel_meerkat_upperbody.png?v=4cb7a0a9" alt="Sentinel meerkat"></div><div class="feedback" id="feedback"></div><button class="pill match" id="match">MATCH</button><div class="veil" id="veil"><div class="card" id="card"></div></div></section><div class="hud"><button class="pill" id="exit">Exit</button><div class="readout" id="readout">Sentinel<br>Level 1</div><button class="pill" id="sound">Sound On</button></div></main><aside class="rotate">Rotate your phone to landscape to enter Sentinel.</aside><script src="pps-session.js?v=62124007"></script><script src="neural-orchard-progress.js?v=mvp11-1"></script><script src="neural-orchard-feedback.js?v=mvp11-1"></script><script>
 const BURROWS={
 1:{x:14.0,y:47.7,w:12.8,shown:29,hidden:72,clip:'polygon(0 0,100% 0,100% 96%,76% 98%,52% 100%,27% 98%,0 95%)'},
