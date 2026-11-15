@@ -11,8 +11,20 @@ const cors=(env)=>({'Access-Control-Allow-Origin':env.ALLOWED_ORIGIN,'Access-Con
 async function limitedJson(request){
  if(!(request.headers.get('content-type')||'').startsWith('application/json'))throw Error('Expected JSON');
  const bound=Number(request.headers.get('content-length')||0);if(bound>5000)throw Error('Oversized');
- const body=await request.text();if(new TextEncoder().encode(body).byteLength>5000)throw Error('Oversized');
- return validateFeedback(JSON.parse(body));
+ const reader=request.body?.getReader();if(!reader)throw Error('Body required');
+ const pieces=[];let size=0;
+ try{
+  while(true){
+   const {value,done}=await reader.read();
+   if(done)break;
+   size+=value.byteLength;
+   if(size>5000){await reader.cancel();throw Error('Oversized')}
+   pieces.push(value);
+  }
+ }finally{reader.releaseLock()}
+ const bytes=new Uint8Array(size);let cursor=0;
+ for(const part of pieces){bytes.set(part,cursor);cursor+=part.byteLength}
+ return validateFeedback(JSON.parse(new TextDecoder('utf-8',{fatal:true}).decode(bytes)));
 }
 function message(payload,receivedAt){
  const names={stargazer:'Stargazer',sentinel:'Sentinel'};
