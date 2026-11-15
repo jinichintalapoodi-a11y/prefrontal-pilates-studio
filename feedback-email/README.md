@@ -1,7 +1,23 @@
 # Pilot feedback by email — separate, disabled implementation
 
+## Founder-approved recipient — configuration checkpoint (2026-11-15)
+- Approved destination: `prefrontalpilates.feedback@gmail.com`. The review-only `wrangler.toml.example` binding has been updated to restrict `EMAIL` to this address. The Worker additionally rejects an environment recipient value different from the approved address.
+- **This is source configuration, NOT Cloudflare account verification.** The Gmail account's ownership and the destination's verification in Cloudflare have not been verified. No Cloudflare account connector is currently available.
+- Before the email binding can be used, the recipient must be added under Cloudflare **Email Routing > Destination Addresses** and the verification link clicked in that Gmail inbox. This does not itself authorize new routing rules, DNS or sending.
+- A sender address must belong to a Cloudflare Email Service onboarded domain. Cloudflare requires Cloudflare-managed DNS for Email Service. Domain onboarding can create/change SPF, DKIM, DMARC and bounce-handling DNS records; **do not proceed** unless existing approved configuration already meets all needs or the founder separately approves exact DNS changes.
+- Cloudflare currently documents verified-destination sending as free on Workers Free and Paid plans. This is a documented allowance, not account-specific billing confirmation; check plan, limits and sender-domain eligibility in the actual Cloudflare account before provisioning.
+- Cloudflare Email Service may default to **Email preview ON**, retaining sent message bodies for approximately seven days. Disable preview for real feedback unless separately approved and disclose essential provider logs, mailbox storage, exported copies and deletion limitations.
+- **Both public real-feedback collection and synthetic-email QA flags remain OFF** in the committed template. The public frontend still lacks a live configured endpoint. No email, real or synthetic, has been sent to the new Gmail address.
+- Reference documentation:
+  - https://developers.cloudflare.com/email-service/get-started/route-emails/
+  - https://developers.cloudflare.com/email-service/get-started/send-emails/
+  - https://developers.cloudflare.com/email-service/configuration/send-bindings/
+  - https://developers.cloudflare.com/email-service/observability/logs/
+  - https://developers.cloudflare.com/email-service/platform/pricing/
+
+
 ## Important status
-**No recipient address, sending domain or paid service has been approved or configured. No private staging endpoint is running.** This source is not a live submission service. `ENABLE_EMAIL_FEEDBACK` and `ENABLE_SYNTHETIC_EMAIL_QA` are off by default; do not change these without founder authorization.
+**Founder recipient approved and configured in the disabled source template; Cloudflare destination verification, sender domain, billing and private staging are NOT configured. No private staging endpoint is running.** This source is not a live submission service. `ENABLE_EMAIL_FEEDBACK` and `ENABLE_SYNTHETIC_EMAIL_QA` are off by default; do not change these without founder authorization.
 
 The earlier `feedback-service/` Cloudflare D1 founder dashboard code remains intact and **deferred/inactive**. Never deploy both submission paths simultaneously. The pilot uses an email-only Worker, without D1 or participant accounts.
 
