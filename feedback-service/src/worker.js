@@ -22,7 +22,11 @@ function allowed(request,env){
 }
 async function parseBody(request){
  if(!(request.headers.get('content-type')||'').startsWith('application/json'))throw Error('JSON required');
- const body=await request.text();if(body.length>5000)throw Error('Payload too large');
+ const length=Number(request.headers.get('content-length')||0);if(length>5000)throw Error('Payload too large');
+ const reader=request.body?.getReader();if(!reader)throw Error('Missing body');const chunks=[];let total=0;
+ try{while(true){const {done,value}=await reader.read();if(done)break;total+=value.byteLength;if(total>5000)throw Error('Payload too large');chunks.push(value)}}finally{reader.releaseLock()}
+ const joined=new Uint8Array(total);let pos=0;for(const chunk of chunks){joined.set(chunk,pos);pos+=chunk.byteLength}
+ const body=new TextDecoder('utf-8',{fatal:true}).decode(joined);
  return JSON.parse(body);
 }
 function expiry(now){return new Date(now+90*DAY).toISOString()}
@@ -67,7 +71,7 @@ export default {
   const url=new URL(request.url),path=url.pathname;
   if(!env.FEEDBACK_DB)return error(503,'Feedback storage not configured');
   if(path==='/api/feedback'&&request.method==='OPTIONS'){
-   const h=allowed(request,env);return Object.keys(h).length?response('',204,'text/plain',h):error(403,'Not allowed');
+   const h=allowed(request,env);return Object.keys(h).length?new Response(null,{status:204,headers:{...security,...h}}):error(403,'Not allowed');
   }
   if(path==='/api/feedback'&&request.method==='POST'){
    // Fail closed. Founder must approve a distinct activation, anti-abuse rules and privacy notice.
@@ -79,6 +83,10 @@ export default {
   }
   if(!path.startsWith('/founder')&&!path.startsWith('/api/admin')&&!path.startsWith('/api/qa'))return error(404,'Not found');
   try{await requireFounder(request,env)}catch(_){return error(403,'Access denied')}
+  if(['POST','DELETE','PUT','PATCH'].includes(request.method)){
+   const origin=request.headers.get('Origin');
+   if(origin&&origin!==url.origin)return error(403,'Cross-origin mutation blocked');
+  }
   if(path==='/founder'&&request.method==='GET')
    return response(dashboardHTML,200,'text/html; charset=utf-8',{'Content-Security-Policy':founderPolicy});
   if(path==='/founder/style.css'&&request.method==='GET')return response(dashboardCSS,200,'text/css; charset=utf-8');
