@@ -18,7 +18,7 @@
 - `feedback-service/README.md`, `TEST-PLAN.md`, `tests/feedback.test.mjs`: steps, boundaries, test fixtures, security gates.
 
 ## Actual tests performed in tool runtime (synthetic mocks, not Cloudflare)
-13 checks PASS:
+14 checks PASS:
 1. Valid synthetic Stargazer payload accepted by validator.
 2. Email, nickname, installation ID, session ID, IP fields rejected.
 3. Public feedback POST returns 503 when disabled.
@@ -31,7 +31,8 @@
 10. Filtered founder listing returns expected record.
 11. CSV includes expected synthetic data.
 12. Authenticated founder dashboard HTML allowed by mocked guard.
-13. Record deletion and scheduled expiry both remove expected rows (tested as separate assertions; see testing source).
+13. Record deletion removes selected synthetic row.
+14. Scheduled expiry removes expired synthetic row.
 
 **Mock limitations:** Access JWT authorization was replaced with a mock returning success/failure; actual RS256/JWKS/MFA and cookie policies were not exercised. D1 prepared statements were modeled in memory; actual D1 transaction semantics, quotas and cron scheduling were not exercised. No actual gameplay/feedback browser integration testing, screenshots, responsive testing or HTTPS hosting was performed.
 
