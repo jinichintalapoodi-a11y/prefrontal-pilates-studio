@@ -9,11 +9,13 @@ ENABLE_EMAIL_FEEDBACK = "false"
 ENABLE_SYNTHETIC_EMAIL_QA = "false"
 ALLOWED_ORIGIN = "https://REPLACE-WITH-APPROVED-PRIVATE-TEST-ORIGIN.example"
 # Supply FEEDBACK_RECIPIENT, FEEDBACK_SENDER, and QA_TOKEN as protected env settings.
-# Founder must approve recipient address and email provider before configuration.
+# Founder-approved recipient: prefrontalpilates.feedback@gmail.com.
+# Cloudflare account verification, sender-domain DNS and free-tier eligibility still NOT confirmed.
+# Deployment remains forbidden until founder explicitly approves any required setup.
 # Native Cloudflare Email Service binding; restrict to exactly one verified recipient.
 [[send_email]]
 name = "EMAIL"
-destination_address = "REPLACE_WITH_APPROVED_VERIFIED_RECIPIENT@example.invalid"
+destination_address = "prefrontalpilates.feedback@gmail.com"
 [[ratelimits]]
 name = "PILOT_RATE_LIMIT"
 namespace_id = "321004"
