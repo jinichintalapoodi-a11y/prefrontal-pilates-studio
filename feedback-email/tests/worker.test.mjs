@@ -8,7 +8,7 @@ function env(overrides={}){
  const sent=[];
  return {sent,ALLOWED_ORIGIN:ORIGIN,ENABLE_EMAIL_FEEDBACK:'false',
   ENABLE_SYNTHETIC_EMAIL_QA:'true',QA_TOKEN:'qa-unit-test-only',
-  FEEDBACK_RECIPIENT:'approved-test-inbox@example.invalid',
+  FEEDBACK_RECIPIENT:'prefrontalpilates.feedback@gmail.com',
   FEEDBACK_SENDER:'pilot@example.invalid',
   PILOT_RATE_LIMIT:{async limit({key}){return{success:key==='synthetic-feedback-qa'}}},
   EMAIL:{async send(message){sent.push(message);return{messageId:'synthetic-provider-ack'}}},
@@ -48,6 +48,18 @@ test('rejects identity additions, invalid ratings and excessive comments',async(
    {...SAMPLE,difficulties:'x'.repeat(501)}
  ]) assert.equal((await worker.fetch(request('/api/qa/email',payload),e)).status,400);
  assert.equal(e.sent.length,0);
+});
+test('approved destination cannot be replaced by a different configured inbox',async()=>{
+ const e=env({FEEDBACK_RECIPIENT:'unapproved@example.invalid'});
+ const result=await worker.fetch(request('/api/qa/email',SAMPLE),e);
+ assert.equal(result.status,503);assert.equal(e.sent.length,0);
+});
+test('synthetic Sentinel response also routes to the approved destination',async()=>{
+ const e=env();
+ const result=await worker.fetch(request('/api/qa/email',{...SAMPLE,game:'sentinel'}),e);
+ assert.equal(result.status,202);
+ assert.equal(e.sent[0].to,'prefrontalpilates.feedback@gmail.com');
+ assert.match(e.sent[0].subject,/Sentinel/);
 });
 test('missing provider acknowledgement is never presented as success',async()=>{
  const e=env({EMAIL:{async send(){return{}}}});
