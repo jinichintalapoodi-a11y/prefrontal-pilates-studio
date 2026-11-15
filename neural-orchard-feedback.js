@@ -22,7 +22,17 @@
      wrap.appendChild(area);form.appendChild(wrap)});
    const submit=document.createElement('button');submit.type='submit';submit.textContent='Test feedback form (no submission)';submit.style.cssText='padding:12px;border:1px solid #f7e7ce;border-radius:24px;background:rgba(20,15,30,.7);color:#f7e7ce;min-height:44px;font:inherit';
    const result=document.createElement('p');result.setAttribute('role','status');result.style.cssText='font-size:.85rem';
-   form.append(submit,result);form.addEventListener('submit',e=>{e.preventDefault();result.textContent='Preview only — nothing was saved or sent.';form.reset()});details.appendChild(form);parent.appendChild(details);
+   form.append(submit,result);form.addEventListener('submit',e=>{e.preventDefault();result.textContent='Preview only — nothing was saved or sent.';form.reset()});details.appendChild(form);
+   const navigation=document.createElement('div');
+   navigation.style.cssText='display:flex;flex-wrap:wrap;gap:10px;margin-top:16px;justify-content:center';
+   [['Return to Neural Orchard','index.html'],['Return to Prefrontal Pilates Studio','index.html?action=studio']].forEach(([label,url])=>{
+     const button=document.createElement('button');
+     button.type='button';button.textContent=label;
+     button.style.cssText='min-height:44px;padding:11px 16px;border:1px solid #f7e7ce;border-radius:24px;background:rgba(20,15,30,.7);color:#f7e7ce;font:inherit;cursor:pointer';
+     button.addEventListener('click',()=>{window.location.href=url});
+     navigation.appendChild(button);
+   });
+   details.appendChild(navigation);parent.appendChild(details);
  }
  window.NeuralOrchardFeedback=Object.freeze({attach});
 })();
