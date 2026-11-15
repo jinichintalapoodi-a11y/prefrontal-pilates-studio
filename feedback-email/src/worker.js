@@ -2,7 +2,7 @@
  * Fail-closed until an approved recipient, Cloudflare Email binding, and
  * private synthetic QA deployment have been configured. No participant identifiers.
  */
-import {validateFeedback} from '../feedback-service/src/validate.js';
+import {validateFeedback} from '../../feedback-service/src/validate.js';
 
 const HEADERS={'Cache-Control':'no-store','X-Content-Type-Options':'nosniff','Referrer-Policy':'no-referrer'};
 const reply=(body,status=200,extra={})=>new Response(JSON.stringify(body),{status,headers:{...HEADERS,'Content-Type':'application/json;charset=utf-8',...extra}});
