@@ -1,7 +1,7 @@
 /* Neural Orchard MVP 1.1 — optional feedback, network disabled by default.
- * In a founder-approved private QA preview only, set
- * window.NeuralOrchardFeedbackConfig={enabled:true,syntheticOnly:true,endpoint:'/api/qa/seed'}
- * on a same-origin, Access-protected staging site. DO NOT configure real collection here.
+ * Founder approval and secure email deployment are required before configuration.
+ * No configuration is shipped with GitHub Pages. The deferred D1/dashboard
+ * submission endpoint is NOT used by this form.
  */
 (function(){
 'use strict';
@@ -62,21 +62,21 @@ function attach(parent){
  form.addEventListener('submit',async e=>{
   e.preventDefault();if(pending||delivered)return;
   const cfg=window.NeuralOrchardFeedbackConfig;
-  if(!cfg||cfg.enabled!==true||cfg.syntheticOnly!==true||typeof cfg.endpoint!=='string'||cfg.endpoint!=='/api/qa/seed'){
-   status.textContent='Feedback submission is not active. This form is a preview; nothing was sent.';return;
+  if(!cfg||cfg.enabled!==true||cfg.mode!=='email'||typeof cfg.endpoint!=='string'||!/^https:\/\/[^/]+\/api\/pilot-feedback$/.test(cfg.endpoint)){
+   status.textContent='Email feedback is not active. This form is a preview; nothing was sent.';return;
   }
   const choices=radios.map(g=>g.find(x=>x.checked)?.value);
   if(choices.some(x=>!x)){status.textContent='Please choose an answer to all three multiple-choice questions.';return}
   if(!consent.checked){status.textContent='Please confirm that you choose to send feedback.';return}
-  if(!window.confirm('Send this synthetic QA feedback record to the private test service?'))return;
+  if(!window.confirm('Send this optional feedback by email to the Neural Orchard team?'))return;
   const body={game};choices.forEach((v,i)=>body[selectKeys[i]]=v);
   inputs.forEach((input,i)=>body[textKeys[i]]=input.value);
-  pending=true;submit.disabled=true;status.textContent='Sending synthetic feedback…';
+  pending=true;submit.disabled=true;status.textContent='Sending feedback…';
   try{
-   const res=await fetch(cfg.endpoint,{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify(body),cache:'no-store'});
+   const res=await fetch(cfg.endpoint,{method:'POST',credentials:'omit',headers:{'Content-Type':'application/json'},body:JSON.stringify(body),cache:'no-store'});
    if(!res.ok)throw Error('Server returned '+res.status);
-   const result=await res.json();if(result.receipt!=='received')throw Error('No verified receipt');
-   delivered=true;status.textContent='The private synthetic QA service confirmed receipt. Thank you.';
+   const result=await res.json();if(result.receipt!=='accepted_for_delivery')throw Error('No email-provider acceptance receipt');
+   delivered=true;status.textContent='The email service accepted your feedback for delivery. Thank you.';
   }catch(_){status.textContent='Feedback was not confirmed. Your answers are still here; please retry or skip.';submit.disabled=false}
   finally{pending=false}
  });
