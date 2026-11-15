@@ -35,7 +35,7 @@ async function insert(env,payload){
  const id=crypto.randomUUID(),date=new Date(now).toISOString(),expires=expiry(now);
  await env.FEEDBACK_DB.prepare('INSERT INTO feedback (id,game,enjoyment,challenge,replay,enjoyed_most,improvements,difficulties,submitted_at,expires_at) VALUES (?,?,?,?,?,?,?,?,?,?)')
  .bind(id,entry.game,entry.enjoyment,entry.challenge,entry.replay,entry.enjoyed_most,entry.improvements,entry.difficulties,date,expires).run();
- return {receipt:'received',id}; // ID is a record receipt, not a participant key.
+ return {receipt:'received'}; // Administrative record ID stays server-side; no participant token returned.
 }
 function filter(url){
  const u=new URL(url),{game,period}=validFilter(u.searchParams.get('game')||'all',u.searchParams.get('period')||'all');
