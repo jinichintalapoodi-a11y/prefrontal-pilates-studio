@@ -43,3 +43,14 @@ Sources: https://developers.cloudflare.com/email-service/observability/logs/ and
 3. Approve a **private** synthetic-test Worker location and QA credential; **do not** expose QA secrets in public JavaScript.
 4. Verify a real synthetic inbox delivery, audit provider logs, test both games at desktop/mobile viewports, capture required screenshots.
 5. Explicitly approve public feedback collection and later production deployment separately.
+
+## Founder-approved Gmail configuration review — 2026-11-15
+
+**Approved destination:** `prefrontalpilates.feedback@gmail.com`.
+
+- Disabled `wrangler.toml.example`: `send_email.destination_address` now restricts the binding to the approved Gmail inbox. Worker rejects `FEEDBACK_RECIPIENT` values differing from the same approved address. This is **code configuration only**, not proof of Cloudflare verification, mailbox ownership, email sending or delivery.
+- Cloudflare destination verification: **NOT DONE** (no linked Cloudflare account). Sender domain and Cloudflare DNS records: **NOT KNOWN**. Charges: none authorized or incurred by this work. Public collection remains OFF.
+- Verified Cloudflare docs: sending to verified destinations is free on Workers Free/Paid, subject to onboarding and account eligibility; Email Service requires Cloudflare-managed DNS; sender domain may require SPF/DKIM/DMARC/bounce DNS. Cloudflare email preview of message content is enabled automatically for new domains and may retain previews for about seven days. Requires privacy review and preferably disablement.
+- **Synthetic mock test:** Both Stargazer and Sentinel submissions produced expected `202 accepted_for_delivery` against a mocked email binding with the approved Gmail `to` address. A wrong-recipient environment setting returned 503; two synthetic mock messages were constructed and **zero real emails were sent**. This does **not** prove service availability or inbox receipt.
+- **Desktop/mobile Chromium previews:** Ten PNGs (five levels at 1440x900 and 390x844) were rendered from the exact approved Sentinel instruction text and scoped CSS in a separate HTML fixture. They are **layout previews, not screenshots from the complete running game**. No full-app gameplay, navigation or audio QA was conducted.
+- Required next: authorize and verify recipient destination in Cloudflare; inspect existing sender domain/DNS and confirm no changes/charges; approve private synthetic staging; actually send/receive synthetic Stargazer and Sentinel emails; capture full game screenshots, test feedback, navigation and audio on real browser/device sizes; inspect provider security logs and cost.
