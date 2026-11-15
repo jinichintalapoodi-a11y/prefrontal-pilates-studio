@@ -15,6 +15,6 @@ PUBLIC_ORIGIN = "https://REPLACE-WITH-PRIVATE-QA-ORIGIN.example"
 binding = "FEEDBACK_DB"
 database_name = "neural-orchard-feedback-qa"
 database_id = "REPLACE_WITH_PRIVATE_STAGING_D1_DATABASE_ID"
-[[triggers]]
-# Placeholder reminder only: configure daily cron in the actual deployment.
-# cron: 0 3 * * *
+[triggers]
+crons = ["0 3 * * *"]
+# Daily UTC expiry purge; activate only in authorized private staging.
