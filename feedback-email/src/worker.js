@@ -55,7 +55,9 @@ export default {
    // Privacy-first coarse GLOBAL throttle. No IP, cookie, fingerprint or user ID key.
    const throttle=await env.PILOT_RATE_LIMIT.limit({key:qa?'synthetic-feedback-qa':'pilot-feedback'});
    if(!throttle.success)return reply({error:'Feedback is busy. Please try later.'},429,headers);
-   const answers=await limitedJson(request),receivedAt=new Date().toISOString();
+   let answers;
+   try{answers=await limitedJson(request)}catch(_){return reply({error:'Invalid feedback. Check your selections and comment lengths.'},400,headers)}
+   const receivedAt=new Date().toISOString();
    const subject='Neural Orchard — '+(answers.game==='stargazer'?'Stargazer':'Sentinel')+' pilot feedback'+(qa?' (SYNTHETIC QA)':'');
    const result=await env.EMAIL.send({
     to:env.FEEDBACK_RECIPIENT,
