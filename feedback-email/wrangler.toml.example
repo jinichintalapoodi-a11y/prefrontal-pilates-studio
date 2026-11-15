@@ -1,0 +1,22 @@
+# REVIEW-ONLY TEMPLATE. Not deployable until founder approvals.
+name = "neural-orchard-feedback-email-qa"
+main = "src/worker.js"
+compatibility_date = "2026-11-14"
+workers_dev = false
+# Never point this Worker at the production domain or activate feedback here.
+[vars]
+ENABLE_EMAIL_FEEDBACK = "false"
+ENABLE_SYNTHETIC_EMAIL_QA = "false"
+ALLOWED_ORIGIN = "https://REPLACE-WITH-APPROVED-PRIVATE-TEST-ORIGIN.example"
+# Supply FEEDBACK_RECIPIENT, FEEDBACK_SENDER, and QA_TOKEN as protected env settings.
+# Founder must approve recipient address and email provider before configuration.
+# Native Cloudflare Email Service binding; restrict to exactly one verified recipient.
+[[send_email]]
+name = "EMAIL"
+destination_address = "REPLACE_WITH_APPROVED_VERIFIED_RECIPIENT@example.invalid"
+[[ratelimits]]
+name = "PILOT_RATE_LIMIT"
+namespace_id = "321004"
+[ratelimits.simple]
+limit = 10
+period = 60
