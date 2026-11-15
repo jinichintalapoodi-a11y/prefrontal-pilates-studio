@@ -4,6 +4,7 @@
  */
 import {validateFeedback} from '../../feedback-service/src/validate.js';
 
+const APPROVED_RECIPIENT='prefrontalpilates.feedback@gmail.com';
 const HEADERS={'Cache-Control':'no-store','X-Content-Type-Options':'nosniff','Referrer-Policy':'no-referrer'};
 const reply=(body,status=200,extra={})=>new Response(JSON.stringify(body),{status,headers:{...HEADERS,'Content-Type':'application/json;charset=utf-8',...extra}});
 const validOrigin=(request,env)=>!!env.ALLOWED_ORIGIN&&request.headers.get('Origin')===env.ALLOWED_ORIGIN;
@@ -62,7 +63,7 @@ export default {
   if(qa){
    if(env.ENABLE_SYNTHETIC_EMAIL_QA!=='true'||!env.QA_TOKEN||request.headers.get('X-Pilot-QA-Token')!==env.QA_TOKEN)return reply({error:'QA disabled'},403,headers);
   }else if(env.ENABLE_EMAIL_FEEDBACK!=='true')return reply({error:'Participant feedback is not enabled'},503,headers);
-  if(!env.EMAIL||!env.FEEDBACK_RECIPIENT||!env.FEEDBACK_SENDER||!env.PILOT_RATE_LIMIT)return reply({error:'Email delivery not configured'},503,headers);
+  if(!env.EMAIL||env.FEEDBACK_RECIPIENT!==APPROVED_RECIPIENT||!env.FEEDBACK_SENDER||!env.PILOT_RATE_LIMIT)return reply({error:'Email delivery not configured'},503,headers);
   try{
    // Privacy-first coarse GLOBAL throttle. No IP, cookie, fingerprint or user ID key.
    const throttle=await env.PILOT_RATE_LIMIT.limit({key:qa?'synthetic-feedback-qa':'pilot-feedback'});
