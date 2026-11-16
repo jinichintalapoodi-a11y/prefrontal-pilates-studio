@@ -307,14 +307,22 @@
                 padding:10px 14px max(12px,env(safe-area-inset-bottom));
             }
         }
-    </style>
+    /* Pilot feedback #1: exit affordance remains tappable on small-screen gameplay. */
+#top-hud-navigation-bar{padding:max(8px,env(safe-area-inset-top)) max(8px,env(safe-area-inset-right)) 0 max(8px,env(safe-area-inset-left))}
+#top-hud-navigation-bar .hud-row-controls{gap:8px}
+#top-hud-navigation-bar .hud-row-controls .hud-nav-btn{min-height:44px;min-width:0;flex:1 1 auto;padding:9px 10px;line-height:1.2;touch-action:manipulation;white-space:normal}
+#top-hud-navigation-bar .hud-row-controls .hud-nav-btn:first-child{background:rgba(22,13,6,.85);border-color:var(--champagne-gold)}
+#top-hud-navigation-bar .hud-nav-btn:focus-visible,#completion-screen .ambient-btn:focus-visible{outline:3px solid var(--champagne-gold);outline-offset:3px}
+#completion-screen .ambient-btn{min-height:44px;white-space:normal}
+@media(max-width:420px){#top-hud-navigation-bar .hud-row-controls .hud-nav-btn{font-size:.72rem;padding:9px 7px}}
+</style>
 </head>
 <body onclick="Engine.backupAudioAwakening()">
 
 <div id="stage-canvas-wrapper">
     <div id="top-hud-navigation-bar">
         <div class="hud-row-controls">
-            <button class="hud-nav-btn" onclick="Engine.exitRoom()">Exit</button>
+            <button class="hud-nav-btn" type="button" aria-label="Exit Stargazer and view return options" onclick="Engine.exitRoom()">Exit Stargazer</button>
             <button class="hud-nav-btn" onclick="Engine.takeABreatherRoute()">Take a Breather</button>
         </div>
     </div>
@@ -341,7 +349,7 @@
         <div class="gate-card ignite-card-reveal">
             <div class="gate-title">Sanctuary Aligned</div>
             <div class="gate-desc">Your working memory and executive control are balanced. Your focus session has stabilized.</div>
-            <button class="ambient-btn visible" style="color:var(--champagne-gold) !important; pointer-events: auto !important;" onclick="Engine.exitRoom()">Return to Sanctuary</button>
+            <button type="button" class="ambient-btn visible" style="color:var(--champagne-gold) !important; pointer-events: auto !important;" onclick="Engine.exitRoom()">Exit Stargazer · View return options</button>
         </div>
     </div>
 
@@ -551,8 +559,9 @@ const Engine = {
     showStarIncreaseChoice() {
         const current=this.sequenceLength, next=current+1;
         const gate=document.getElementById('completion-screen'), card=gate.querySelector('.gate-card');
-        card.innerHTML='<div class="gate-title">Beautiful focus.</div><div class="gate-desc">Ready for another star?</div><button class="ambient-btn visible" style="pointer-events:auto!important;" id="tryNextStar">Try '+next+' stars</button><button class="ambient-btn visible" style="pointer-events:auto!important;" id="stayStars">Continue with '+current+' stars</button>';
+        card.innerHTML='<div class="gate-title">Beautiful focus.</div><div class="gate-desc">Ready for another star?</div><button class="ambient-btn visible" style="pointer-events:auto!important;" id="tryNextStar">Try '+next+' stars</button><button class="ambient-btn visible" style="pointer-events:auto!important;" id="stayStars">Continue with '+current+' stars</button><button type="button" class="ambient-btn visible" style="pointer-events:auto!important;" id="finishStargazer">Exit Stargazer · View return options</button>';
         gate.style.visibility='visible'; gate.style.opacity='1'; gate.style.pointerEvents='auto';
+        document.getElementById('finishStargazer').onclick=()=>this.exitRoom();
         document.getElementById('tryNextStar').onclick=()=>{this.sequenceLength=next;this.savedSequenceLength=Math.max(this.savedSequenceLength,next);localStorage.setItem('stargazerLevel',String(this.savedSequenceLength));this.recentRoundResults=[];gate.style.visibility='hidden';gate.style.opacity='0';gate.style.pointerEvents='none';this.generateNewRound()};
         document.getElementById('stayStars').onclick=()=>{this.declinedStarIncrease=true;gate.style.visibility='hidden';gate.style.opacity='0';gate.style.pointerEvents='none';this.generateNewRound()};
     },
