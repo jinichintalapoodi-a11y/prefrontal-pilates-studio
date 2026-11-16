@@ -66,8 +66,8 @@ test('Real feedback and synthetic sender remain disabled by default',()=>{
  assert.doesNotMatch(html('index.html')+html('Stargaizer.html')+html('Sentinel.html'),/NeuralOrchardFeedbackConfig\s*=/);
 });
 test('Legacy level and daily-practice keys remain referenced, not renamed',()=>{
- const progress=file('neural-orchard-progress.js'),st=html('Stargaizer.html'),se=html('Sentinel.html');
+ const progress=file('neural-orchard-progress.js'),st=html('Stargaizer.html'),se=html('Sentinel.html'),daily=file('pps-session.js');
  assert.match(st,/stargazerLevel/);
  assert.match(se,/sentinelLevel/);
- assert.match(progress+st+se,/ppsDailyPracticeV1/);
+ assert.match(progress+st+se+daily,/ppsDailyPracticeV1/);
 });
