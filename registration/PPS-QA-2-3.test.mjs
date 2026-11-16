@@ -103,7 +103,7 @@ test('Sentinel preserves five true memory levels and five-burrow orientation',()
  const start=sent.indexOf('const SENTINEL_INSTRUCTIONS=['),end=sent.indexOf('function instruction(){',start);
  const info=Function(sent.slice(start,end)+';return SENTINEL_INSTRUCTIONS')();
  assert.equal(info.length,5);
- info.forEach((row,i)=>{const numbers=row.example.split(' → ').map(Number);assert.equal(numbers.at(-1),numbers[numbers.length-i-2]);assert.match(row.task,/burrow/);});
+ info.forEach((row,i)=>{const numbers=row.example.split(' → ').map(Number);assert.equal(numbers.at(-1),numbers[numbers.length-i-2]);assert(row.title&&row.task&&row.ask&&row.explain);});
  assert.match(sent,/class="burrow-map"/);
  assert.match(sent,/Only tap MATCH while the meerkat is visible/);
  assert.match(sent,/sequence\[sequence\.length-span\]/);
