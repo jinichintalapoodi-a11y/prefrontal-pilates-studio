@@ -33,7 +33,7 @@ test('Stargazer Exit available in gameplay and level-completion choices',()=>{
 });
 test('Sentinel has exactly five real burrow positions and consistent numbered instructions',()=>{
  const s=read('Sentinel.html');
- const burrows=s.match(/const BURROWS=\{([\s\S]*?)\};\s*const MAX_LEVEL/);
+ const burrows=s.match(/const BURROWS=\{([\s\S]*?)\};\s*const stage=/);
  assert(burrows,'Burrow table not found');
  const labels=[...burrows[1].matchAll(/(?:^|[,\s])(\d):\{x:/g)].map(x=>Number(x[1]));
  assert.deepEqual(labels,[1,2,3,4,5]);
