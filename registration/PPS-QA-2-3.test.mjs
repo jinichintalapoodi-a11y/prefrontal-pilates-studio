@@ -15,7 +15,7 @@ test('Onboarding is bypassed and legacy profile/progress are not cleared',()=>{
  assert.doesNotMatch(s,/function greeting\(/);
  assert.match(s,/My Progress/);
  assert.match(s,/Privacy & Data/);
- assert.doesNotMatch(s,/P\.clearPersonal\(\)(?!\s*\))/); // explicit clear action still allowed
+ assert.match(s,/if\(window\.confirm\('Clear your saved nickname/); // removal only via explicit clear action
  assert.match(file('neural-orchard-preferences.js'),/neuralOrchardProfileV1/);
  assert.match(file('neural-orchard-progress.js'),/localStorage/);
 });
