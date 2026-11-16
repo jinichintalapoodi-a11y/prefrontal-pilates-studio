@@ -28,7 +28,7 @@ const css=`
 const style=document.createElement('style');style.textContent=css;document.head.appendChild(style);
 const tools=document.createElement('nav');tools.className='no-tools';tools.setAttribute('aria-label','Personal progress and privacy');
 const progressBtn=document.createElement('button');progressBtn.textContent='My Progress';
-const privacyBtn=document.createElement('button');privacyBtn.textContent='Privacy & Nickname';
+const privacyBtn=document.createElement('button');privacyBtn.textContent='Privacy & Data';
 tools.append(progressBtn,privacyBtn);document.body.appendChild(tools);
 function updateToolbar(){
  const welcome=document.getElementById('welcome-text');
@@ -41,36 +41,19 @@ updateToolbar();
 const wrap=document.createElement('div');wrap.className='no-modal-wrap';wrap.hidden=true;
 const panel=document.createElement('section');panel.className='no-modal';panel.setAttribute('role','dialog');panel.setAttribute('aria-modal','true');panel.setAttribute('aria-label','Neural Orchard personal settings and progress');wrap.appendChild(panel);document.body.appendChild(wrap);
 let previousFocus=null;
-const firstVisit=!P.profile().onboardingSeen;
 const elt=(tag,text,cls)=>{const e=document.createElement(tag);if(text!==undefined)e.textContent=text;if(cls)e.className=cls;return e};
 const btn=(text,fn)=>{const e=elt('button',text);e.type='button';e.addEventListener('click',fn);return e};
 function open(){previousFocus=document.activeElement;wrap.hidden=false;panel.scrollTop=0;panel.tabIndex=-1;panel.focus()}
 function close(){wrap.hidden=true;panel.replaceChildren();if(previousFocus&&previousFocus.focus)previousFocus.focus()}
 function actions(...children){const d=elt('div',undefined,'no-modal-actions');d.append(...children);return d}
-function greeting(){
- const w=document.getElementById('welcome-text');if(!w)return;
- const nick=P.profile().nickname;
- w.textContent=firstVisit?(nick?'Welcome, '+nick+'.':'WELCOME TO'):(nick?'Welcome back, '+nick+'.':'Welcome back.');
- w.classList.toggle('no-personalized-greeting',!!nick);
-}
 function notice(){const p=elt('p','Your practice history stays in this browser. Optional aggregate gameplay analytics are off by default. No data will be transmitted during this development phase. After a separately approved launch, sharing would require your choice and would not use a persistent participant ID. You can stop future sharing, but past aggregate counts generally cannot be individually removed. Clearing your browser data can erase local history.','no-muted');return p}
 function check(initial){const label=elt('label',undefined,'no-check'),input=document.createElement('input');input.type='checkbox';input.checked=!!initial;label.append(input,document.createTextNode('Optional: allow future aggregate gameplay statistics after backend activation. Declining does not affect the games.'));return {label,input}}
-function nicknameField(value){
- const input=document.createElement('input');input.type='text';input.maxLength=80;input.autocomplete='off';input.value=value||'';input.placeholder='Preferred nickname (optional)';input.setAttribute('aria-label','Preferred nickname (optional)');return input
-}
-function onboarding(){
- panel.replaceChildren(elt('p','WELCOME TO','no-muted'),elt('h2','Neural Orchard'),elt('p','A celebration of becoming.'),elt('h3','What would you like us to call you?'));
- const name=nicknameField('');panel.append(name,elt('p','No email address, full name, or password required.','no-muted'),notice());
- const c=check(false);panel.append(c.label);
- const save=()=>{const ok=P.saveProfile(name.value)&&P.saveConsent(c.input.checked);if(ok){greeting();close()}else window.alert('This browser could not save your preferences. You can still enter Neural Orchard without saving a nickname.')};
- panel.append(actions(btn('Enter Neural Orchard',save),btn('Skip for now',()=>{P.saveProfile('');P.saveConsent(false);greeting();close()})));open();
-}
 function settings(){
- const pf=P.profile();panel.replaceChildren(elt('h2','Privacy & Nickname'),elt('p','What would you like us to call you?'));
- const name=nicknameField(pf.nickname),c=check(P.consent());panel.append(name,notice(),c.label);
- panel.append(actions(btn('Save preferences',()=>{if(P.saveProfile(name.value)&&P.saveConsent(c.input.checked)){greeting();close()}else window.alert('Unable to save your preferences in this browser.')}),btn('Cancel',close)));
- const wipe=elt('div',undefined,'no-panel');wipe.append(elt('h3','Clear local MVP 1.1 information'),elt('p','This removes your nickname, analytics preference and newly tracked practice history. Your existing Stargazer and Sentinel levels and the daily-practice key are preserved.'));
- wipe.append(btn('Clear MVP 1.1 data…',()=>{if(window.confirm('Clear your local nickname, consent choice and newly recorded history? Existing game levels will be kept.')){if(N.clearHistory()&&P.clearPersonal()){greeting();close()}else window.alert('Some local information could not be cleared. Please check browser storage permissions.')}}));
+ panel.replaceChildren(elt('h2','Privacy & Data'),elt('p','Your existing game levels and practice history remain on this browser.'));
+ const c=check(P.consent());panel.append(notice(),c.label);
+ panel.append(actions(btn('Save preference',()=>{if(P.saveConsent(c.input.checked))close();else window.alert('Unable to save your preference in this browser.')}),btn('Cancel',close)));
+ const wipe=elt('div',undefined,'no-panel');wipe.append(elt('h3','Clear local MVP 1.1 information'),elt('p','This removes previously saved nickname information, consent choice and newly tracked practice history. Your existing Stargazer and Sentinel levels and the daily-practice key are preserved.'));
+ wipe.append(btn('Clear MVP 1.1 data…',()=>{if(window.confirm('Clear your saved nickname, consent choice and newly recorded history? Existing game levels will be kept.')){if(N.clearHistory()&&P.clearPersonal())close();else window.alert('Some local information could not be cleared. Please check browser storage permissions.')}}));
  panel.append(wipe);open();
 }
 const minutes=ms=>(Math.round((ms||0)/60000*10)/10).toFixed(1);
@@ -107,7 +90,7 @@ function progress(){
  if(label==='Stargazer'){p.append(elt('p','Color choices: '+(m.stroop_correct||0)+' correct, '+(m.stroop_incorrect||0)+' incorrect. Recall rounds: '+(m.recall_correct||0)+' correct, '+(m.recall_incorrect||0)+' incorrect.'))}
  else p.append(elt('p','Spatial matches: '+(m.matches_hit||0)+' detected; missed '+(m.matches_missed||0)+'; false alarms '+(m.false_alarms||0)+'.'));
  p.append(elt('p','Task counts reflect recorded gameplay only; they are not clinical cognitive scores.','no-muted'));panel.append(p)}
- panel.append(actions(btn('Privacy & Nickname',settings),btn('Return to Neural Orchard',close)));open();
+ panel.append(actions(btn('Privacy & Data',settings),btn('Return to Neural Orchard',close)));open();
 }
 progressBtn.addEventListener('click',progress);privacyBtn.addEventListener('click',settings);
 wrap.addEventListener('click',e=>{if(e.target===wrap)close()});
@@ -120,6 +103,5 @@ wrap.addEventListener('keydown',e=>{
  if(e.shiftKey&&(document.activeElement===first||document.activeElement===panel)){e.preventDefault();last.focus()}
  else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus()}
 });
-greeting();
-const param=new URLSearchParams(location.search);if(!P.profile().onboardingSeen&&!param.has('action'))onboarding();
+// Landing page opens immediately. Legacy nickname/profile data is left untouched.
 })();

@@ -14,7 +14,7 @@ test('All three pages contain syntactically valid inline JavaScript',()=>{
 test('Breathe retains true 4-second inhale, 4-second hold, 8-second exhale and existing tone frequencies',()=>{
  const s=read('index.html');
  assert.match(s,/\{l:'Inhale',t:4000,f:342\},\{l:'Hold',t:4000,f:310\},\{l:'Exhale',t:8000,f:280\}/);
- assert.match(s,/inhale for 4 seconds, hold for 4 seconds, then exhale for 8 seconds/);
+ assert.match(s,/inhale for 4 seconds, hold for 4 seconds, (?:then |and )exhale for 8 seconds/);
  assert.match(s,/remaining=3/);
  assert.match(s,/if\(generation!==this\.breathGeneration\)return/);
  assert.match(s,/if\(generation===this\.breathGeneration\)this\.runWave\(\)/);
@@ -37,8 +37,8 @@ test('Sentinel has exactly five real burrow positions and consistent numbered in
  assert(burrows,'Burrow table not found');
  const labels=[...burrows[1].matchAll(/(?:^|[,\s])(\d):\{x:/g)].map(x=>Number(x[1]));
  assert.deepEqual(labels,[1,2,3,4,5]);
- assert.match(s,/three across the upper row/);
- assert.match(s,/two across the lower row/);
+ assert.match(s,/(?:three across the upper row|1–2–3 across the upper row)/);
+ assert.match(s,/(?:two across the lower row|4–5 across the lower row)/);
  assert.match(s,/class="burrow-map"/);
  const from=s.indexOf('const SENTINEL_INSTRUCTIONS=['),to=s.indexOf('function instruction(){',from);
  const entries=new Function(s.slice(from,to)+';return SENTINEL_INSTRUCTIONS')();

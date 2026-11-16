@@ -315,6 +315,18 @@
 #top-hud-navigation-bar .hud-nav-btn:focus-visible,#completion-screen .ambient-btn:focus-visible{outline:3px solid var(--champagne-gold);outline-offset:3px}
 #completion-screen .ambient-btn{min-height:44px;white-space:normal}
 @media(max-width:420px){#top-hud-navigation-bar .hud-row-controls .hud-nav-btn{font-size:.72rem;padding:9px 7px}}
+/* QA #2–3: concise default exit, optional science, visible recall transition. */
+#recall-guidance{position:absolute;top:max(80px,calc(env(safe-area-inset-top) + 65px));left:50%;transform:translateX(-50%);width:min(92vw,400px);padding:10px 14px;z-index:420;background:rgba(5,7,6,.87);border:1px solid #f7e7ce;border-radius:12px;color:#f7e7ce;text-align:center;opacity:0;visibility:hidden;pointer-events:none;transition:opacity .18s}
+#recall-guidance.active{opacity:1;visibility:visible}
+#recall-guidance strong,#recall-guidance span{display:block;font-size:clamp(.8rem,2vw,1rem);line-height:1.4}
+#recall-guidance span{font-size:clamp(.72rem,1.8vw,.87rem)}
+#exit-goodbye-screen .exit-short-message{font-size:clamp(.95rem,2.5vw,1.12rem);line-height:1.45;margin:0 0 14px}
+#exit-goodbye-screen .exit-science-details{width:100%;text-align:left;font-size:clamp(.88rem,2vw,1rem);margin:0 0 14px}
+#exit-goodbye-screen .exit-science-details summary{cursor:pointer;min-height:44px;display:flex;align-items:center;border:1px solid rgba(247,231,206,.75);border-radius:14px;padding:9px 12px}
+#exit-goodbye-screen .exit-science-details summary:focus-visible{outline:3px solid #f7e7ce;outline-offset:3px}
+#exit-goodbye-screen .exit-science-copy{margin-top:12px}
+#exit-goodbye-screen .gate-card{padding-top:clamp(42px,8vh,72px);min-height:0}
+@media(max-width:480px){#exit-goodbye-screen .gate-card{min-height:0;padding-top:clamp(38px,7vh,60px)}}
 </style>
 </head>
 <body onclick="Engine.backupAudioAwakening()">
@@ -333,13 +345,13 @@
     
     <canvas id="constellation-canvas"></canvas>
     <div id="sky-interaction-zone"></div>
-    <div id="stroop-overlay"><div id="stroop-word">---</div><div id="stroop-instruction">Match the ink color</div></div>
+    <div id="stroop-overlay"><div id="stroop-word">---</div><div id="stroop-instruction">Match the ink color</div></div><div id="recall-guidance" role="status" aria-live="polite"><strong>Now retrace the constellation.</strong><span>Tap the stars in the same order you saw them.</span></div>
     <div id="control-panel"></div>
 
     <div id="room-gate" class="gate-outer-container">
         <div class="gate-card" id="entrance-gate-card"><div class="gate-title">How to Play Stargazer</div>
             <div id="instruction-voice-text" class="gate-desc" style="text-align:center;line-height:1.7;margin-bottom:30px;">
-                <span style="display:block;text-align:left"><strong>1. Remember the stars.</strong> Pay attention to the constellation pattern.<br><strong>2. Answer the color question.</strong> Look carefully and choose your answer.<br><strong>3. Retrace the constellation.</strong> Recreate the star pattern you saw at the beginning.</span>
+                <span style="display:block;text-align:left">Watch the stars form a constellation. Answer the question about the ink color shown. If your answer is correct, tap the stars in the same order to retrace the constellation. A different color answer starts a new round.</span>
             </div>
             <div id="stargazer-entry-actions" style="display:flex;flex-direction:column;gap:12px;align-items:center;width:100%;"></div>
         </div>
@@ -355,16 +367,16 @@
 
     <div id="exit-goodbye-screen" class="gate-outer-container">
         <div class="gate-card ignite-card-reveal" style="pointer-events:auto;">
-            <div class="gate-title">Brilliantly done.</div>
-            <div class="exit-science-copy">
+            <div class="gate-title">Thanks for playing!</div><p class="exit-short-message">Come back whenever you're ready.</p>
+            <details class="exit-science-details"><summary>The science behind this exercise</summary><div class="exit-science-copy">
                 <p>You've just challenged one of your brain's most important cognitive systems: <strong>working memory</strong>.</p>
                 <p>Working memory is your brain's mental workspace. It allows you to temporarily hold, update, and manipulate information while staying focused on a goal. It plays a vital role in reasoning, learning, decision-making, and following complex conversations.</p>
                 <p>By remembering constellations, shifting your attention to a color question, and reconstructing the original pattern, you've practiced coordinating <strong>working memory, selective attention, and sequential recall</strong>.</p>
-                <p><strong>That's cognitive engagement with a purpose.</strong></p>
-            </div>
+                <p><strong>That's cognitive engagement with a purpose.</strong></p><p class="science-evidence-note">These are cognitive skills used during play. This exercise has not been shown to prevent dementia or produce lasting improvements in everyday cognition.</p>
+            </div></details>
         </div>
         <nav class="exit-navigation" aria-label="Leave Stargazer">
-            <button type="button" class="ambient-btn visible" onclick="Engine.confirmStudioExit()">Return to Prefrontal Pilates Studio</button>
+            <button type="button" class="ambient-btn visible" onclick="Engine.confirmStudioExit()">Return to PPS</button>
             <button type="button" class="ambient-btn visible" onclick="Engine.returnToOrchard()">Return to Neural Orchard</button>
         </nav>
     </div>
@@ -508,6 +520,7 @@ const Engine = {
     },
     initializeRecallPhase() {
         if (!this.gameActive) return;
+        const guidance=document.getElementById('recall-guidance');if(guidance)guidance.classList.add('active');
         const zone = document.getElementById('sky-interaction-zone'); zone.innerHTML = ''; zone.style.pointerEvents = 'auto';
         document.getElementById('recall-hud-actions').classList.add('visible');
         this.updateUndoState();
@@ -518,6 +531,7 @@ const Engine = {
         });
     },
     evaluateRecallTouch(coord, element, index) {
+        const guidance=document.getElementById('recall-guidance');if(guidance)guidance.classList.remove('active');
         element.style.pointerEvents = 'none'; element.classList.add('ignited'); this.playerSequence.push(coord); this.recallVerificationToken++; this.updateUndoState();
         const stargazerMelody = [329.63, 392.00, 440.00, 523.25, 587.33]; this.triggerAudioNode(stargazerMelody[index % stargazerMelody.length], 'sine', 0.12, 0.06, 1.8); this.redrawConstellationLines();
         if (this.playerSequence.length === this.generatedSequence.length) { document.getElementById('sky-interaction-zone').style.pointerEvents = 'none'; const token=this.recallVerificationToken; setTimeout(() => { if (this.gameActive && token===this.recallVerificationToken && this.playerSequence.length === this.generatedSequence.length) { this.verifySequenceAccuracy(); } }, 1000); }
@@ -585,6 +599,7 @@ const Engine = {
     },
     takeABreatherRoute() { this.killAllHardwareAudio(); window.location.href = 'index.html?action=breather'; },
     exitRoom() {
+        const guidance=document.getElementById('recall-guidance');if(guidance)guidance.classList.remove('active');
         if ('speechSynthesis' in window) window.speechSynthesis.cancel(); this.killAllHardwareAudio();
         if (document.getElementById('stroop-overlay')) document.getElementById('stroop-overlay').style.setProperty('display', 'none', 'important');
         if (document.getElementById('control-panel')) document.getElementById('control-panel').style.setProperty('display', 'none', 'important');
