@@ -28,11 +28,12 @@ test('PPS and Breathe are active, future choices disabled',()=>{
  assert.match(s,/Sleep Sanctuary[\s\S]{0,150}Coming Soon/);
  assert.match(s,/#bot-tier \.active-experience/);
 });
-function createBreathRuntime(){
+function createBreathRuntime(withSpeech=true){
  const html=file('index.html'),source=script(html);
  const nodes={};const get=id=>nodes[id]??(nodes[id]={innerHTML:'',style:{},classList:{add(){},remove(){}}});
  let scheduled=[],next=0;const spoken=[],tones=[],speech={cancels:0,cancel(){this.cancels++},speak(v){spoken.push(v.text)}};
  const window={location:{search:''},addEventListener(){},speechSynthesis:speech,SpeechSynthesisUtterance:class {}};
+ if(!withSpeech){delete window.speechSynthesis;delete window.SpeechSynthesisUtterance;}
  const document={getElementById:get,body:{classList:{add(){},remove(){}}}};
  const timer=(fn,ms)=>{const id=++next;scheduled.push({id,fn,ms});return id};
  const clear=id=>{scheduled=scheduled.filter(x=>x.id!==id)};
@@ -68,6 +69,15 @@ test('Breathe voice is not required and cancel during countdown prevents any pha
  s.selectCycles();s.beginWave(5);h.advance();s.cancelBreathing();
  assert.equal(h.pending(),0);assert.deepEqual(h.spoken,[]);assert.deepEqual(h.tones,[]);
 });
+test('Breathe visual rhythm remains usable without a browser speech API',()=>{
+ const h=createBreathRuntime(false),s=h.studio;s.selectCycles();
+ assert.match(h.get('bot-tier').innerHTML,/Voice Guidance Unavailable/);
+ s.toggleVoiceGuidance({setAttribute(){},set textContent(v){}});
+ assert.equal(s.voiceGuidance,false);
+ s.beginWave(3);h.advance();h.advance();h.advance();
+ assert.deepEqual(h.tones,[[342,4]]);assert.deepEqual(h.spoken,[]);
+ s.cancelBreathing();assert.equal(h.pending(),0);
+});
 test('Stargazer accurately explains ink-color behavior and displays recall prompt only on recall',()=>{
  const s=file('Stargaizer.html');
  assert.match(s,/Answer the question about the ink color shown/);
@@ -88,6 +98,7 @@ test('Both exits are short with collapsed optional science and distinct return t
   assert.match(s,/The science behind this exercise/);
   assert.match(s,/Return to PPS/);
   assert.match(s,/Return to Neural Orchard/);
+  assert.match(s,/This exercise has not been shown to prevent dementia/);
  }
  assert.match(star,/<details class="exit-science-details">/);
  assert.match(star,/<nav class="exit-navigation" aria-label="Leave Stargazer">/);
