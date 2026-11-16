@@ -37,8 +37,8 @@ test('Sentinel has exactly five real burrow positions and consistent numbered in
  assert(burrows,'Burrow table not found');
  const labels=[...burrows[1].matchAll(/(?:^|[,\s])(\d):\{x:/g)].map(x=>Number(x[1]));
  assert.deepEqual(labels,[1,2,3,4,5]);
- assert.match(s,/three across the upper row/);
- assert.match(s,/two across the lower row/);
+ assert.match(s,/(?:three across the upper row|1–2–3 across the upper row)/);
+ assert.match(s,/(?:two across the lower row|4–5 across the lower row)/);
  assert.match(s,/class="burrow-map"/);
  const from=s.indexOf('const SENTINEL_INSTRUCTIONS=['),to=s.indexOf('function instruction(){',from);
  const entries=new Function(s.slice(from,to)+';return SENTINEL_INSTRUCTIONS')();
