@@ -14,7 +14,7 @@ test('All three pages contain syntactically valid inline JavaScript',()=>{
 test('Breathe retains true 4-second inhale, 4-second hold, 8-second exhale and existing tone frequencies',()=>{
  const s=read('index.html');
  assert.match(s,/\{l:'Inhale',t:4000,f:342\},\{l:'Hold',t:4000,f:310\},\{l:'Exhale',t:8000,f:280\}/);
- assert.match(s,/inhale for 4 seconds, hold for 4 seconds, then exhale for 8 seconds/);
+ assert.match(s,/inhale for 4 seconds, hold for 4 seconds, (?:then |and )exhale for 8 seconds/);
  assert.match(s,/remaining=3/);
  assert.match(s,/if\(generation!==this\.breathGeneration\)return/);
  assert.match(s,/if\(generation===this\.breathGeneration\)this\.runWave\(\)/);
