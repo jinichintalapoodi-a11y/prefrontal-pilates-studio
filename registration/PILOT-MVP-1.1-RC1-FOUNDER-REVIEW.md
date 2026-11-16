@@ -21,6 +21,8 @@
 
 ## Automated/source QA evidence
 
+**Six release-candidate regression assertions executed against exact GitHub file contents in an isolated JavaScript test harness: 6/6 PASS** (HTML inline JS syntax; Stargazer persistent exit footer and destinations; both game feedback hooks; Sentinel n-back examples; disabled email configuration; preservation of legacy progress keys). These are *source-driven mock-harness results*, not execution of `node --test` in a complete repository checkout.
+
 **Performed in connected GitHub source and isolated mocked JavaScript runtime:**
 - All three HTML inline scripts and MVP JS modules parsed as JavaScript.
 - Stargazer exit HTML contains exactly two prominent navigation buttons in a footer sibling to the scrollable gate; destination handlers use the exact two approved URLs.
