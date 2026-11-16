@@ -42,7 +42,28 @@
  .stage:has(.instruction-card) .veil{position:fixed;inset:0;align-items:center;justify-content:center;background:#160d06;z-index:110}
  .stage:has(.instruction-card) .card.instruction-card{width:min(95vw,620px);max-height:95dvh;min-height:0;max-width:95vw;border-bottom:2px solid rgba(248,235,215,.72);border-radius:36% 36% 18px 18px/9% 9% 18px 18px;padding:clamp(34px,6vh,64px) 18px 22px}
 }
-</style></head><body><main class="shell"><section class="stage" id="stage"><div class="sentinel-wrap" id="sentinelWrap"><img class="sentinel" id="sentinelImg" src="sentinel_meerkat_upperbody.png?v=4cb7a0a9" alt="Sentinel meerkat"></div><div class="feedback" id="feedback"></div><button class="pill match" id="match">MATCH</button><div class="veil" id="veil"><div class="card" id="card"></div></div></section><div class="hud"><button class="pill" id="exit">Exit</button><div class="readout" id="readout">Sentinel<br>Level 1</div><button class="pill" id="sound">Sound On</button></div></main><aside class="rotate">Rotate your phone to landscape to enter Sentinel.</aside><script src="pps-session.js?v=62124007"></script><script src="neural-orchard-progress.js?v=mvp11-1"></script><script src="neural-orchard-feedback.js?v=mvp11-1"></script><script>
+
+/* Pilot feedback #1: permanent, safe-area-aware Sentinel navigation in landscape. */
+.hud{z-index:120;top:max(8px,env(safe-area-inset-top));left:max(8px,env(safe-area-inset-left));right:max(8px,env(safe-area-inset-right));gap:8px;align-items:flex-start}
+.hud #exit{flex-shrink:0;min-height:44px;min-width:106px;max-width:40vw;padding:9px 12px;line-height:1.2;background:rgba(22,13,6,.95);border-color:#f7e7ce;position:relative;z-index:1}
+.hud button:focus-visible,.rotate-return:focus-visible{outline:3px solid #f7e7ce;outline-offset:3px}
+.hud .readout{flex:1;min-width:0;padding:4px 0}
+.hud #sound{flex-shrink:0;min-height:44px;padding:9px 12px;background:rgba(22,13,6,.9)}
+.burrow-guide{width:100%;border:1px solid rgba(248,235,215,.65);border-radius:12px;padding:10px 12px;margin:2px 0 12px;background:rgba(10,7,4,.4)}
+.card.instruction-card .burrow-guide p{font-size:clamp(14px,1.3vw,16px);margin:0 0 7px}
+.burrow-map{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:6px;max-width:280px;margin:10px auto}
+.burrow-map span{grid-column:span 2;display:flex;align-items:center;justify-content:center;border:1px solid #f8ebd7;border-radius:50%;width:38px;height:30px;margin:auto;font:700 15px system-ui,sans-serif;color:#f8ebd7}
+.burrow-map span:nth-child(4){grid-column:2 / span 2}
+.burrow-map span:nth-child(5){grid-column:4 / span 2}
+.rotate{flex-direction:column;gap:16px}
+.rotate-return{display:inline-block;min-height:44px;margin-top:12px;padding:12px 16px;color:#f8ebd7;border:1px solid #f8ebd7;border-radius:25px;text-decoration:none}
+@media (max-height:480px) and (orientation:landscape){
+ .hud{top:max(3px,env(safe-area-inset-top));left:max(4px,env(safe-area-inset-left));right:max(4px,env(safe-area-inset-right))}
+ .hud #exit,.hud #sound{min-height:44px;padding:9px 10px;font-size:12px}
+ .card.instruction-card{padding-top:clamp(44px,11vh,72px);max-height:100dvh}
+}
+@media(max-width:420px) and (orientation:portrait){.hud #exit{font-size:12px;min-width:95px}}
+</style></head><body><main class="shell"><section class="stage" id="stage"><div class="sentinel-wrap" id="sentinelWrap"><img class="sentinel" id="sentinelImg" src="sentinel_meerkat_upperbody.png?v=4cb7a0a9" alt="Sentinel meerkat"></div><div class="feedback" id="feedback"></div><button class="pill match" id="match">MATCH</button><div class="veil" id="veil"><div class="card" id="card"></div></div></section><div class="hud"><button class="pill" id="exit" type="button" aria-label="Exit Sentinel to return options">Exit Sentinel</button><div class="readout" id="readout">Sentinel<br>Level 1</div><button class="pill" id="sound">Sound On</button></div></main><aside class="rotate"><div><p>Rotate your phone to landscape to enter Sentinel.</p><a class="rotate-return" href="index.html">Return to Neural Orchard</a></div></aside><script src="pps-session.js?v=62124007"></script><script src="neural-orchard-progress.js?v=mvp11-1"></script><script src="neural-orchard-feedback.js?v=mvp11-1"></script><script>
 const BURROWS={
 1:{x:14.0,y:47.7,w:12.8,shown:29,hidden:72,clip:'polygon(0 0,100% 0,100% 96%,76% 98%,52% 100%,27% 98%,0 95%)'},
 2:{x:49.0,y:51.2,w:13.8,shown:29,hidden:72,clip:'polygon(0 0,100% 0,100% 95%,76% 98%,50% 100%,24% 97%,0 94%)'},
@@ -71,7 +92,7 @@ function instruction(){
  const data=SENTINEL_INSTRUCTIONS[span-1];
  card.classList.add('instruction-card');
  // Static founder-approved instructions; all interpolated values come from the fixed in-file array.
- card.innerHTML='<div class="eyebrow">Sentinel · Level '+span+'</div><h1>'+data.title+'</h1><div class="instruction-content"><p>'+data.watch+'</p><p><strong>Your task:</strong> '+data.task+'</p><p><strong>Ask yourself:</strong> '+data.ask+'</p><p class="instruction-example"><strong>Example:</strong> '+data.example+'</p><p>'+data.explain+'</p><p>'+data.otherwise+'</p><p class="instruction-shared"><strong>Only tap MATCH while the meerkat is visible. If there is no match, do nothing.</strong></p></div><button class="pill begin" id="begin">Begin</button><div class="eyebrow instruction-credit">Music: African Reggae Underscore — YeahMusic, via Pixabay</div>';
+ card.innerHTML='<div class="eyebrow">Sentinel · Level '+span+'</div><h1>'+data.title+'</h1><div class="instruction-content"><div class="burrow-guide" aria-label="Five burrows arranged in two rows"><p><strong>Find the five burrows:</strong> three across the upper row (left, middle, right), and two across the lower row (left, right). For the examples, count the upper row as burrows 1, 2, 3 and the lower row as burrows 4, 5.</p><div class="burrow-map" aria-hidden="true"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span></div><p>Watch which burrow the meerkat appears in each turn. The numbers below are a location guide; the game scenery is not numbered.</p></div><p>'+data.watch+'</p><p><strong>Your task:</strong> '+data.task+'</p><p><strong>Ask yourself:</strong> '+data.ask+'</p><p class="instruction-example"><strong>Example:</strong> '+data.example+'</p><p>'+data.explain+'</p><p>'+data.otherwise+'</p><p class="instruction-shared"><strong>Only tap MATCH while the meerkat is visible. If there is no match, do nothing.</strong></p></div><button class="pill begin" id="begin">Begin</button><div class="eyebrow instruction-credit">Music: African Reggae Underscore — YeahMusic, via Pixabay</div>';
  veil.style.display='flex';
  document.getElementById('begin').onclick=()=>{card.classList.remove('instruction-card');tone(392,.16);startAmbient();startWatch()};
  readout.innerHTML='Sentinel<br>Level '+span;
