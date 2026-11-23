@@ -1,0 +1,156 @@
+body.show-movement #portal-inner-practice {
+  display: none !important;
+}
+
+#physical-movement {
+  position: absolute;
+  inset: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  pointer-events: auto;
+  padding: 26px clamp(14px, 4vw, 48px) 28px;
+  background: rgba(25, 15, 35, .84);
+}
+
+#physical-movement .movement-header {
+  text-align: center;
+}
+
+#physical-movement h1 {
+  font-size: clamp(1.35rem, 4vw, 2rem);
+  margin: 0 0 8px;
+}
+
+#physical-movement p {
+  line-height: 1.55;
+}
+
+#physical-movement .movement-header p {
+  margin: 0 0 16px;
+}
+
+#physical-movement .movement-doors {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px clamp(16px, 5vw, 52px);
+  padding: 8px 3px 0;
+}
+
+#physical-movement .studio-btn {
+  min-height: 44px;
+  padding: 8px 10px;
+  background: #30213c;
+  font-size: 1rem;
+  line-height: 1.25;
+}
+
+#physical-movement .movement-doors .studio-btn {
+  max-width: none;
+  min-height: 72px;
+  margin: 0;
+}
+
+#physical-movement .movement-status {
+  display: block;
+  margin-top: 4px;
+  font-size: .8rem;
+}
+
+#physical-movement .movement-collection {
+  margin: 16px auto 0;
+  max-width: 48ch;
+}
+
+#physical-movement h2 {
+  font-size: 1.15rem;
+  margin: 16px 0 4px;
+}
+
+#physical-movement .movement-collection p {
+  margin: 0 0 10px;
+}
+
+#physical-movement a {
+  color: var(--champagne-gold);
+  text-underline-offset: .2em;
+}
+
+#physical-movement :focus-visible,
+#enter-movement:focus-visible {
+  outline: 2px solid var(--champagne-gold);
+  outline-offset: 2px;
+}
+
+@media (max-height: 650px) {
+  body:not(.show-studio-grid) #portal-inner-home:has(#enter-movement) {
+    overflow-y: auto;
+    justify-content: flex-start;
+    padding-top: max(42px, 7vh);
+    padding-bottom: 18px;
+  }
+}
+
+#physical-movement.movement-compact {
+  overflow: hidden;
+  padding: 0;
+}
+
+#physical-movement.movement-compact .movement-view {
+  position: absolute;
+  inset: 11% 0 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 4px clamp(24px, 8%, 58px) 24px;
+}
+
+#physical-movement.movement-compact .movement-collection {
+  text-align: center;
+}
+
+#physical-movement .movement-video-list {
+  display: grid;
+  gap: 8px;
+  list-style: none;
+  margin: 8px 0 0;
+  padding: 0 3px;
+}
+
+#physical-movement .movement-video-list .studio-btn {
+  max-width: none;
+  margin: 0;
+}
+
+#physical-movement .movement-choice-summary {
+  display: block;
+  margin-top: 3px;
+  font-size: .875rem;
+}
+
+#physical-movement .movement-watch {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  margin: 0 0 6px;
+}
+
+#physical-movement .movement-attribution {
+  font-size: .875rem;
+}
+
+#physical-movement .movement-why {
+  margin: 0 8px 4px;
+  text-align: left;
+}
+
+#physical-movement .movement-why summary {
+  width: fit-content;
+  padding: 12px 4px;
+  min-height: 44px;
+  cursor: pointer;
+}
+
+#physical-movement .movement-why a {
+  display: block;
+  margin-bottom: 8px;
+  overflow-wrap: anywhere;
+}
