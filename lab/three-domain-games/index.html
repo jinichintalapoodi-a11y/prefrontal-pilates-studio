@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PPS Lab · Three Cognitive Game Prototypes</title>
+<style>
+:root{font-family:system-ui,-apple-system,sans-serif;color:#f5ebd7;background:#121724}
+*{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(ellipse at 65% 0%,#344a46 0%,#1c2736 38%,#121724 78%);line-height:1.5}
+main{width:min(900px,94vw);margin:auto;padding:24px 0 60px}header{text-align:center;padding:10px 10px 24px}h1{font:italic 700 clamp(2rem,5vw,3rem) Georgia,serif;margin:8px}h2{font:italic 600 1.7rem Georgia,serif}p{max-width:70ch}.subtitle{color:#c8d6cb}.eyebrow{font-size:.78rem;letter-spacing:.13em;text-transform:uppercase;color:#bcdbd0}
+.tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:0 0 16px}
+button{font:inherit;border:1px solid #a4bba9;border-radius:12px;background:#263e43;color:#fff4df;min-height:46px;cursor:pointer;padding:9px 12px}
+button:hover{background:#35545a}button:focus-visible,input:focus-visible{outline:3px solid #eacc8b;outline-offset:3px}
+button[aria-selected=true]{background:#647c68;border:2px solid #f6dfa6;font-weight:700}
+button:disabled{cursor:not-allowed;opacity:.45}
+.panel{border:1px solid #94aa9d;border-radius:22px;background:rgba(15,25,37,.87);padding:clamp(16px,4vw,28px);box-shadow:0 12px 34px #0005;min-height:360px}
+.game{display:none}.game.active{display:block}.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}.stack{display:grid;gap:12px}
+.small{font-size:.9rem;color:#c0d0c4}.pill{display:inline-block;background:#344a46;color:#f6e9cf;padding:5px 12px;border-radius:30px}
+.rule{background:#324854;border-left:4px solid #eacc8b;border-radius:8px;padding:12px;margin:12px 0}
+.buttons{display:flex;flex-wrap:wrap;gap:9px}.buttons button{flex:1 1 130px}
+.notice{padding:10px 12px;border:1px solid #819b90;border-radius:10px;margin:12px 0;min-height:47px}
+input{width:min(100%,370px);min-height:46px;border:1px solid #adc2b6;background:#18252c;color:#fff;padding:10px 12px;border-radius:10px;font:inherit}
+.word{font-size:clamp(1.5rem,5vw,2.1rem);text-align:center;border:1px solid #a1b7a4;border-radius:16px;background:#2e4550;padding:18px}
+.recall-list{font-size:1.35rem;line-height:2;background:#27394b;border-radius:12px;padding:15px;text-align:center;letter-spacing:.02em}
+.results{font-size:.9rem;border-top:1px solid #6d8e82;margin-top:20px;padding-top:10px}
+.map{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;width:min(100%,330px);margin:16px auto;touch-action:manipulation}
+.cell{aspect-ratio:1;display:flex;align-items:center;justify-content:center;font-size:clamp(1.2rem,4vw,1.7rem);min-height:55px;border-radius:8px;background:#2e4850;border:1px solid #77978c;color:#fff4dc}
+.cell.wall{background:#17212b;border:1px dashed #60716d;color:#9da7a3}.cell.goal{background:#59683d}.cell.start{background:#465b88}.cell.visited{box-shadow:inset 0 0 0 3px #d6bf83}
+.controls{display:grid;grid-template-columns:repeat(3,65px);gap:7px;justify-content:center;margin:12px auto}.controls button{min-width:60px}
+footer{color:#acbcb5;font-size:.82rem;text-align:center;margin:28px 0}.hint{background:#2a3644;padding:11px;border-radius:10px}
+@media(max-width:500px){.tabs{grid-template-columns:1fr}.panel{padding:16px}header{padding:8px 5px 16px}.cell{min-height:48px}}
+</style></head><body><main>
+<header><div class="eyebrow">Prefrontal Pilates Studio · Private concept lab</div><h1>New Ways to Grow</h1><p class="subtitle">Three independent cognitive game prototypes — not part of the active pilot and not a clinical test.</p></header>
+<nav class="tabs" role="tablist" aria-label="Choose prototype">
+<button role="tab" id="tab-verbal" aria-controls="game-verbal" aria-selected="true" onclick="selectGame('verbal')">Word Weave<br><span class="small">Verbal executive</span></button>
+<button role="tab" id="tab-memory" aria-controls="game-memory" aria-selected="false" onclick="selectGame('memory')">Memory Garden<br><span class="small">Verbal memory</span></button>
+<button role="tab" id="tab-visual" aria-controls="game-visual" aria-selected="false" onclick="selectGame('visual')">Garden Paths<br><span class="small">Visual executive</span></button>
+</nav>
+<section class="panel">
+<div id="game-verbal" class="game active" role="tabpanel" aria-labelledby="tab-verbal"><div class="eyebrow">Prototype 1 · Cognitive flexibility and rule maintenance</div><h2>Word Weave</h2>
+<p>Sort a word using the current rule. The rule changes as you play: shift your attention without losing track of what the word means.</p>
+<div id="ve-state" class="stack"><button onclick="startVerbal()">Begin Word Weave</button></div></div>
+<div id="game-memory" class="game" role="tabpanel" aria-labelledby="tab-memory"><div class="eyebrow">Prototype 2 · Verbal learning and free recall</div><h2>Memory Garden</h2>
+<p>Study a short group of words. After a brief distractor task, type back the words you remember in any order. Spelling support is intentionally conservative.</p>
+<div id="me-state" class="stack"><button onclick="startMemory()">Begin Memory Garden</button></div></div>
+<div id="game-visual" class="game" role="tabpanel" aria-labelledby="tab-visual"><div class="eyebrow">Prototype 3 · Visuospatial planning and flexible problem solving</div><h2>Garden Paths</h2>
+<p>Plan your route from the blue start to the green garden gate. Walls block your path. Try to solve each garden in a few deliberate moves.</p>
+<div id="vi-state" class="stack"><button onclick="startVisual()">Begin Garden Paths</button></div></div>
+</section><footer>No account, analytics, network transmission or saved scores. Game feedback describes task performance only; it does not measure brain health.</footer>
+</main>
+<script>
+'use strict';
+const $=id=>document.getElementById(id);
+const escapeText=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function selectGame(id){for(const name of ['verbal','memory','visual']){const yes=name===id;$('game-'+name).classList.toggle('active',yes);$('tab-'+name).setAttribute('aria-selected',String(yes))} }
+function shuffle(a){const b=a.slice();for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]]}return b}
+const verbalItems=[
+{word:'Apple',kind:'Food',letter:'A'},{word:'Apricot',kind:'Food',letter:'A'},
+{word:'Antelope',kind:'Animal',letter:'A'},{word:'Albatross',kind:'Animal',letter:'A'},
+{word:'Banana',kind:'Food',letter:'B'},{word:'Blueberry',kind:'Food',letter:'B'},
+{word:'Badger',kind:'Animal',letter:'B'},{word:'Buffalo',kind:'Animal',letter:'B'}
+];
+let verbal={round:0,correct:0,items:[],previousRule:null,rule:null,prevAnswer:null,logs:[]};
+function verbalTarget(item,rule){return rule==='category'?item.kind:item.letter}
+function startVerbal(){verbal={round:0,correct:0,items:shuffle(verbalItems),previousRule:null,rule:null,prevAnswer:null,logs:[]};renderVerbal()}
+function renderVerbal(){const v=verbal;if(v.round>=8){$('ve-state').innerHTML='<div class="notice" role="status"><strong>Practice complete.</strong> '+v.correct+'/8 rule decisions correct. '+v.logs.filter(x=>x.switched).length+' rule changes completed. These scores reflect this practice only.</div><button onclick="startVerbal()">Play again with a new order</button>';return}
+ const rule=v.round%2===0?'category':'letter',item=v.items[v.round],switching=v.previousRule!==null&&v.previousRule!==rule;v.rule=rule;
+ const labels=rule==='category'?['Food','Animal']:['A','B'];
+ $('ve-state').innerHTML='<div class="row"><span class="pill">Round '+(v.round+1)+' of 8</span><span class="pill">'+(switching?'Rule changed':'New rule')+'</span></div><div class="rule"><strong>Current rule:</strong> '+(rule==='category'?'Sort by meaning: FOOD or ANIMAL':'Sort by first letter: A or B')+'</div><div class="word">'+escapeText(item.word)+'</div><div class="buttons">'+labels.map(x=>'<button onclick="answerVerbal(\''+x+'\')">'+x+'</button>').join('')+'</div><div class="small" role="status" aria-live="polite" id="ve-feedback"></div>';
+}
+function answerVerbal(answer){const v=verbal;if(v.round>=8)return;const item=v.items[v.round],rule=v.rule,correct=answer===verbalTarget(item,rule);v.logs.push({item:item.word,rule,correct,switched:v.previousRule!==null&&v.previousRule!==rule});if(correct)v.correct++;v.previousRule=rule;v.round++;renderVerbal();const feedback=$('ve-feedback');if(feedback)feedback.textContent=correct?'Correct.':'That one used '+(rule==='category'?'the meaning':'the first letter')+' rule.'}
+const memorySets=[
+['garden','river','candle','pillow','orange'],
+['window','forest','button','coffee','violin'],
+['basket','cloud','lantern','rabbit','paper'],
+['planet','mirror','lemon','bridge','flower']
+];
+let memory={words:[],stage:'idle',start:0,answered:[],distractorStep:0,correctDistractors:0};
+function startMemory(){memory={words:memorySets[Math.floor(Math.random()*memorySets.length)].slice(),stage:'study',start:Date.now(),answered:[],distractorStep:0,correctDistractors:0};renderMemory()}
+function renderMemory(){const m=memory;if(m.stage==='study'){$('me-state').innerHTML='<div class="row"><span class="pill">Study</span><span class="small">Read these five words. Take your time.</span></div><div class="recall-list">'+m.words.map(escapeText).join(' · ')+'</div><button onclick="beginDistractor()">I am ready</button>';return}
+ if(m.stage==='distractor'){const questions=[{q:'Which is larger: 8 or 5?',a:'8',options:['8','5']},{q:'Which is smaller: 3 or 7?',a:'3',options:['7','3']},{q:'Is 6 an even number?',a:'Yes',options:['Yes','No']}],x=questions[m.distractorStep];$('me-state').innerHTML='<span class="pill">Brief attention shift '+(m.distractorStep+1)+'/3</span><div class="rule">'+x.q+'</div><div class="buttons">'+x.options.map(o=>'<button onclick="answerDistractor(\''+o+'\')">'+o+'</button>').join('')+'</div>';return}
+ if(m.stage==='recall'){$('me-state').innerHTML='<div class="pill">Free recall · '+m.answered.length+'/5 entered</div><p>Type one word at a time, in any order. No hints are shown while recalling.</p><form id="recall-form" onsubmit="submitRecall(event)"><label for="recall-word">Word you remember</label><div class="row"><input id="recall-word" maxlength="30" autocomplete="off" spellcheck="false" required><button type="submit">Add word</button></div></form><p class="small">Entered: '+m.answered.map(escapeText).join(', ')+'</p><button onclick="finishMemory()">Finish recall</button><div class="small" role="status" aria-live="polite" id="me-feedback"></div>';return}
+ const expected=m.words.map(x=>x.toLowerCase()),hits=m.answered.filter(x=>expected.includes(x));const missed=expected.filter(x=>!m.answered.includes(x));
+ $('me-state').innerHTML='<div class="notice" role="status"><strong>Recall complete:</strong> '+hits.length+' of 5 studied words recalled. '+(missed.length?'Words not recalled: '+missed.map(escapeText).join(', ')+'.':'All five recalled.')+'</div><p class="small">This is immediate free recall following a short attention shift, not a measure of long-term memory.</p><button onclick="startMemory()">Study another list</button>';
+}
+function beginDistractor(){if(memory.stage!=='study')return;memory.stage='distractor';renderMemory()}
+function answerDistractor(a){if(memory.stage!=='distractor')return;const right=['8','3','Yes'][memory.distractorStep];if(a===right)memory.correctDistractors++;memory.distractorStep++;if(memory.distractorStep>=3)memory.stage='recall';renderMemory()}
+function submitRecall(e){e.preventDefault();if(memory.stage!=='recall')return;const word=$('recall-word').value.trim().toLowerCase().replace(/[^a-z]/g,'');if(!word)return;if(memory.answered.includes(word)){$('me-feedback').textContent='Already entered. Try a different word.';return}memory.answered.push(word);if(memory.answered.length>=5)memory.stage='complete';renderMemory();if(memory.stage==='recall')$('recall-word').focus()}
+function finishMemory(){if(memory.stage!=='recall')return;memory.stage='complete';renderMemory()}
+const maps=[
+{walls:[1,5,9],start:12,goal:3},
+{walls:[4,5,6],start:0,goal:15},
+{walls:[2,6,10],start:12,goal:3},
+{walls:[1,6,9],start:0,goal:15}
+];
+let visual={puzzle:0,pos:0,moveCount:0,visited:[],walls:[],goal:0,solved:0,history:[],done:false};
+function shortestPath(m){const queue=[[m.start,0]],seen=new Set([m.start]);while(queue.length){const [p,d]=queue.shift();if(p===m.goal)return d;for(const n of adjacent(p)){if(!m.walls.includes(n)&&!seen.has(n)){seen.add(n);queue.push([n,d+1])}}}return Infinity}
+function adjacent(p){return [p-4,p+4,p%4? p-1:-1,p%4<3?p+1:-1].filter(x=>x>=0&&x<16)}
+function startVisual(){visual={puzzle:0,pos:0,moveCount:0,visited:[],walls:[],goal:0,solved:0,history:[],done:false};setupVisual()}
+function setupVisual(){const m=maps[visual.puzzle];if(!m){$('vi-state').innerHTML='<div class="notice" role="status"><strong>Garden complete.</strong> '+visual.solved+' of '+maps.length+' routes reached. Each route is a planning exercise, not a cognitive health score.</div><button onclick="startVisual()">Explore again</button>';return}visual.pos=m.start;visual.goal=m.goal;visual.walls=m.walls.slice();visual.visited=[m.start];visual.moveCount=0;visual.history=[];visual.done=false;renderVisual()}
+function renderVisual(message=''){const v=visual;if(v.done){const shortest=shortestPath(maps[v.puzzle]);$('vi-state').innerHTML='<div class="notice" role="status"><strong>Garden gate reached.</strong> You used '+v.moveCount+' moves. The shortest possible route is '+shortest+' moves.</div><button onclick="nextVisual()">Next garden</button>';return}
+ const cells=Array.from({length:16},(_,i)=>{const wall=v.walls.includes(i),label=wall?'Blocked':i===v.goal?'Gate':i===v.pos?'You are here':'Open';return '<div class="cell '+(wall?'wall':i===v.goal?'goal':i===v.pos?'start':'')+(v.visited.includes(i)?' visited':'')+'" aria-label="'+label+'" title="'+label+'">'+(wall?'×':i===v.pos?'●':i===v.goal?'✦':'·')+'</div>'}).join('');
+ $('vi-state').innerHTML='<div class="row"><span class="pill">Garden '+(v.puzzle+1)+' of '+maps.length+'</span><span class="pill">Moves: '+v.moveCount+'</span></div><div class="hint">Plan before moving. Use the arrow buttons or keyboard arrows. Dark squares are blocked.</div><div class="map" role="img" aria-label="Four by four garden map with blocked squares, your current position and a goal">'+cells+'</div><div class="controls"><span></span><button onclick="moveVisual(\'up\')" aria-label="Move up">↑</button><span></span><button onclick="moveVisual(\'left\')" aria-label="Move left">←</button><button onclick="undoVisual()" aria-label="Undo last move">Undo</button><button onclick="moveVisual(\'right\')" aria-label="Move right">→</button><span></span><button onclick="moveVisual(\'down\')" aria-label="Move down">↓</button><span></span></div><div class="small" aria-live="polite" role="status">'+escapeText(message)+'</div>';
+}
+function moveVisual(direction){const v=visual;if(v.done)return;const delta={up:-4,down:4,left:-1,right:1}[direction],next=v.pos+delta;if(delta===undefined||next<0||next>=16||(direction==='left'&&v.pos%4===0)||(direction==='right'&&v.pos%4===3)){renderVisual('That move goes beyond the garden.');return}if(v.walls.includes(next)){renderVisual('That path is blocked.');return}v.history.push(v.pos);v.pos=next;v.moveCount++;v.visited.push(next);if(next===v.goal){v.done=true;v.solved++}renderVisual()}
+function undoVisual(){const v=visual;if(v.done||!v.history.length)return;v.pos=v.history.pop();v.moveCount++;renderVisual('Move undone; the extra move counts toward your route length.')}
+function nextVisual(){if(!visual.done)return;visual.puzzle++;setupVisual()}
+document.addEventListener('keydown',e=>{if(!$('game-visual').classList.contains('active')||['INPUT','TEXTAREA','BUTTON'].includes(document.activeElement?.tagName))return;const key={ArrowUp:'up',ArrowDown:'down',ArrowLeft:'left',ArrowRight:'right'}[e.key];if(key){e.preventDefault();moveVisual(key)}});
+</script></body></html>
