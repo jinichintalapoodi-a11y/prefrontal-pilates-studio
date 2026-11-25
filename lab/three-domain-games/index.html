@@ -85,10 +85,10 @@ function answerDistractor(a){if(memory.stage!=='distractor')return;const right=[
 function submitRecall(e){e.preventDefault();if(memory.stage!=='recall')return;const word=$('recall-word').value.trim().toLowerCase().replace(/[^a-z]/g,'');if(!word)return;if(memory.answered.includes(word)){$('me-feedback').textContent='Already entered. Try a different word.';return}memory.answered.push(word);if(memory.answered.length>=5)memory.stage='complete';renderMemory();if(memory.stage==='recall')$('recall-word').focus()}
 function finishMemory(){if(memory.stage!=='recall')return;memory.stage='complete';renderMemory()}
 const maps=[
-{walls:[1,5,9,13],start:12,goal:3},
-{walls:[4,5,6,11],start:0,goal:15},
-{walls:[2,6,7,10],start:12,goal:3},
-{walls:[1,6,9,14],start:0,goal:15}
+{walls:[1,5,9],start:12,goal:3},
+{walls:[4,5,6],start:0,goal:15},
+{walls:[2,6,10],start:12,goal:3},
+{walls:[1,6,9],start:0,goal:15}
 ];
 let visual={puzzle:0,pos:0,moveCount:0,visited:[],walls:[],goal:0,solved:0,history:[],done:false};
 function shortestPath(m){const queue=[[m.start,0]],seen=new Set([m.start]);while(queue.length){const [p,d]=queue.shift();if(p===m.goal)return d;for(const n of adjacent(p)){if(!m.walls.includes(n)&&!seen.has(n)){seen.add(n);queue.push([n,d+1])}}}return Infinity}
